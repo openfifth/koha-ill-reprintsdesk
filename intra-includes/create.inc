@@ -2,6 +2,8 @@
 [% USE Asset %]
 [% USE raw %]
 
+[% SET koha_version = Koha.Version %]
+
 [% cwd = whole.cwd %]
 
 [% IF whole.error %]
@@ -49,7 +51,7 @@
       [% key = field.key %]
       [% IF !field.exclude %]
       <li id="reprints_desk_field_[% key %]">
-        <label class="reprints_desk_label" id="[% key %]_label" for="[% key %]"></label>
+        <label class="reprints_desk_label" id="[% key %]_label" for="[% key %]">[% field.label | html %]</label>
         <input type="text" name="[% key %]" id="[% key %]" value="[% whole.value.other.$key %]" />
         [% IF field.help %]
         ([% field.help %])
@@ -82,7 +84,9 @@
     </ol>
   </fieldset>
   <fieldset class="action">
-    <p id="reprints_desk_warning" role="alert" class="alert alert-danger" style="visibility:hidden;"></p>
+    <p id="reprints_desk_warning" role="alert" class="alert alert-danger">
+      "Card number, username or surname" must be completed
+    </p>
     <input id="reprints_desk_submit" disabled type="submit" value="Make request"/>
     <a class="cancel" href="/cgi-bin/koha/ill/ill-requests.pl">Cancel</a>
   </fieldset>
@@ -117,19 +121,23 @@
 <script>
   // Require a username and branch selection
   document.addEventListener('DOMContentLoaded', function(){
-      // Fields that are not in groups, but cannot be empty
-      var notEmpty = [ 'cardnumber' ];
+      $('#reprints_desk_submit').click(function() {
+          $('#create_form').submit();
+          $(this).prop('disabled', true);
+      });
 
-      var listenerSelectors = '';
+      $('#create_form #cardnumber').keyup(function() {
+          if (this.value.length === 0) {
+              $('#reprints_desk_submit').prop('disabled', true);
+              $('#reprints_desk_warning').css('visibility', 'visible');
+          } else {
+              $('#reprints_desk_submit').prop('disabled', false);
+              $('#reprints_desk_warning').css('visibility', 'hidden');
+          }
+      });    
 
-      var fieldmap = [% whole.field_map_json %];
-      addLabels();
-      validateFields();
-      addHandlers();
-
-      [% INCLUDE "${cwd}/shared-includes/create.js" %]
-
-      // Add autocomplete for patron selection
+      /* Maintain patron autocomplete compatibility across versions */
+      [% IF koha_version.major <= 22 && koha_version.minor < 11 %]
       $('#create_form #cardnumber').autocomplete({
           source: "/cgi-bin/koha/circ/ysearch.pl",
           minLength: 3,
@@ -145,6 +153,18 @@
           .append( "<a>" + item.surname + ", " + item.firstname + " (" + item.cardnumber + ") <small>" + item.address + " " + item.city + " " + item.zipcode + " " + item.country + "</small></a>" )
           .appendTo( ul );
       };
+      [% ELSE %]
+      patron_autocomplete(
+        $('#create_form #cardnumber'),
+        {
+          'on-select-callback': function( event, ui ) {
+            console.log(event);
+            $("#create_form #cardnumber").val( ui.item.patron_id );
+            return false;
+          }
+        }
+      );
+      [% END %]
   });
   //]]>
 </script>

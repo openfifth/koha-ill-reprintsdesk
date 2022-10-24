@@ -36,7 +36,15 @@ sub new {
     my $api = Koha::Illbackends::ReprintsDesk::Lib::API->new($VERSION);
 
     my $self = {
-        _api    => $api
+        _api    => $api,
+        templates => {
+            'REPRINTS_DESK_MIGRATE_IN' =>
+              dirname(__FILE__) . '/intra-includes/log/reprints_desk_migrate_in.tt',
+            'REPRINTS_DESK_REQUEST_SUCCEEDED' =>
+              dirname(__FILE__) . '/intra-includes/log/reprints_desk_request_succeeded.tt',
+            'REPRINTS_DESK_REQUEST_FAILED' =>
+              dirname(__FILE__) . '/intra-includes/log/reprints_desk_request_failed.tt'
+        }
     };
 
     $self->{_logger} = $params->{logger} if ( $params->{logger} ); 
@@ -115,7 +123,7 @@ sub create {
         if ($other->{openurl}) {
             # We only want to transform once
             delete $other->{openurl};
-            $params = _openurl_to_ill($params);
+            $params = _openurl_to_reprints_desk($params);
         }
 
         # Pass the map of form fields in forms that can be used by TT
@@ -370,83 +378,66 @@ sub migrate {
 
     my $fields = $self->fieldmap;
 
-    # Recieve a new request from another backend and suppliment it with
-    # anything we require specifically for this backend.
-    if ( !$stage || $stage eq 'immigrate' ) {
-        my $original_request =
-          Koha::Illrequests->find( $other->{illrequest_id} );
-        my $new_request = $params->{request};
-        $new_request->borrowernumber( $original_request->borrowernumber );
-        $new_request->branchcode( $original_request->branchcode );
-        $new_request->status('NEW');
-        $new_request->backend( $self->name );
-        $new_request->placed( DateTime->now );
-        $new_request->updated( DateTime->now );
-        $new_request->store;
+    my $request = Koha::Illrequests->find( $other->{illrequest_id} );
 
-        # Map from Koha's core fields to our metadata fields
-        my $original_id = $original_request->illrequest_id;
-        my @original_attributes = $original_request->illrequestattributes->search(
-            { illrequest_id => $original_id }
-        );
-        my @attributes = keys %{$fields};
+    # Record where we're migrating from, so we can log that
+    my $migrating_from = $request->backend;
 
-        # Look for an equivalent Reprints Desk attribute 
-        # for every bit of metadata we receive and, if it exists, map it to the
-        # new property
-        my $new_attributes = {};
-        foreach my $old(@original_attributes) {
-            my $reprints_desk = $self->find_reprints_desk_property($old->type);
-            if ($reprints_desk) {
-                $new_attributes->{$reprints_desk} = $old->value;
-            }
-        }
-        $new_attributes->{migrated_from} = $original_request->illrequest_id;
-        while ( my ( $type, $value ) = each %{$new_attributes} ) {
+    # Cancel the original if appropriate
+    if ( $request->status eq 'REQ') {
+        $request->_backend_capability( 'cancel', { request => $request } );
+        # The orderid is no longer applicable
+        $request->orderid(undef);
+    }
+    $request->status('MIG');
+    $request->backend( $self->name );
+    $request->updated( DateTime->now );
+    $request->store;
+
+    # Translate the core metadata into our schema
+    my $all_attrs = $request->illrequestattributes->unblessed;
+    # For each attribute, if the property name is a core one we change it to the Reprints Desk
+    # equivalent, otherwise we can skip it as it already exists in the attributes list
+    foreach my $attr(@{$all_attrs}) {
+        my $rd_field_name = $self->find_reprints_desk_property($attr->{type});
+        # If we've found a Reprints Desk field name and an attribute doesn't already exist
+        # with this name, create a new one
+        if ($rd_field_name && !$self->find_illrequestattribute($all_attrs, $rd_field_name)) {
             Koha::Illrequestattribute->new(
                 {
-                    illrequest_id => $new_request->illrequest_id,
-                    type          => $type,
-                    value         => $value,
-                    readonly      => 0
+                    illrequest_id => $request->illrequest_id,
+                    type          => $rd_field_name,
+                    value         => $attr->{value},
                 }
             )->store;
         }
-
-        return {
-            error   => 0,
-            status  => '',
-            message => '',
-            method  => 'migrate',
-            stage   => 'commit',
-            next    => 'emigrate',
-            value   => $params,
-            field_map => $self->fieldmap_sorted,
-            field_map_json => to_json($self->fieldmap)
-        };
-    
-    } elsif ($stage eq 'emigrate') {
-        # We need to update our local submission
-        # Get the request we've migrated from
-        my $new_request = $params->{request};
-        my $from_id = $new_request->illrequestattributes->find(
-            { type => 'migrated_from' } )->value;
-        my $request = Koha::Illrequests->find($from_id);        
-
-        $self->cancel({ request => $request });        
-
-        return {
-            error   => 0,
-            status  => '',
-            message => '',
-            method  => 'migrate',
-            stage   => 'commit',
-            next    => 'illview',
-            value   => $params,
-            field_map => $self->fieldmap_sorted,
-            field_map_json => to_json($self->fieldmap)
-        };
     }
+
+    # Log that the migration took place
+    if ( $self->_logger ) {
+        my $payload = {
+            modulename   => 'ILL',
+            actionname   => 'REPRINTS_DESK_MIGRATE_IN',
+            objectnumber => $request->id,
+            infos        => to_json({
+                log_origin    => $self->name,
+                migrated_from => $migrating_from,
+                migrated_to   => $self->name
+            })
+        };
+        $self->_logger->log_something($payload);
+    }
+
+    return {
+        error   => 0,
+        status  => '',
+        message => '',
+        method  => 'migrate',
+        stage   => 'commit',
+        next    => 'illview',
+        value   => $params,
+    };
+
 }
 
 =head3 _validate_metadata
@@ -458,14 +449,7 @@ API specification
 
 sub _validate_metadata {
     my ($self, $metadata) = @_;
-
-    my $valid = 0;
-    if ($metadata->{countrycode} eq 'US') {
-        $valid = $metadata->{statecode} && length $metadata->{statecode} > 0;
-    } else {
-        $valid = $metadata->{statename} && length $metadata->{statename} > 0;
-    }
-    return $valid;
+    return 1;
 }
 
 =head3 create_submission
@@ -483,6 +467,7 @@ sub create_submission {
     $request->borrowernumber($patron->borrowernumber);
     $request->branchcode($params->{other}->{branchcode});
     $request->status('NEW');
+    $request->batch_id($params->{other}->{batch_id});
     $request->backend($self->name);
     $request->placed(DateTime->now);
     $request->updated(DateTime->now);
@@ -634,7 +619,8 @@ sub create_request {
     # If the call to Reprints Desk was successful,
     # add the Reprints Desk request ID to our submission's metadata
     my $body = from_json($response->decoded_content);
-    if ($response->is_success && $body->{result}->{IsSuccessful}) {
+
+    if (scalar @{$body->{errors}} == 0 && $body->{result}->{Order_PlaceOrder2Result} == 1) {
         my $request_id = $body->{result}->{orderID};
         if ($request_id && length $request_id > 0) {
             Koha::Illrequestattribute->new({
@@ -650,7 +636,7 @@ sub create_request {
 
         # Log the outcome
         $self->log_request_outcome({
-            outcome => 'REPRINTSDESK_REQUEST_SUCCEEDED',
+            outcome => 'REPRINTS_DESK_REQUEST_SUCCEEDED',
             request => $submission
         });
 
@@ -658,19 +644,20 @@ sub create_request {
     }
     # The call to Reprints Desk failed for some reason. Add the message we got back from the API
     # to the submission's Staff Notes
-    $submission->append_to_note("Reprints Desk request failed:\n" . $body->{result}->{VerificationNote});
+    my $errors = join '.', map { $_->{message} } @{$body->{errors}};
+    $submission->append_to_note("Reprints Desk request failed:\n$errors");
 
     # Log the outcome
     $self->log_request_outcome({
-        outcome => 'REPRINTSDESK_REQUEST_FAILED',
+        outcome => 'REPRINTS_DESK_REQUEST_FAILED',
         request => $submission,
-        message => $body->{result}->{VerificationNote}
+        message => $errors
     });
 
     # Return the message
     return {
         success => 0,
-        message => $body->{result}->{VerificationNote}
+        message => $errors
     };
 
 }
@@ -859,7 +846,6 @@ capability is not implemented.
 
 sub capabilities {
     my ( $self, $name ) = @_;
-    my ($query) = @_;
     my $capabilities = {
         # View and manage a request
         illview => sub { illview(@_); },
@@ -867,7 +853,10 @@ sub capabilities {
         migrate => sub { $self->migrate(@_); },
         # Return whether we are ready to display availability
         should_display_availability => sub { _can_create_request(@_) },
-        get_supplier_update => sub { $self->get_supplier_update(@_) }
+        get_supplier_update => sub { $self->get_supplier_update(@_) },
+        provides_batch_requests => sub { return 1; },
+        # We can create ILL requests with data passed from the API
+        create_api => sub { $self->create_api(@_) }
     };
     return $capabilities->{$name};
 }
@@ -879,8 +868,8 @@ Given the parameters we've been passed, should we create the request
 =cut
 
 sub _can_create_request {
-     my ($params) = @_;
-     return ( defined $params->{'stage'} ) ? 1 : 0;
+    my ($params) = @_;
+    return ( defined $params->{'stage'} ) ? 1 : 0;
 }
 
 
@@ -889,10 +878,11 @@ sub _can_create_request {
 
 =cut
 
+
 sub status_graph {
     return {
         EDITITEM => {
-            prev_actions   => [ 'NEW' ],
+            prev_actions   => ['NEW'],
             id             => 'EDITITEM',
             name           => 'Edited item metadata',
             ui_method_name => 'Edit item metadata',
@@ -900,6 +890,7 @@ sub status_graph {
             next_actions   => [],
             ui_method_icon => 'fa-edit',
         },
+
         # Override REQ so we can rename the button
         # Talk about a sledgehammer to crack a nut
         REQ => {
@@ -912,17 +903,17 @@ sub status_graph {
             ui_method_icon => 'fa-check',
         },
         MIG => {
-            prev_actions =>
-              [ 'NEW', 'REQ', 'GENREQ', 'REQREV', 'QUEUED', 'CANCREQ', ],
+            prev_actions =>[ 'NEW', 'REQ', 'GENREQ', 'REQREV', 'QUEUED', 'CANCREQ', ],
             id             => 'MIG',
             name           => 'Switched provider',
             ui_method_name => 'Switch provider',
             method         => 'migrate',
-            next_actions   => [],
+            next_actions   => ['REQ', 'GENREQ', 'KILL', 'MIG'],
             ui_method_icon => 'fa-search',
-        },        
+        },
     };
 }
+
 
 sub name {
     return "ReprintsDesk";
@@ -932,6 +923,7 @@ sub name {
 
 =cut
 
+
 sub _fail {
     my @values = @_;
     foreach my $val (@values) {
@@ -940,12 +932,27 @@ sub _fail {
     return 0;
 }
 
+=head3 find_illrequestattribute
+
+=cut
+
+
+sub find_illrequestattribute {
+    my ($self, $attributes, $prop) = @_;
+    foreach my $attr(@{$attributes}) {
+        if ($attr->{type} eq $prop) {
+            return 1;
+        }
+    }
+}
+
 =head3 find_reprints_desk_property
 
 Given a core property name, find the equivalent Reprints Desk
 name. Or undef if there is not one
 
 =cut
+
 
 sub find_reprints_desk_property {
     my ($self, $core) = @_;
@@ -957,15 +964,16 @@ sub find_reprints_desk_property {
     }
 }
 
-=head3 _openurl_to_ill
+=head3 _openurl_to_reprints_desk
 
 Take a hashref of OpenURL parameters and return
-those same parameters but transformed to the ILL
+those same parameters but transformed to the Reprints Desk
 schema
 
 =cut
 
-sub _openurl_to_ill {
+
+sub _openurl_to_reprints_desk {
     my ($params) = @_;
 
     my $transform_metadata = {
@@ -979,27 +987,89 @@ sub _openurl_to_ill {
         issn    => 'issn',
         eissn   => 'eissn',
         doi     => 'doi',
-        pmid    => 'pmid',
+        pmid    => 'pubmedid',
         title   => 'title',
         pages   => 'pages'
     };
 
     my $return = {};
+
     # First make sure our keys are correct
     foreach my $meta_key(keys %{$params->{other}}) {
+
         # If we are transforming this property...
         if (exists $transform_metadata->{$meta_key}) {
+
             # ...do it if we have valid mapping
             if (length $transform_metadata->{$meta_key} > 0) {
                 $return->{$transform_metadata->{$meta_key}} = $params->{other}->{$meta_key};
             }
         } else {
+
             # Otherwise, pass it through untransformed
             $return->{$meta_key} = $params->{other}->{$meta_key};
         }
     }
     $params->{other} = $return;
     return $params;
+}
+
+=head3 create_api
+
+Create a local submission from data supplied via an
+API call
+
+=cut
+
+
+sub create_api {
+    my ($self, $body, $request) = @_;
+
+    # We are receiving metadata in core schema, we need to
+    # translate to Reprints Desk schema before we can proceed
+    # We merge the supplied core metadata with the Reprints Desk
+    # equivalents
+    foreach my $prop(keys %{$body->{metadata}}) {
+        my $rd_prop = find_core_to_reprints_desk($prop);
+        if ($rd_prop) {
+            $body->{$rd_prop} = $body->{metadata}->{$prop};
+        }
+    }
+
+    # Create a submission from our metadata
+    # Mung things into the form create_submission expects
+    my $metadata = $body->{metadata};
+    delete $body->{metadata};
+    my $to_pass = {%{$body},%{$metadata}};
+
+    my $submission = $self->create_submission(
+        {
+            request => $request,
+            other => $body
+        }
+    );
+
+    return $submission;
+}
+
+=head3 find_core_to_reprints_desk
+
+Given a core metadata property, find the element
+in fieldmap that has that as the "ill" property
+
+=cut
+
+
+sub find_core_to_reprints_desk {
+    my ($prop) = @_;
+
+    my $fieldmap = fieldmap();
+
+    foreach my $field(keys %{$fieldmap}) {
+        if ($fieldmap->{$field}->{ill} && $fieldmap->{$field}->{ill} eq $prop) {
+            return $field;
+        }
+    }
 }
 
 =head3 fieldmap_sorted
@@ -1010,6 +1080,7 @@ property of the returned hash
 
 =cut
 
+
 sub fieldmap_sorted {
     my ($self) = @_;
 
@@ -1017,9 +1088,7 @@ sub fieldmap_sorted {
 
     my @out = ();
 
-    foreach my $key (sort {
-        $fields->{$a}->{position} <=> $fields->{$b}->{position}
-    } keys %{$fields}) {
+    foreach my $key (sort {$fields->{$a}->{position} <=> $fields->{$b}->{position}} keys %{$fields}) {
         my $el = $fields->{$key};
         $el->{key} = $key;
         push @out, $el;
@@ -1043,6 +1112,7 @@ Key = API metadata element name
 
 =cut
 
+
 sub fieldmap {
     return {
         title => {
@@ -1065,7 +1135,6 @@ sub fieldmap {
             join      => "aulast"
         },
         aulast => {
-            no_submit => 1,
             type      => "string",
             label     => "Author's last name",
             position  => 3
@@ -1084,7 +1153,7 @@ sub fieldmap {
         },
         date => {
             type      => "string",
-            ill       => "item_date",
+            ill       => "year",
             position  => 7,
             label     => "Item publication date"
         },
@@ -1112,10 +1181,10 @@ sub fieldmap {
             ill       => "doi",
             position  => 10
         },
-        pmid => {
+        pubmedid => {
             type      => "string",
             label     => "PubMed ID",
-            ill       => "pmid",
+            ill       => "pubmedid",
             position  => 11
         },
         isbn => {
@@ -1135,41 +1204,14 @@ sub fieldmap {
             label     => "EISSN",
             ill       => "eissn",
             position  => 14
-        },
-        countrycode => {
-            type      => "string",
-            label     => "Country code of requester",
-            ill       => "countrycode",
-            position  => 15
-        },
-        statecode => {
-            type      => "string",
-            label     => "Two letter state code of requester",
-            ill       => "statecode",
-            position  => 16
-        },
-        statename => {
-            type      => "string",
-            label     => "State name of requester",
-            ill       => "statename",
-            position  => 17
-        },
-        ordertypeid => {
-            hide      => 1,
-            type      => "string",
-            position  => 98 
-        },
-        deliverymethodid => {
-            hide      => 1,
-            type      => "string",
-            position  => 99 
-        },
+        }
     };
 }
 
 =head3 _validate_borrower
 
 =cut
+
 
 sub _validate_borrower {
 
@@ -1195,12 +1237,25 @@ sub _validate_borrower {
     }
     if ( $count == 1 ) {
         $brw = $brws->next;
-    }
-    else {
+    }else {
         $brw = $brws;    # found multiple results
     }
     return ( $count, $brw );
 }
 
+=head3 _logger
+
+    my $logger = $backend->_logger($logger);
+    my $logger = $backend->_logger;
+    Getter/Setter for our Logger object.
+
+=cut
+
+
+sub _logger {
+    my ( $self, $logger ) = @_;
+    $self->{logger} = $logger if ($logger);
+    return $self->{logger};
+}
 
 1;

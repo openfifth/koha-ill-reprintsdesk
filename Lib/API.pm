@@ -35,6 +35,7 @@ ReprintsDesk - Client interface to ReprintsDesk API plugin (koha-plugin-reprints
 
 =cut
 
+
 sub new {
     my ($class) = @_;
 
@@ -76,39 +77,34 @@ sub Order_PlaceOrder2 {
 
     my $borrower = Koha::Patrons->find( $borrowernumber );
 
-    my @name = grep { defined } ($borrower->firstname, $borrower->surname);
+    my @address1_arr = grep { defined && length $_ > 0 } ($borrower->streetnumber, $borrower->address, $borrower->address2);
+    my $address1_str = join ", ", @address1_arr;
 
-    # Request including passed metadata and credentials
+    # Request including passed metadata
     my $body = {
-        borrowerId => $borrowernumber,
-        metadata => {
-            order => {
-                orderdetail => $metadata,
-                user => {
-                    username  => $borrower->cardnumber,
-                    email     => $borrower->email,
-                    firstname => $borrower->firstname,
-                    lastname  => $borrower->surname
-                },
-                deliveryprofile => {
-                    firstname   => $borrower->firstname,
-                    lastname    => $borrower->surname,
-                    address1    => $borrower->streetnumber,
-                    address2    => $borrower->address . ", " . $borrower->address2,
-                    city        => $borrower->city,
-                    statecode   => $metadata->{statecode},
-                    statename   => $metadata->{statename},
-                    zip         => $metadata->{zipcode},
-                    countrycode => $metadata->{countrycode},
-                    phone       => $borrower->{phone},
-                    fax         => $borrower->{fax},
-                    email       => $borrower->{email}
-                }
-            }
+        orderdetail => $metadata,
+        user => {
+            username  => $borrower->email || "",
+            email     => $borrower->email || "",
+            firstname => $borrower->firstname || "",
+            lastname  => $borrower->surname || ""
+        },
+        deliveryprofile => {
+            firstname   => $borrower->firstname || "",
+            lastname    => $borrower->surname || "",
+            address1    => $address1_str,
+            city        => $borrower->city || "",
+            statecode   => $metadata->{statecode} || "",
+            statename   => $metadata->{statename} || "",
+            zip         => $metadata->{zipcode} || "",
+            countrycode => $metadata->{countrycode} || "",
+            phone       => $borrower->phone || "",
+            fax         => $borrower->fax || "",
+            email       => $borrower->email || ""
         }
     };
 
-    my $request = HTTP::Request->new( 'POST', $self->{baseurl} . "/Order_PlaceOrder2" );
+    my $request = HTTP::Request->new( 'POST', $self->{baseurl} . "/placeorder2" );
 
     $request->header( "Content-type" => "application/json" );
     $request->content( encode_json($body) );

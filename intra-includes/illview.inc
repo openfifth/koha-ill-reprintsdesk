@@ -20,6 +20,11 @@
 </style>
 <script>
     document.addEventListener('DOMContentLoaded', function(){
+
+        // The Reprints Desk API doesn't have any provision for request cancellation
+        // so we need to hide the cancel button
+        $('#ill-toolbar-btn-reqrev').hide();
+
         var field_map = [% whole.field_map_json %];
 
         var reprintsDeskIdContainer = $(".requestmeta-ReprintsDesk_identifier");

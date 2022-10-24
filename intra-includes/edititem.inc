@@ -13,7 +13,7 @@
       [% key = field.key %]
       [% IF !field.exclude %]
       <li id="reprints_desk_field_[% key %]">
-        <label id="[% key %]_label" for="[% key %]"></label>
+        <label class="reprints_desk_label" id="[% key %]_label" for="[% key %]">[% field.label | html %]</label>
         <input type="text" name="[% key %]" id="[% key %]" value="[% whole.value.other.$key %]" />
         [% IF field.help %]
         ([% field.help %])
@@ -28,26 +28,3 @@
     <a class="cancel" href="/cgi-bin/koha/ill/ill-requests.pl">Cancel</a>
   </fieldset>
 </form>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function(){
-        var listenerSelectors = '';
-
-        var fieldmap = [% whole.field_map_json %];
-        addLabels();
-
-        // Handle the "type" being changed
-        $('#type').change(function() {
-          if ($('#change_type').length > 0) {
-            return;
-          }
-          $('#edit_form').prepend(
-            '<input id="change_type" type="hidden" name="change_type" value="1" />'
-          );
-          $('#edit_form').submit();
-        });
-
-        [% INCLUDE "${cwd}/shared-includes/create.js" %]
-    });
-    //]]>
-</script>
