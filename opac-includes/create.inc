@@ -21,6 +21,7 @@
     <p><em>Unhandled error</em></p>
   [% END %]
 [% END %]
+    <p id="reprints_desk_warning"><em>Please Note</em>: Either DOI or PubMed ID must be completed.</p>
 
 <div role="alert" class="alert alert-warning" id="request-notpossible" style="display: none">
   Item cannot be requested
@@ -93,11 +94,9 @@
 
     var fieldmap = [% whole.field_map_json %];
 
-    [% INCLUDE "${cwd}/shared-includes/create.js" %]
+    [% INCLUDE "${cwd}/opac-includes/create.js" %]
 
     addLabels();
-    validateFields();
-    addHandlers();
   });
 </script>
 [% END %]
