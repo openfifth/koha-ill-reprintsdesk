@@ -106,23 +106,18 @@ sub Order_PlaceOrder2 {
     return $self->{ua}->request( $request );
 }
 
-=head3 Order_GetOrderInfo
+=head3 User_GetOrderHistory
 
-Make a call to the Order_GetOrderInfo API
+Make a call to the /User_GetOrderHistory API
 
 =cut
 
-sub Order_GetOrderInfo {
-    my ($self, $request_id) = @_;
+sub User_GetOrderHistory {
+    my ($self) = @_;
 
-    my $body = encode_json({
-        orderid => $request_id
-    });
-
-    my $request = HTTP::Request->new( 'POST', $self->{baseurl} . "/Order_GetOrderInfo" );
+    my $request = HTTP::Request->new( 'POST', $self->{baseurl} . "/getorderhistory" );
 
     $request->header( "Content-type" => "application/json" );
-    $request->content( $body );
 
     return $self->{ua}->request( $request );
 }
