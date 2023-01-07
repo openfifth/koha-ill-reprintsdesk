@@ -1256,6 +1256,28 @@ sub fieldmap {
             ill       => "eissn",
             api_max_length => 50,
             position  => 14
+        },
+        orderdateutc => {
+            type      => "string",
+            label     => "Order date UTC",
+            exclude   => 1,
+            no_submit => 1,
+            position  => 99
+        },
+        statusdateutc => {
+            type      => "string",
+            label     => "Status date UTC",
+            exclude   => 1,
+            no_submit => 1,
+            position  => 99
+        },
+        author => {
+            type      => "string",
+            label     => "Author",
+            ill       => "author",
+            exclude   => 1,
+            no_submit => 1,
+            position  => 99
         }
     };
 }
