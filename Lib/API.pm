@@ -83,12 +83,6 @@ sub Order_PlaceOrder2 {
     # Request including passed metadata
     my $body = {
         orderdetail => $metadata,
-        user => {
-            username  => $borrower->email || "",
-            email     => $borrower->email || "",
-            firstname => $borrower->firstname || "",
-            lastname  => $borrower->surname || ""
-        },
         deliveryprofile => {
             firstname   => $borrower->firstname || "",
             lastname    => $borrower->surname || "",
