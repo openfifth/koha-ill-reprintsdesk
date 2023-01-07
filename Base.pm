@@ -809,12 +809,8 @@ sub metadata {
         }
     }
 
-    # OPAC list view uses completely different property names for author
-    # and title. Cater for that.
-    my $title_key = $fields->{atitle}->{label};
-    # We might need to join this field with something else
-    $metadata->{Author} = $self->do_join('aufirst', $metadata_keyed_on_prop);
-    $metadata->{Title} = $metadata->{$title_key} if $metadata->{$title_key};
+    my $rd_title_key = 'Journal title';
+    $metadata->{Title} = $metadata->{$rd_title_key} if $metadata->{$rd_title_key};
 
     return $metadata;
 }
