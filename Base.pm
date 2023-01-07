@@ -598,7 +598,11 @@ sub prep_submission_metadata {
             length $metadata_hashref->{$field} > 0
         ) {
             $metadata_hashref->{$field}=~s/  / /g;
-            $return->{$field} = $metadata_hashref->{$field};
+            if ( $fields->{$field}->{api_max_length} ) {
+                $return->{$field} = substr( $metadata_hashref->{$field}, 0, $fields->{$field}->{api_max_length} )
+            } else {
+                $return->{$field} = $metadata_hashref->{$field};
+            }
         }
     }
 
@@ -1191,6 +1195,7 @@ All fields expected by the API
 Key = API metadata element name
   hide = Make the field hidden in the form
   no_submit = Do not pass to Reprints Desk API
+  api_max_length = Max length of field enforced by the Reprints Desk API
   exclude = Do not include on the entry form
   type = Does an element contain a string value or an array of string values?
   label = Display label
@@ -1199,48 +1204,54 @@ Key = API metadata element name
 
 =cut
 
-
 sub fieldmap {
     return {
         title => {
             type      => "string",
             label     => "Journal title",
             ill       => "title",
+            api_max_length => 255,
             position  => 0
         },
         atitle => {
             type      => "string",
             label     => "Article title",
             ill       => "article_title",
+            api_max_length => 255,
             position  => 1
         },
         aufirst => {
             type      => "string",
             label     => "Author's first name",
             ill       => "article_author",
+            api_max_length => 50,
             position  => 2,
             join      => "aulast"
         },
         aulast => {
             type      => "string",
             label     => "Author's last name",
+            api_max_length => 50,
             position  => 3
         },
         volume => {
             type      => "string",
             label     => "Volume number",
             ill       => "volume",
+            api_max_length => 50,
             position  => 4
         },
         issue => {
             type      => "string",
             label     => "Journal issue number",
             ill       => "issue",
+            api_max_length => 50,
             position  => 5
         },
         date => {
             type      => "string",
             ill       => "year",
+            api_max_length => 50,
             position  => 7,
             label     => "Item publication date"
         },
@@ -1248,48 +1259,56 @@ sub fieldmap {
             type      => "string",
             label     => "Pages in journal",
             ill       => "pages",
+            api_max_length => 50,
             position  => 8
         },
         spage => {
             type      => "string",
             label     => "First page of article in journal",
             ill       => "spage",
+            api_max_length => 50,
             position  => 8
         },
         epage => {
             type      => "string",
             label     => "Last page of article in journal",
             ill       => "epage",
+            api_max_length => 50,
             position  => 9
         },
         doi => {
             type      => "string",
             label     => "DOI",
             ill       => "doi",
+            api_max_length => 96,
             position  => 10
         },
         pubmedid => {
             type      => "string",
             label     => "PubMed ID",
             ill       => "pubmedid",
+            api_max_length => 16,
             position  => 11
         },
         isbn => {
             type      => "string",
             label     => "ISBN",
             ill       => "isbn",
+            api_max_length => 50,
             position  => 12
         },
         issn => {
             type      => "string",
             label     => "ISSN",
             ill       => "issn",
+            api_max_length => 50,
             position  => 13
         },
         eissn => {
             type      => "string",
             label     => "EISSN",
             ill       => "eissn",
+            api_max_length => 50,
             position  => 14
         }
     };
