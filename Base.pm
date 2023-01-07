@@ -819,72 +819,6 @@ sub metadata {
     return $metadata;
 }
 
-=head3 attach_processors
-
-Receive a Koha::Illrequest::SupplierUpdate and attach
-any processors we have for it
-
-=cut
-
-sub attach_processors {
-    my ( $self, $update ) = @_;
-
-    foreach my $processor(@{$self->{processors}}) {
-        if (
-            $processor->{target_source_type} eq $update->{source_type} &&
-            $processor->{target_source_name} eq $update->{source_name}
-        ) {
-            $update->attach_processor($processor);
-        }
-    }
-}
-
-=head3 get_supplier_update
-
-Called as a backend capability, receives a local request object
-and gets the latest update from Reprints Desk using their
-Order_GetOrderInfo request
-Return Koha::Illrequest::SupplierUpdate representing the update
-
-=cut
-
-sub get_supplier_update {
-    my ( $self, $params ) = @_;
-
-    my $request = $params->{request};
-    my $delay = $params->{delay};
-
-    # Find the submission's Reprints Desk ID
-    my $reprints_desk_request_id = $request->illrequestattributes->find({
-        illrequest_id => $request->illrequest_id,
-        type          => "orderID"
-    });
-
-    if (!$reprints_desk_request_id) {
-        # No Reprints Desk request, we can't do anything
-        print "Request " . $request->illrequest_id . " does not contain a Reprints Desk orderID\n";
-        return;
-    }
-
-    if ($delay) {
-        sleep($delay);
-    }
-
-    my $response = $self->{_api}->Order_GetOrderInfo(
-        $reprints_desk_request_id->value
-    );
-
-    my $body = from_json($response->decoded_content);
-    if ($response->is_success && $body->{result}->{IsSuccessful}) {
-        return Koha::Illrequest::SupplierUpdate->new(
-            'backend',
-            $self->name,
-            $body->{result},
-            $request
-        );
-    }
-}
-
 =head3 capabilities
 
     $capability = $backend->capabilities($name);
@@ -903,11 +837,11 @@ sub capabilities {
         migrate => sub { $self->migrate(@_); },
         # Return whether we are ready to display availability
         should_display_availability => sub { _can_create_request(@_) },
-        get_supplier_update => sub { $self->get_supplier_update(@_) },
         provides_batch_requests => sub { return 1; },
         # We can create ILL requests with data passed from the API
         create_api => sub { $self->create_api(@_) }
     };
+
     return $capabilities->{$name};
 }
 
