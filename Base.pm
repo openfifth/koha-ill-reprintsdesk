@@ -667,6 +667,14 @@ sub create_request {
                 value         => $request_id
             })->store;
         }
+        my $rnd_id = $body->{result}->{rndID};
+        if ($rnd_id && length $rnd_id > 0) {
+            Koha::Illrequestattribute->new({
+                illrequest_id => $submission->illrequest_id,
+                type          => 'rndId',
+                value         => $rnd_id
+            })->store;
+        }
         # Add the Reprints Desk ID to the orderid field
         $submission->orderid($request_id);
         # Update the submission status
