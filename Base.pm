@@ -45,6 +45,8 @@ sub new {
               dirname(__FILE__) . '/intra-includes/log/reprints_desk_migrate_in.tt',
             'REPRINTS_DESK_REQUEST_SUCCEEDED' =>
               dirname(__FILE__) . '/intra-includes/log/reprints_desk_request_succeeded.tt',
+            'REPRINTS_DESK_REQUEST_ORDER_UPDATED' =>
+              dirname(__FILE__) . '/intra-includes/log/reprints_desk_request_order_updated.tt',
             'REPRINTS_DESK_REQUEST_FAILED' =>
               dirname(__FILE__) . '/intra-includes/log/reprints_desk_request_failed.tt'
         }
