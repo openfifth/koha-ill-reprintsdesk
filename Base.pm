@@ -702,6 +702,8 @@ sub create_request {
         message => $errors
     });
 
+    $submission->status('ERROR')->store;
+
     # Return the message
     return {
         success => 0,
