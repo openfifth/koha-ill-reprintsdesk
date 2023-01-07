@@ -688,9 +688,11 @@ sub create_request {
 
         return { success => 1 };
     }
+
     # The call to Reprints Desk failed for some reason. Add the message we got back from the API
     # to the submission's Staff Notes
-    my $errors = join '.', map { $_->{message} } @{$body->{errors}};
+    my $errors = join '. ', map { $_->{message} . ( $_->{path} ? ' path: ' . $_->{path} : '' ) } @{$body->{errors}};
+
     $submission->append_to_note("Reprints Desk request failed:\n$errors");
 
     # Log the outcome
