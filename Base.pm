@@ -182,21 +182,10 @@ sub create {
             return $response;
         }
         else {
-            # We can submit a request directly to Reprints Desk
-            my $result = $self->submit_and_request($params);
-
-            if ($result->{success}) {
-                $response->{stage}  = "commit";
-                $response->{next} = "illview";
-                $response->{params} = $params;
-            } else {
-                $response->{error}  = 1;
-                $response->{stage}  = 'commit';
-                $response->{next} = "illview";
-                $response->{params} = $params;
-                $response->{message} = $result->{message};
-            }
-
+            my $result = $self->create_submission($params);
+            $response->{stage}  = 'commit';
+            $response->{next} = "illview";
+            $response->{params} = $params;
             return $response;
         }
     }
