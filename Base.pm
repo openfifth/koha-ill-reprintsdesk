@@ -25,6 +25,9 @@ use JSON qw( to_json from_json );
 use File::Basename qw( dirname );
 
 use Koha::Illbackends::ReprintsDesk::Lib::API;
+use Koha::Illbackends::ReprintsDesk::Processor::PlaceOrders;
+use Koha::Illbackends::ReprintsDesk::Processor::GetOrderHistory;
+use Koha::Illbackends::ReprintsDesk::Processor::EnqueueNotices;
 use Koha::Libraries;
 use Koha::Patrons;
 
@@ -47,7 +50,13 @@ sub new {
         }
     };
 
-    $self->{_logger} = $params->{logger} if ( $params->{logger} ); 
+    $self->{_logger} = $params->{logger} if ( $params->{logger} );
+
+    $self->{backend_wide_processors} = [
+        Koha::Illbackends::ReprintsDesk::Processor::PlaceOrders->new,
+        Koha::Illbackends::ReprintsDesk::Processor::GetOrderHistory->new,
+        Koha::Illbackends::ReprintsDesk::Processor::EnqueueNotices->new
+    ];
 
     bless($self, $class);
 
