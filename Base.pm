@@ -363,6 +363,33 @@ sub do_join {
     return $value;
 }
 
+=head3 ready
+
+Mark this request as 'READY'
+
+=cut
+
+sub ready {
+    my ( $self, $params ) = @_;
+    my $other = $params->{other};
+
+    my $request = Koha::Illrequests->find( $other->{illrequest_id} );
+
+    $request->status('READY');
+    $request->updated( DateTime->now );
+    $request->store;
+
+    return {
+        error   => 0,
+        status  => '',
+        message => '',
+        method  => 'ready',
+        stage   => 'commit',
+        next    => 'illview',
+        value   => $params,
+    };
+}
+
 =head3 migrate
 
 Migrate a request into or out of this backend
@@ -890,16 +917,69 @@ sub status_graph {
             next_actions   => [],
             ui_method_icon => 'fa-edit',
         },
-
+        CIT => {
+            prev_actions   => [ 'REQ' ],
+            id             => 'CIT',
+            name           => 'Citation Verification',
+            ui_method_name => 0,
+            method         => 0,
+            next_actions   => [ 'MIG', 'KILL' ],
+            ui_method_icon => 0,
+        },
+        SOURCE => {
+            prev_actions   => [ 'REQ' ],
+            id             => 'SOURCE',
+            name           => 'Sourcing',
+            ui_method_name => 0,
+            method         => 0,
+            next_actions   => [ 'MIG', 'KILL' ],
+            ui_method_icon => 0,
+        },
+        ERROR => {
+            prev_actions   => [ ],
+            id             => 'ERROR',
+            name           => 'Request error',
+            ui_method_name => 0,
+            method         => 0,
+            next_actions   => [ 'EDITITEM', 'READY', 'MIG', 'KILL' ],
+            ui_method_icon => 0,
+        },
+        COMP => {
+            prev_actions   => [ 'REQ' ],
+            id             => 'COMP',
+            name           => 'Order Complete',
+            ui_method_name => 0,
+            method         => 0,
+            next_actions   => [],
+            ui_method_icon => 0
+        },
+        READY => {
+            prev_actions => [ 'NEW', 'ERROR' ],
+            id             => 'READY',
+            name           => 'Request ready',
+            ui_method_name => 'Mark request as ready for Reprints Desk',
+            method         => 'ready',
+            next_actions   => [],
+            ui_method_icon => 'fa-check',
+        },
+        NEW => {
+            prev_actions => [ ],
+            id             => 'NEW',
+            name           => 'New request',
+            ui_method_name => 'New request',
+            method         => 'create',
+            next_actions   => [ 'READY', 'GENREQ', 'KILL', 'MIG', 'EDITITEM' ],
+            ui_method_icon => 'fa-plus'
+        },
         # Override REQ so we can rename the button
         # Talk about a sledgehammer to crack a nut
         REQ => {
-            prev_actions   => [ 'NEW', 'REQREV', 'QUEUED', 'CANCREQ' ],
+            prev_actions   => [ 'READY', 'REQREV', 'QUEUED', 'CANCREQ' ],
             id             => 'REQ',
             name           => 'Requested',
             ui_method_name => 'Request from Reprints Desk',
             method         => 'confirm',
-            next_actions   => [ 'REQREV', 'COMP', 'CHK' ],
+            next_actions   => [ 'REQREV', 'CHK' ],
             ui_method_icon => 'fa-check',
         },
         MIG => {
