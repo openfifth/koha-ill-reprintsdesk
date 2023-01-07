@@ -228,11 +228,11 @@ Edit an item's metadata
 sub edititem {
     my ($self, $params) = @_;
 
-    # Don't allow editing of requested submissions
+    # Don't allow editing of requested or completed submissions
     return {
         cwd    => dirname(__FILE__),
         method => 'illlist'
-    } if $params->{request}->status ne 'NEW';
+    } if ($params->{request}->status eq 'REQ' || $params->{request}->status eq 'COMP' );
 
     my $other = $params->{other};
     my $stage = $other->{stage};
