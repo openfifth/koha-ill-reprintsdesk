@@ -113,11 +113,16 @@ Make a call to the /User_GetOrderHistory API
 =cut
 
 sub User_GetOrderHistory {
-    my ($self) = @_;
+    my ($self, $filter_type_id) = @_;
+
+    my $body = encode_json({
+        filterTypeID => $filter_type_id
+    });
 
     my $request = HTTP::Request->new( 'POST', $self->{baseurl} . "/getorderhistory" );
 
     $request->header( "Content-type" => "application/json" );
+    $request->content( $body );
 
     return $self->{ua}->request( $request );
 }
