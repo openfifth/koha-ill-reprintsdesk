@@ -140,7 +140,6 @@ sub run {
         } else {
             $self->debug_msg("Please confirm that notice template '" . $notice_code . "' exists");
         }
-        $self->debug_msg($message_text);
     }
 }
 
