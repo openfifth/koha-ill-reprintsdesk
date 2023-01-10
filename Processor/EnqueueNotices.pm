@@ -1,6 +1,7 @@
 package Koha::Illbackends::ReprintsDesk::Processor::EnqueueNotices;
 
 use Modern::Perl;
+use JSON qw( from_json );
 
 use parent qw(Koha::Illrequest::SupplierUpdateProcessor);
 use Koha::Illbackends::ReprintsDesk::Base;
@@ -56,6 +57,9 @@ sub run {
         die ("No hanging requests. Bailing");
     }
 
+    # Get orderIDs from open orders in User_GetOrderHistory's response
+    my %open_order_ids_hash = $self->_get_open_order_ids( $rd );
+
     # For each branch containing hanging requests, prepare the notice message
     my @branches = Koha::Libraries->search( $branches_hash )->as_list();
     foreach my $branch (@branches) {
@@ -67,16 +71,37 @@ sub run {
         my $ill_requests_hash = $sth->fetchall_arrayref( {} );
         my $requests_count = scalar @{$ill_requests_hash};
 
+        my $found_orders_count;
+        my $lost_orders_count;
+        my $found_orders_message_text = '';
+        my $lost_orders_message_text = '';
+
         # Prepare the notice message text
-        my $message_text = "There are " . $requests_count . " requests at " . $branch->branchname . " not yet processed by Reprints Desk:<br/>\n";
         $self->debug_msg("Found " . $requests_count . " requests to enqueue");
         foreach my $ill_request_hash (@{$ill_requests_hash}) {
             my $ill_request = Koha::Illrequests->find( $ill_request_hash->{illrequest_id} );
 
-            # Add entry to message text
-            $message_text .= sprintf("<a href=\"%s/cgi-bin/koha/ill/ill-requests.pl?method=illview&illrequest_id=%d\">ILL-%d | orderID #%d | %s</a><br/>\n", 
-            $staff_url, $ill_request->illrequest_id, $ill_request->illrequest_id, $ill_request->orderid, $status_graph->{$ill_request->status}->{name});
+            my $rndId = $ill_request->illrequestattributes->find({
+                illrequest_id => $ill_request->illrequest_id,
+                type          => "rndId"
+            });
+            my $rpdesk_api_www_url = $self->{env} && $self->{env} eq 'prod' ? 'www' : 'wwwstg';
+            my $rpdesk_os_link = 'https://' . $rpdesk_api_www_url . '.reprintsdesk.com/landing/os.aspx?o='.$ill_request->orderid.'&r='.$rndId->value;
+
+            # Not a lost order, add entry normally to digest
+            if ( $open_order_ids_hash{$ill_request->orderid} ) {
+                $found_orders_message_text .= sprintf("<tr><td><a href=\"%s/cgi-bin/koha/ill/ill-requests.pl?method=illview&illrequest_id=%d\">ILL-%d</a></td><td>%s</td><td>#%d</td><td><a href=\"%s\">%s</a></td></tr>", $staff_url, $ill_request->illrequest_id, $ill_request->illrequest_id, $status_graph->{$ill_request->status}->{name}, $ill_request->orderid, $rpdesk_os_link, $rpdesk_os_link);
+                $found_orders_count++;
+            # This is a lost order, add entry to separate list
+            } else {
+                $lost_orders_message_text .= sprintf("<tr><td><a href=\"%s/cgi-bin/koha/ill/ill-requests.pl?method=illview&illrequest_id=%d\">ILL-%d</a></td><td>%s</td><td>#%d</td><td><a href=\"%s\">%s</a></td></tr>", $staff_url, $ill_request->illrequest_id, $ill_request->illrequest_id, $status_graph->{$ill_request->status}->{name}, $ill_request->orderid, $rpdesk_os_link, $rpdesk_os_link);
+                $lost_orders_count++;
+            }
         }
+
+        my $found_orders_html_message = $found_orders_message_text ? $self->_get_html_email_message("There are " . $found_orders_count . " requests at " . $branch->branchname . " still in process by Reprints Desk:<br/>\n", $found_orders_message_text) : '';
+        my $lost_orders_html_message = $lost_orders_message_text ? $self->_get_html_email_message("There are " . $lost_orders_count . " unreachable requests at " . $branch->branchname . " that need manual checking:<br/>\n", $lost_orders_message_text) : '';
+        my $message_text = $found_orders_html_message . $lost_orders_html_message;
 
         # Get the staff notices that have been assigned for sending in the syspref
         my $send_staff_notice = C4::Context->preference('ILLSendStaffNotices') // q{};
@@ -117,6 +142,59 @@ sub run {
         }
         $self->debug_msg($message_text);
     }
+}
+
+sub _get_open_order_ids {
+    my ( $self, $rd ) = @_;
+    my $open_orders_response = $rd->{_api}->User_GetOrderHistory(1);
+    my $body = from_json($open_orders_response->decoded_content);
+    if (scalar @{$body->{errors}} == 0 && $body->{result}->{User_GetOrderHistoryResult} == 1) {
+        my $dom = XML::LibXML->load_xml(string => $body->{result}->{xmlData}->{_});
+        my @orders = $dom->findnodes('/xmlData/orders/order/orderdetail/orderid');
+        my @open_order_ids = map( $_->textContent , @orders );
+        return map { $open_order_ids[$_] => $_ } 0..$#open_order_ids;
+    } else {
+        die('GetOrderHistory returned error ' . join '.', map { $_->{message} } @{$body->{errors}});
+    }
+}
+
+sub _get_html_email_message {
+    my ( $self, $header, $rows ) = @_;
+    return <<"HTML";
+<html>
+<head>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
+</head>
+<body>
+<h3>$header</h3>
+<table>
+  <tr>
+    <th>ILL Request</th>
+    <th>Status</th>
+    <th>Order ID</th>
+    <th>ReprintsDesk Order Status Page</th>
+  </tr>
+  $rows
+</table>
+</body>
+</html>
+HTML
 }
 
 sub debug_msg {
