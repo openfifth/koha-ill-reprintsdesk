@@ -97,7 +97,7 @@ sub run {
             }
         }
     } else {
-        $self->debug_msg('GetOrderHistory returned error ' . join '.', map { $_->{message} } @{$body->{errors}});
+        die('GetOrderHistory returned error ' . join '.', map { $_->{message} } @{$body->{errors}});
     }
 }
 
