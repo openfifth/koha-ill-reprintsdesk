@@ -21,7 +21,7 @@ sub run {
     $self->{env} = $options->{env};
 
     my $rd = Koha::Illbackends::ReprintsDesk::Base->new( { logger => Koha::Illrequest::Logger->new } );
-    my $response = $rd->{_api}->User_GetOrderHistory();
+    my $response = $rd->{_api}->User_GetOrderHistory(2);
     my $body = from_json($response->decoded_content);
 
     if (scalar @{$body->{errors}} == 0 && $body->{result}->{User_GetOrderHistoryResult} == 1) {
