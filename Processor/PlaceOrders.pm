@@ -24,7 +24,8 @@ sub run {
     my $dbh   = C4::Context->dbh;
     my $query = "
         SELECT * FROM illrequests
-        WHERE status='READY' ORDER BY illrequest_id ASC;
+        WHERE status='READY' ORDER BY illrequest_id ASC
+        LIMIT 15;
     ";
     my $sth = $dbh->prepare($query);
     $sth->execute();
