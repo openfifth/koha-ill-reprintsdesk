@@ -3,6 +3,7 @@ package Koha::Illbackends::ReprintsDesk::Processor::GetOrderHistory;
 use Modern::Perl;
 use JSON qw( from_json );
 
+use Encode qw( decode_utf8);
 use parent qw(Koha::Illrequest::SupplierUpdateProcessor);
 use Koha::Illbackends::ReprintsDesk::Base;
 
@@ -25,7 +26,7 @@ sub run {
     my $body = from_json($response->decoded_content);
 
     if (scalar @{$body->{errors}} == 0 && $body->{result}->{User_GetOrderHistoryResult} == 1) {
-        my $dom = XML::LibXML->load_xml(string => $body->{result}->{xmlData}->{_});
+        my $dom = XML::LibXML->load_xml(string => decode_utf8($body->{result}->{xmlData}->{_}));
         my @orders = $dom->findnodes('/xmlData/orders/order/*');
 
         # Iterate on returned orderdetails
@@ -52,10 +53,9 @@ sub run {
                     my $metadata_log;
                     foreach my $metadata_element(%{$metadata_elements}) {
                         my @metadata_array = $orderdetail->getChildrenByTagName($metadata_element);
-                        $rd->create_illrequestattributes($ill_request, { $metadata_element => $metadata_array[0]->textContent });
-                        $rd->create_illrequestattributes($ill_request, { $metadata_element => $metadata_array[0]->textContent },1);
+                        $rd->create_illrequestattributes($ill_request, { $metadata_element => decode_utf8( $metadata_array[0]->textContent ) } );
+                        $rd->create_illrequestattributes($ill_request, { $metadata_element => decode_utf8($metadata_array[0]->textContent ) },1);
                         $metadata_log .= $metadata_element . ": " . $metadata_array[0]->textContent . "\n";
-                        #FIXME: $metadata_array[0]->textContent may come with non-ASCII (?) characters
                     }
 
                     # In case RPDesk returns some unkown status (or empty), append this to staff notes and don't update status
