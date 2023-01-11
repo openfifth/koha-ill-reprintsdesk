@@ -89,7 +89,7 @@ sub run {
             my $rpdesk_os_link = 'https://' . $rpdesk_api_www_url . '.reprintsdesk.com/landing/os.aspx?o='.$ill_request->orderid.'&r='.$rndId->value;
 
             # Not a lost order, add entry normally to digest
-            if ( $open_order_ids_hash{$ill_request->orderid} ) {
+            if ( exists( $open_order_ids_hash{$ill_request->orderid} ) ) {
                 $found_orders_message_text .= sprintf("<tr><td><a href=\"%s/cgi-bin/koha/ill/ill-requests.pl?method=illview&illrequest_id=%d\">ILL-%d</a></td><td>%s</td><td>#%d</td><td><a href=\"%s\">%s</a></td></tr>", $staff_url, $ill_request->illrequest_id, $ill_request->illrequest_id, $status_graph->{$ill_request->status}->{name}, $ill_request->orderid, $rpdesk_os_link, $rpdesk_os_link);
                 $found_orders_count++;
             # This is a lost order, add entry to separate list
