@@ -34,22 +34,17 @@ sub run {
     $self->{do_debug} = $options->{debug};
     $self->{dry_run} = $options->{dry_run};
     $self->{env} = $options->{env};
+    $self->{rd} = Koha::Illbackends::ReprintsDesk::Base->new( { logger => Koha::Illrequest::Logger->new } );
 
-    my $rd = Koha::Illbackends::ReprintsDesk::Base->new( { logger => Koha::Illrequest::Logger->new } );
-    my $status_graph = $rd->status_graph;
+    # Get branches that contain not 'COMP' requests
     my $dbh   = C4::Context->dbh;
-
     my $time_interval = $self->{env} && $self->{env} eq 'prod' ? 'AND updated <= NOW() - INTERVAL 1 DAY' : '';
-    my $query = "status != 'COMP' " . $time_interval . " ORDER BY updated DESC;";
-    my $notice_code = 'ILL_REQUEST_DIGEST';
-    my $staff_url = C4::Context->preference('staffClientBaseURL');
-    $staff_url =~ s{/\z}{}; # Remove possible trailing slash
-
-    # Prepare the branches query
-    my $branches_query = "SELECT DISTINCT branchcode FROM illrequests WHERE " . $query;
-    my $sthh = $dbh->prepare($branches_query);
-    $sthh->execute();
-    my $branches_hash = $sthh->fetchall_arrayref( {} );
+    my $branches_query = "SELECT DISTINCT branchcode
+        FROM illrequests
+        WHERE status != 'COMP'" . $time_interval;;
+    my $sth = $dbh->prepare($branches_query);
+    $sth->execute();
+    my $branches_hash = $sth->fetchall_arrayref( {} );
 
     # Bail if we got nothing to work with
     if ( scalar @{$branches_hash} == 0 ) {
@@ -57,18 +52,22 @@ sub run {
     }
 
     # Get orderIDs from open orders in User_GetOrderHistory's response
-    my %open_order_ids_hash = $self->_get_open_order_ids( $rd );
+    my %open_order_ids_hash = $self->_get_open_order_ids;
 
     # For each branch containing hanging requests, prepare the notice message
     my @branches = Koha::Libraries->search( $branches_hash )->as_list();
-    foreach my $branch (@branches) {
+    foreach my $branch ( @branches ) {
 
-        # Get the hanging requests from this library
-        my $requests_query = "SELECT * FROM illrequests WHERE branchcode = '" . $branch->branchcode . "' AND " . $query;
-        my $sth = $dbh->prepare($requests_query);
-        $sth->execute();
-        my $ill_requests_hash = $sth->fetchall_arrayref( {} );
-        my $requests_count = scalar @{$ill_requests_hash};
+        # Get the requests not updated in over 24 hours
+        my $one_day_ago = DateTime->now( time_zone=>'local' )->subtract( days => 1 );
+        my $requests = Koha::Illrequests->search({
+                branchcode => $branch->branchcode,
+                status => {'!=', 'COMP'},
+                ( $self->{env} eq 'prod' ? ( updated => {'<=' => $one_day_ago->ymd . "T" . $one_day_ago->hms} ): ())
+            },
+            {
+                order_by => { -desc => 'updated' }
+        });
 
         my $found_orders_count;
         my $lost_orders_count;
@@ -109,8 +108,8 @@ sub run {
 }
 
 sub _get_open_order_ids {
-    my ( $self, $rd ) = @_;
-    my $open_orders_response = $rd->{_api}->User_GetOrderHistory(1);
+    my ( $self ) = @_;
+    my $open_orders_response = $self->{rd}->{_api}->User_GetOrderHistory(1);
     my $body = from_json($open_orders_response->decoded_content);
     if (scalar @{$body->{errors}} == 0 && $body->{result}->{User_GetOrderHistoryResult} == 1) {
         my $dom = XML::LibXML->load_xml(string => $body->{result}->{xmlData}->{_});
@@ -152,6 +151,7 @@ tr:nth-child(even) {
     <th>ILL Request</th>
     <th>Status</th>
     <th>Order ID</th>
+    <th>Updated at</th>
     <th>ReprintsDesk Order Status Page</th>
   </tr>
   $rows
