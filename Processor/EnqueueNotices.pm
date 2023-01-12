@@ -52,8 +52,7 @@ sub run {
     my $branches_hash = $sthh->fetchall_arrayref( {} );
 
     # Bail if we got nothing to work with
-    my $branches_count = scalar @{$branches_hash};
-    if ( $branches_count == 0 ) {
+    if ( scalar @{$branches_hash} == 0 ) {
         die ("No hanging requests. Bailing");
     }
 
