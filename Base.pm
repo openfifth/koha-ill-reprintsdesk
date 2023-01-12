@@ -363,6 +363,26 @@ sub do_join {
     return $value;
 }
 
+=head3 mark_completed
+
+Mark a request as completed (status = COMP).
+
+=cut
+
+sub mark_completed {
+    my ( $self ) = @_;
+    $self->status('COMP')->store;
+    $self->completed(dt_from_string())->store;
+    return {
+        error   => 0,
+        status  => '',
+        message => '',
+        method  => 'mark_completed',
+        stage   => 'commit',
+        next    => 'illview',
+    };
+}
+
 =head3 ready
 
 Mark this request as 'READY'
@@ -876,7 +896,7 @@ sub status_graph {
             name           => 'Citation Verification',
             ui_method_name => 0,
             method         => 0,
-            next_actions   => [ 'MIG', 'KILL' ],
+            next_actions   => [ 'COMP', 'MIG', 'KILL' ],
             ui_method_icon => 0,
         },
         SOURCE => {
@@ -885,7 +905,7 @@ sub status_graph {
             name           => 'Sourcing',
             ui_method_name => 0,
             method         => 0,
-            next_actions   => [ 'MIG', 'KILL' ],
+            next_actions   => [ 'COMP', 'MIG', 'KILL' ],
             ui_method_icon => 0,
         },
         ERROR => {
@@ -894,17 +914,17 @@ sub status_graph {
             name           => 'Request error',
             ui_method_name => 0,
             method         => 0,
-            next_actions   => [ 'EDITITEM', 'READY', 'MIG', 'KILL' ],
+            next_actions   => [ 'COMP', 'EDITITEM', 'READY', 'MIG', 'KILL' ],
             ui_method_icon => 0,
         },
         COMP => {
-            prev_actions   => [ 'REQ' ],
+            prev_actions   => [ 'CIT', 'SOURCE', 'ERROR' ],
             id             => 'COMP',
             name           => 'Order Complete',
-            ui_method_name => 0,
-            method         => 0,
+            ui_method_name => 'Mark completed',
+            method         => 'mark_completed',
             next_actions   => [],
-            ui_method_icon => 0
+            ui_method_icon => 'fa-check',
         },
         READY => {
             prev_actions => [ 'NEW', 'ERROR' ],
