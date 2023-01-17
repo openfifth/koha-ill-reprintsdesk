@@ -85,7 +85,7 @@
   </fieldset>
   <fieldset class="action">
     <p id="reprints_desk_warning" role="alert" class="alert alert-danger">
-      "Card number, username or surname" must be completed
+      "Card number, username or surname" must be completed. Either DOI or PubMed ID must be completed.
     </p>
     <input id="reprints_desk_submit" disabled type="submit" value="Make request"/>
     <a class="cancel" href="/cgi-bin/koha/ill/ill-requests.pl">Cancel</a>
@@ -126,8 +126,11 @@
           $(this).prop('disabled', true);
       });
 
-      $('#create_form #cardnumber').keyup(function() {
-          if (this.value.length === 0) {
+      $('#create_form input[type=text]').keyup(function() {
+          if (
+              $('#create_form #cardnumber').val() == '' ||
+              ( $('#create_form #pubmedid').val() == '' && $('#create_form #doi').val() == '' ) )
+            {
               $('#reprints_desk_submit').prop('disabled', true);
               $('#reprints_desk_warning').css('visibility', 'visible');
           } else {

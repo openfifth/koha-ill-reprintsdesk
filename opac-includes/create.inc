@@ -21,6 +21,7 @@
     <p><em>Unhandled error</em></p>
   [% END %]
 [% END %]
+    <p id="reprints_desk_warning"><em>Please Note</em>: Either DOI or PubMed ID must be completed.</p>
 
 <div role="alert" class="alert alert-warning" id="request-notpossible" style="display: none">
   Item cannot be requested
@@ -36,6 +37,7 @@
     <legend>Place an interlibrary loan request</legend>
     <input name="stage" id="stage" value="validate" type="hidden"/>
     <input name="method" id="method" value="create" type="hidden"/>
+    <input name="interface" value="opac" type="hidden"/>
     <input name="backend" id="backend" value="[% whole.value.other.backend %]" type="hidden"/>
     <ol>
       [% FOREACH field IN whole.field_map %]
@@ -92,11 +94,9 @@
 
     var fieldmap = [% whole.field_map_json %];
 
-    [% INCLUDE "${cwd}/shared-includes/create.js" %]
+    [% INCLUDE "${cwd}/opac-includes/create.js" %]
 
     addLabels();
-    validateFields();
-    addHandlers();
   });
 </script>
 [% END %]

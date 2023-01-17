@@ -25,6 +25,9 @@ use JSON qw( to_json from_json );
 use File::Basename qw( dirname );
 
 use Koha::Illbackends::ReprintsDesk::Lib::API;
+use Koha::Illbackends::ReprintsDesk::Processor::PlaceOrders;
+use Koha::Illbackends::ReprintsDesk::Processor::GetOrderHistory;
+use Koha::Illbackends::ReprintsDesk::Processor::EnqueueNotices;
 use Koha::Libraries;
 use Koha::Patrons;
 
@@ -42,12 +45,20 @@ sub new {
               dirname(__FILE__) . '/intra-includes/log/reprints_desk_migrate_in.tt',
             'REPRINTS_DESK_REQUEST_SUCCEEDED' =>
               dirname(__FILE__) . '/intra-includes/log/reprints_desk_request_succeeded.tt',
+            'REPRINTS_DESK_REQUEST_ORDER_UPDATED' =>
+              dirname(__FILE__) . '/intra-includes/log/reprints_desk_request_order_updated.tt',
             'REPRINTS_DESK_REQUEST_FAILED' =>
               dirname(__FILE__) . '/intra-includes/log/reprints_desk_request_failed.tt'
         }
     };
 
-    $self->{_logger} = $params->{logger} if ( $params->{logger} ); 
+    $self->{_logger} = $params->{logger} if ( $params->{logger} );
+
+    $self->{backend_wide_processors} = [
+        Koha::Illbackends::ReprintsDesk::Processor::PlaceOrders->new,
+        Koha::Illbackends::ReprintsDesk::Processor::GetOrderHistory->new,
+        Koha::Illbackends::ReprintsDesk::Processor::EnqueueNotices->new
+    ];
 
     bless($self, $class);
 
@@ -171,21 +182,10 @@ sub create {
             return $response;
         }
         else {
-            # We can submit a request directly to Reprints Desk
-            my $result = $self->submit_and_request($params);
-
-            if ($result->{success}) {
-                $response->{stage}  = "commit";
-                $response->{next} = "illview";
-                $response->{params} = $params;
-            } else {
-                $response->{error}  = 1;
-                $response->{stage}  = 'commit';
-                $response->{next} = "illview";
-                $response->{params} = $params;
-                $response->{message} = $result->{message};
-            }
-
+            my $result = $self->create_submission($params);
+            $response->{stage}  = 'commit';
+            $response->{next} = "illview";
+            $response->{params} = $params;
             return $response;
         }
     }
@@ -228,11 +228,11 @@ Edit an item's metadata
 sub edititem {
     my ($self, $params) = @_;
 
-    # Don't allow editing of requested submissions
+    # Don't allow editing of requested or completed submissions
     return {
         cwd    => dirname(__FILE__),
         method => 'illlist'
-    } if $params->{request}->status ne 'NEW';
+    } if ($params->{request}->status eq 'REQ' || $params->{request}->status eq 'COMP' );
 
     my $other = $params->{other};
     my $stage = $other->{stage};
@@ -363,6 +363,53 @@ sub do_join {
     return $value;
 }
 
+=head3 mark_completed
+
+Mark a request as completed (status = COMP).
+
+=cut
+
+sub mark_completed {
+    my ( $self ) = @_;
+    $self->status('COMP')->store;
+    $self->completed(dt_from_string())->store;
+    return {
+        error   => 0,
+        status  => '',
+        message => '',
+        method  => 'mark_completed',
+        stage   => 'commit',
+        next    => 'illview',
+    };
+}
+
+=head3 ready
+
+Mark this request as 'READY'
+
+=cut
+
+sub ready {
+    my ( $self, $params ) = @_;
+    my $other = $params->{other};
+
+    my $request = Koha::Illrequests->find( $other->{illrequest_id} );
+
+    $request->status('READY');
+    $request->updated( DateTime->now );
+    $request->store;
+
+    return {
+        error   => 0,
+        status  => '',
+        message => '',
+        method  => 'ready',
+        stage   => 'commit',
+        next    => 'illview',
+        value   => $params,
+    };
+}
+
 =head3 migrate
 
 Migrate a request into or out of this backend
@@ -466,7 +513,14 @@ sub create_submission {
     my $request = $params->{request};
     $request->borrowernumber($patron->borrowernumber);
     $request->branchcode($params->{other}->{branchcode});
-    $request->status('NEW');
+
+    # Request creation came from opac: Set status as 'NEW'
+    if ( $params->{other}->{interface} && $params->{other}->{interface} eq 'opac' ) {
+        $request->status('NEW');
+    } else {
+        $request->status('READY');
+    }
+
     $request->batch_id($params->{other}->{batch_id});
     $request->backend($self->name);
     $request->placed(DateTime->now);
@@ -564,7 +618,11 @@ sub prep_submission_metadata {
             length $metadata_hashref->{$field} > 0
         ) {
             $metadata_hashref->{$field}=~s/  / /g;
-            $return->{$field} = $metadata_hashref->{$field};
+            if ( $fields->{$field}->{api_max_length} ) {
+                $return->{$field} = substr( $metadata_hashref->{$field}, 0, $fields->{$field}->{api_max_length} )
+            } else {
+                $return->{$field} = $metadata_hashref->{$field};
+            }
         }
     }
 
@@ -629,6 +687,14 @@ sub create_request {
                 value         => $request_id
             })->store;
         }
+        my $rnd_id = $body->{result}->{rndID};
+        if ($rnd_id && length $rnd_id > 0) {
+            Koha::Illrequestattribute->new({
+                illrequest_id => $submission->illrequest_id,
+                type          => 'rndId',
+                value         => $rnd_id
+            })->store;
+        }
         # Add the Reprints Desk ID to the orderid field
         $submission->orderid($request_id);
         # Update the submission status
@@ -642,9 +708,11 @@ sub create_request {
 
         return { success => 1 };
     }
+
     # The call to Reprints Desk failed for some reason. Add the message we got back from the API
     # to the submission's Staff Notes
-    my $errors = join '.', map { $_->{message} } @{$body->{errors}};
+    my $errors = join '. ', map { $_->{message} . ( $_->{path} ? ' path: ' . $_->{path} : '' ) } @{$body->{errors}};
+
     $submission->append_to_note("Reprints Desk request failed:\n$errors");
 
     # Log the outcome
@@ -653,6 +721,8 @@ sub create_request {
         request => $submission,
         message => $errors
     });
+
+    $submission->status('ERROR')->store;
 
     # Return the message
     return {
@@ -759,80 +829,10 @@ sub metadata {
         }
     }
 
-    # OPAC list view uses completely different property names for author
-    # and title. Cater for that.
-    my $title_key = $fields->{atitle}->{label};
-    # We might need to join this field with something else
-    $metadata->{Author} = $self->do_join('aufirst', $metadata_keyed_on_prop);
-    $metadata->{Title} = $metadata->{$title_key} if $metadata->{$title_key};
+    my $rd_title_key = 'Journal title';
+    $metadata->{Title} = $metadata->{$rd_title_key} if $metadata->{$rd_title_key};
 
     return $metadata;
-}
-
-=head3 attach_processors
-
-Receive a Koha::Illrequest::SupplierUpdate and attach
-any processors we have for it
-
-=cut
-
-sub attach_processors {
-    my ( $self, $update ) = @_;
-
-    foreach my $processor(@{$self->{processors}}) {
-        if (
-            $processor->{target_source_type} eq $update->{source_type} &&
-            $processor->{target_source_name} eq $update->{source_name}
-        ) {
-            $update->attach_processor($processor);
-        }
-    }
-}
-
-=head3 get_supplier_update
-
-Called as a backend capability, receives a local request object
-and gets the latest update from Reprints Desk using their
-Order_GetOrderInfo request
-Return Koha::Illrequest::SupplierUpdate representing the update
-
-=cut
-
-sub get_supplier_update {
-    my ( $self, $params ) = @_;
-
-    my $request = $params->{request};
-    my $delay = $params->{delay};
-
-    # Find the submission's Reprints Desk ID
-    my $reprints_desk_request_id = $request->illrequestattributes->find({
-        illrequest_id => $request->illrequest_id,
-        type          => "orderID"
-    });
-
-    if (!$reprints_desk_request_id) {
-        # No Reprints Desk request, we can't do anything
-        print "Request " . $request->illrequest_id . " does not contain a Reprints Desk orderID\n";
-        return;
-    }
-
-    if ($delay) {
-        sleep($delay);
-    }
-
-    my $response = $self->{_api}->Order_GetOrderInfo(
-        $reprints_desk_request_id->value
-    );
-
-    my $body = from_json($response->decoded_content);
-    if ($response->is_success && $body->{result}->{IsSuccessful}) {
-        return Koha::Illrequest::SupplierUpdate->new(
-            'backend',
-            $self->name,
-            $body->{result},
-            $request
-        );
-    }
 }
 
 =head3 capabilities
@@ -853,11 +853,11 @@ sub capabilities {
         migrate => sub { $self->migrate(@_); },
         # Return whether we are ready to display availability
         should_display_availability => sub { _can_create_request(@_) },
-        get_supplier_update => sub { $self->get_supplier_update(@_) },
         provides_batch_requests => sub { return 1; },
         # We can create ILL requests with data passed from the API
         create_api => sub { $self->create_api(@_) }
     };
+
     return $capabilities->{$name};
 }
 
@@ -890,16 +890,69 @@ sub status_graph {
             next_actions   => [],
             ui_method_icon => 'fa-edit',
         },
-
+        CIT => {
+            prev_actions   => [ 'REQ' ],
+            id             => 'CIT',
+            name           => 'Citation Verification',
+            ui_method_name => 0,
+            method         => 0,
+            next_actions   => [ 'COMP', 'MIG', 'KILL' ],
+            ui_method_icon => 0,
+        },
+        SOURCE => {
+            prev_actions   => [ 'REQ' ],
+            id             => 'SOURCE',
+            name           => 'Sourcing',
+            ui_method_name => 0,
+            method         => 0,
+            next_actions   => [ 'COMP', 'MIG', 'KILL' ],
+            ui_method_icon => 0,
+        },
+        ERROR => {
+            prev_actions   => [ ],
+            id             => 'ERROR',
+            name           => 'Request error',
+            ui_method_name => 0,
+            method         => 0,
+            next_actions   => [ 'COMP', 'EDITITEM', 'READY', 'MIG', 'KILL' ],
+            ui_method_icon => 0,
+        },
+        COMP => {
+            prev_actions   => [ 'CIT', 'SOURCE', 'ERROR' ],
+            id             => 'COMP',
+            name           => 'Order Complete',
+            ui_method_name => 'Mark completed',
+            method         => 'mark_completed',
+            next_actions   => [],
+            ui_method_icon => 'fa-check',
+        },
+        READY => {
+            prev_actions => [ 'NEW', 'ERROR' ],
+            id             => 'READY',
+            name           => 'Request ready',
+            ui_method_name => 'Mark request as ready for Reprints Desk',
+            method         => 'ready',
+            next_actions   => [],
+            ui_method_icon => 'fa-check',
+        },
+        NEW => {
+            prev_actions => [ ],
+            id             => 'NEW',
+            name           => 'New request',
+            ui_method_name => 'New request',
+            method         => 'create',
+            next_actions   => [ 'READY', 'GENREQ', 'KILL', 'MIG', 'EDITITEM' ],
+            ui_method_icon => 'fa-plus'
+        },
         # Override REQ so we can rename the button
         # Talk about a sledgehammer to crack a nut
         REQ => {
-            prev_actions   => [ 'NEW', 'REQREV', 'QUEUED', 'CANCREQ' ],
+            prev_actions   => [ 'READY', 'REQREV', 'QUEUED', 'CANCREQ' ],
             id             => 'REQ',
             name           => 'Requested',
             ui_method_name => 'Request from Reprints Desk',
             method         => 'confirm',
-            next_actions   => [ 'REQREV', 'COMP', 'CHK' ],
+            next_actions   => [ 'REQREV', 'CHK' ],
             ui_method_icon => 'fa-check',
         },
         MIG => {
@@ -1104,6 +1157,7 @@ All fields expected by the API
 Key = API metadata element name
   hide = Make the field hidden in the form
   no_submit = Do not pass to Reprints Desk API
+  api_max_length = Max length of field enforced by the Reprints Desk API
   exclude = Do not include on the entry form
   type = Does an element contain a string value or an array of string values?
   label = Display label
@@ -1112,48 +1166,54 @@ Key = API metadata element name
 
 =cut
 
-
 sub fieldmap {
     return {
         title => {
             type      => "string",
             label     => "Journal title",
             ill       => "title",
+            api_max_length => 255,
             position  => 0
         },
         atitle => {
             type      => "string",
             label     => "Article title",
             ill       => "article_title",
+            api_max_length => 255,
             position  => 1
         },
         aufirst => {
             type      => "string",
             label     => "Author's first name",
             ill       => "article_author",
+            api_max_length => 50,
             position  => 2,
             join      => "aulast"
         },
         aulast => {
             type      => "string",
             label     => "Author's last name",
+            api_max_length => 50,
             position  => 3
         },
         volume => {
             type      => "string",
             label     => "Volume number",
             ill       => "volume",
+            api_max_length => 50,
             position  => 4
         },
         issue => {
             type      => "string",
             label     => "Journal issue number",
             ill       => "issue",
+            api_max_length => 50,
             position  => 5
         },
         date => {
             type      => "string",
             ill       => "year",
+            api_max_length => 50,
             position  => 7,
             label     => "Item publication date"
         },
@@ -1161,49 +1221,79 @@ sub fieldmap {
             type      => "string",
             label     => "Pages in journal",
             ill       => "pages",
+            api_max_length => 50,
             position  => 8
         },
         spage => {
             type      => "string",
             label     => "First page of article in journal",
             ill       => "spage",
+            api_max_length => 50,
             position  => 8
         },
         epage => {
             type      => "string",
             label     => "Last page of article in journal",
             ill       => "epage",
+            api_max_length => 50,
             position  => 9
         },
         doi => {
             type      => "string",
             label     => "DOI",
             ill       => "doi",
+            api_max_length => 96,
             position  => 10
         },
         pubmedid => {
             type      => "string",
             label     => "PubMed ID",
             ill       => "pubmedid",
+            api_max_length => 16,
             position  => 11
         },
         isbn => {
             type      => "string",
             label     => "ISBN",
             ill       => "isbn",
+            api_max_length => 50,
             position  => 12
         },
         issn => {
             type      => "string",
             label     => "ISSN",
             ill       => "issn",
+            api_max_length => 50,
             position  => 13
         },
         eissn => {
             type      => "string",
             label     => "EISSN",
             ill       => "eissn",
+            api_max_length => 50,
             position  => 14
+        },
+        orderdateutc => {
+            type      => "string",
+            label     => "Order date UTC",
+            exclude   => 1,
+            no_submit => 1,
+            position  => 99
+        },
+        statusdateutc => {
+            type      => "string",
+            label     => "Status date UTC",
+            exclude   => 1,
+            no_submit => 1,
+            position  => 99
+        },
+        author => {
+            type      => "string",
+            label     => "Author",
+            ill       => "author",
+            exclude   => 1,
+            no_submit => 1,
+            position  => 99
         }
     };
 }
