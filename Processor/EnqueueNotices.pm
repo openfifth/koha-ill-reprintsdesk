@@ -112,7 +112,7 @@ sub _get_open_order_ids {
     my $open_orders_response = $self->{rd}->{_api}->User_GetOrderHistory(1);
     my $body = from_json($open_orders_response->decoded_content);
     if (scalar @{$body->{errors}} == 0 && $body->{result}->{User_GetOrderHistoryResult} == 1) {
-        my $dom = XML::LibXML->load_xml(string => $body->{result}->{xmlData}->{_});
+        my $dom = XML::LibXML->load_xml(string => $body->{xmlData});
         my @orders = $dom->findnodes('/xmlData/orders/order/orderdetail/orderid');
         my @open_order_ids = map( $_->textContent , @orders );
         return map { $open_order_ids[$_] => $_ } 0..$#open_order_ids;
