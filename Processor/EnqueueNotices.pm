@@ -37,11 +37,12 @@ sub run {
     $self->{rd} = Koha::Illbackends::ReprintsDesk::Base->new( { logger => Koha::Illrequest::Logger->new } );
 
     # Get branches that contain not 'COMP' requests
+    # FIXME: There must be a prettier/better way of doing this
     my $dbh   = C4::Context->dbh;
     my $time_interval = $self->{env} && $self->{env} eq 'prod' ? 'AND updated <= NOW() - INTERVAL 1 DAY' : '';
     my $branches_query = "SELECT DISTINCT branchcode
         FROM illrequests
-        WHERE status != 'COMP'" . $time_interval;;
+        WHERE backend = 'ReprintsDesk' AND status != 'COMP'" . $time_interval;;
     my $sth = $dbh->prepare($branches_query);
     $sth->execute();
     my $branches_hash = $sth->fetchall_arrayref( {} );
@@ -63,6 +64,7 @@ sub run {
         my $requests = Koha::Illrequests->search({
                 branchcode => $branch->branchcode,
                 status => {'!=', 'COMP'},
+                backend => 'ReprintsDesk',
                 ( $self->{env} eq 'prod' ? ( updated => {'<=' => $one_day_ago->ymd . "T" . $one_day_ago->hms} ): ())
             },
             {
