@@ -103,7 +103,7 @@ sub run {
 
         my $found_orders_html_table = $found_orders_rows ? $self->_get_html_email_message("There are " . $found_orders_count . " requests at " . $branch->branchname . " still in process by Reprints Desk:<br/>\n", $found_orders_rows) : '';
 
-        my $lost_orders_html_table = $lost_orders_rows ? $self->_get_html_email_message("There are " . $lost_orders_count . " unreachable requests at " . $branch->branchname . " that need manual checking:<br/>\n", $lost_orders_rows) : '';
+        my $lost_orders_html_table = $lost_orders_rows ? $self->_get_html_email_message("There are " . $lost_orders_count . " requests at " . $branch->branchname . " that need manual checking:<br/>\n", $lost_orders_rows) : '';
 
         $self->_enqueue_letter($branch, $new_orders_html_table . $lost_orders_html_table . $found_orders_html_table);
     }
