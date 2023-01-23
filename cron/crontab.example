@@ -1,0 +1,21 @@
+# Koha Example Crontab File for ReprintsDesk ILL Backend
+#
+# ENVIRONMENT:
+
+PERL5LIB=/usr/share/koha/lib:/home/koha/kohaclone
+
+# Some additional variables to save you typing
+KOHA_CRON_PATH = /usr/share/koha/bin/cronjobs
+RPDESK_CRON_PATH = /usr/share/koha/lib/Koha/Illbackends/ReprintsDesk
+
+# Check for 'READY' requests and attempt to place up to 15 of them every minute
+* 8-18 * * 1-5 $RPDESK_CRON_PATH/cron/process_ill_backend_wide_processors.pl --backend ReprintsDesk --processor PlaceOrders --debug
+
+# Query GetOrderHistory to check new status for requests every 30 minutes
+30 8-18 * * 1-5 $RPDESK_CRON_PATH/cron/process_ill_backend_wide_processors.pl --backend ReprintsDesk --processor GetOrderHistory --debug
+
+# Run EnqueueNotices daily to pick-up on requests that need handling ('NEW' requests, lost requests, request in process)
+0 1 * * 1-5 $RPDESK_CRON_PATH/cron/process_ill_backend_wide_processors.pl --backend ReprintsDesk --processor EnqueueNotices --debug
+
+# SEND EMAILS
+15   * * * *  __KOHA_USER__  $KOHA_CRON_PATH/process_message_queue.pl
