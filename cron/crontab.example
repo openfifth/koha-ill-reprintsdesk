@@ -8,14 +8,18 @@ PERL5LIB=/usr/share/koha/lib:/home/koha/kohaclone
 KOHA_CRON_PATH = /usr/share/koha/bin/cronjobs
 RPDESK_CRON_PATH = /usr/share/koha/lib/Koha/Illbackends/ReprintsDesk
 
-# Check for 'READY' requests and attempt to place up to 15 of them every minute
+# Check for 'READY' requests and attempt to place orders
+# Runs every minute, from 8:00 to 18:00, every weekday
 * 8-18 * * 1-5 $RPDESK_CRON_PATH/cron/process_ill_backend_wide_processors.pl --backend ReprintsDesk --processor PlaceOrders --debug
 
-# Query GetOrderHistory to check new status for requests every 30 minutes
-30 8-18 * * 1-5 $RPDESK_CRON_PATH/cron/process_ill_backend_wide_processors.pl --backend ReprintsDesk --processor GetOrderHistory --debug
+# Query GetOrderHistory to check new status for requests
+# Runs every 30 minutes, from 8:00 to 18:00, every weekday
+*/30 8-18 * * 1-5 $RPDESK_CRON_PATH/cron/process_ill_backend_wide_processors.pl --backend ReprintsDesk --processor GetOrderHistory --debug
 
-# Run EnqueueNotices daily to pick-up on requests that need handling ('NEW' requests, lost requests, request in process)
+# Run EnqueueNotices daily to pick-up requests that need handling ('NEW' requests, lost requests, requests in process)
+# Runs every weekday at 01:00
 0 1 * * 1-5 $RPDESK_CRON_PATH/cron/process_ill_backend_wide_processors.pl --backend ReprintsDesk --processor EnqueueNotices --debug
 
 # SEND EMAILS
-15   * * * *  __KOHA_USER__  $KOHA_CRON_PATH/process_message_queue.pl
+# Runs every weekday at 01:10
+10 1 * * 1-5 $KOHA_CRON_PATH/process_message_queue.pl
