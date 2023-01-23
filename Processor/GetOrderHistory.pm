@@ -69,6 +69,7 @@ sub run {
                         $ill_request->append_to_note("Reprints Desk returned status: " . $status_msg . " at " . DateTime->now);
                     }
                     $ill_request->status('ERROR') if $ill_request->status ne 'ERROR';
+                    next;
                 } else {
                     $self->debug_msg('Updating request status');
                     $ill_request->status($new_local_status);
