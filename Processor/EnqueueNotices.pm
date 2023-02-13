@@ -39,7 +39,7 @@ sub run {
     # Get branches that contain not 'COMP' requests
     # FIXME: There must be a prettier/better way of doing this
     my $dbh   = C4::Context->dbh;
-    my $time_interval = $self->{env} && $self->{env} eq 'prod' ? 'AND updated <= NOW() - INTERVAL 1 DAY' : '';
+    my $time_interval = $self->{env} && $self->{env} eq 'prod' ? 'AND updated <= NOW() - INTERVAL 2 DAY' : '';
     my $branches_query = "SELECT DISTINCT branchcode
         FROM illrequests
         WHERE backend = 'ReprintsDesk' AND status != 'COMP'" . $time_interval;;
@@ -60,7 +60,7 @@ sub run {
     foreach my $branch ( @branches ) {
 
         # Get the requests not updated in over 24 hours
-        my $one_day_ago = DateTime->now( time_zone=>'local' )->subtract( days => 1 );
+        my $one_day_ago = DateTime->now( time_zone=>'local' )->subtract( days => 2 );
         my $requests = Koha::Illrequests->search({
                 branchcode => $branch->branchcode,
                 status => {'!=', 'COMP'},
