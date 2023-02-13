@@ -9,6 +9,14 @@
     <input name="method" id="method" value="edititem" type="hidden"/>
     <input name="backend" id="backend" value="ReprintsDesk" type="hidden"/>
     <ol>
+      <li id="reprints_desk_field_title">
+        <label class="reprints_desk_label" id="title_label" for="title">[% whole.field_map.0.label | html %]</label>
+        <textarea type="text" name="title" id="title"/>[% whole.value.other.title %]</textarea>
+      </li>
+      <li id="reprints_desk_field_atitle">
+        <label class="reprints_desk_label" id="atitle_label" for="atitle">[% whole.field_map.1.label | html %]</label>
+        <textarea type="text" name="atitle" id="atitle"/>[% whole.value.other.atitle %]</textarea>
+      </li>
       [% FOREACH field IN whole.field_map %]
       [% key = field.key %]
       [% IF !field.exclude %]

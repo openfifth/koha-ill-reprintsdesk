@@ -1169,6 +1169,7 @@ Key = API metadata element name
 sub fieldmap {
     return {
         title => {
+            exclude   => 1,
             type      => "string",
             label     => "Journal title",
             ill       => "title",
@@ -1176,6 +1177,7 @@ sub fieldmap {
             position  => 0
         },
         atitle => {
+            exclude   => 1,
             type      => "string",
             label     => "Article title",
             ill       => "article_title",
