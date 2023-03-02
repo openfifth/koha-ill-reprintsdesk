@@ -151,6 +151,7 @@ tr:nth-child(even) {
 <table>
   <tr>
     <th>ILL Request</th>
+    <th>Batch</th>
     <th>Status</th>
     <th>Order ID</th>
     <th>Updated at</th>
@@ -176,10 +177,17 @@ sub _get_html_order_row {
     my $rpdesk_api_www_url = $self->{env} && $self->{env} eq 'prod' ? 'www' : 'wwwstg';
     my $rpdesk_os_link = $rndId ? 'https://' . $rpdesk_api_www_url . '.reprintsdesk.com/landing/os.aspx?o='.$ill_request->orderid.'&r='.$rndId->value : '';
 
+    my $ill_request_batch = Koha::Illbatches->find($ill_request->batch_id);
+    my $ill_batch_name = $ill_request_batch ? $ill_request_batch->name : '';
+    my $ill_batch_id = $ill_request_batch ? $ill_request_batch->id : '';
+
     return sprintf("
         <tr>
             <td>
                 <a href=\"%s/cgi-bin/koha/ill/ill-requests.pl?method=illview&illrequest_id=%d\">ILL-%d</a>
+            </td>
+            <td>
+                <a href=\"%s/cgi-bin/koha/ill/ill-requests.pl?batch_id=%d\">%s</a>
             </td>
             <td>%s</td>
             <td>#%d</td>
@@ -188,7 +196,20 @@ sub _get_html_order_row {
                 <a href=\"%s\">%s</a>
             </td>
         </tr>
-        ", $staff_url, $ill_request->illrequest_id, $ill_request->illrequest_id, $status_graph->{$ill_request->status}->{name}, ( $ill_request->orderid ? $ill_request->orderid : '0'), $ill_request->updated, $rpdesk_os_link, $rpdesk_os_link);
+        ",
+            # request id with link col
+            $staff_url, $ill_request->illrequest_id, $ill_request->illrequest_id,
+            # batch name with link col
+            $staff_url, $ill_batch_id, $ill_batch_name,
+            # status row
+            $status_graph->{$ill_request->status}->{name},
+            # orderid row
+            ( $ill_request->orderid ? $ill_request->orderid : '0'),
+            # updated at row
+            $ill_request->updated,
+            # RPdesk order status page link
+            $rpdesk_os_link, $rpdesk_os_link
+        );
 }
 
 sub _enqueue_letter {
