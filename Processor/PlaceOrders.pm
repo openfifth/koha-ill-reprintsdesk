@@ -17,6 +17,7 @@ sub run {
 
     $self->{do_debug} = $options->{debug};
     $self->{dry_run} = $options->{dry_run};
+    $self->{env} = $options->{env};
 
     my $rd = Koha::Illbackends::ReprintsDesk::Base->new( { logger => Koha::Illrequest::Logger->new } );
 
@@ -48,7 +49,7 @@ sub run {
     # Wait a bit before asking RPDesk the history of the orders we just placed
     sleep(10);
     my $get_order_history_proc = Koha::Illbackends::ReprintsDesk::Processor::GetOrderHistory->new;
-    $get_order_history_proc->run(undef, { debug => $self->{do_debug}, dry_run => $self->{dry_run} });
+    $get_order_history_proc->run(undef, { debug => $self->{do_debug}, dry_run => $self->{dry_run}, env = $self->{env} });
 }
 
 sub debug_msg {
