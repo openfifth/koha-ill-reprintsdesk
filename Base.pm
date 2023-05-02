@@ -1082,18 +1082,18 @@ sub create_api {
     # translate to Reprints Desk schema before we can proceed
     # We merge the supplied core metadata with the Reprints Desk
     # equivalents
-    foreach my $prop(keys %{$body->{metadata}}) {
+    foreach my $attr(@{$body->{extended_attributes}}) {
+        my $prop = $attr->{type};
         my $rd_prop = find_core_to_reprints_desk($prop);
         if ($rd_prop) {
-            $body->{$rd_prop} = $body->{metadata}->{$prop};
+            my @value = map { $_->{type} eq $rd_prop ? $_->{value} : () } @{$body->{extended_attributes}};
+            $body->{$rd_prop} = $value[0];
         }
     }
 
     # Create a submission from our metadata
     # Mung things into the form create_submission expects
-    my $metadata = $body->{metadata};
-    delete $body->{metadata};
-    my $to_pass = {%{$body},%{$metadata}};
+    delete $body->{extended_attributes};
 
     my $submission = $self->create_submission(
         {
