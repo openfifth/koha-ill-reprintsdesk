@@ -1184,6 +1184,14 @@ sub fieldmap {
             api_max_length => 255,
             position  => 1
         },
+        article_title => {
+            exclude   => 1,
+            type      => "string",
+            label     => "Article title",
+            ill       => "article_title",
+            api_max_length => 255,
+            position  => 1
+        },
         aufirst => {
             type      => "string",
             label     => "Author's first name",
