@@ -1190,6 +1190,7 @@ sub fieldmap {
             label     => "Article title",
             ill       => "article_title",
             api_max_length => 255,
+            no_submit => 1,
             position  => 1
         },
         aufirst => {
