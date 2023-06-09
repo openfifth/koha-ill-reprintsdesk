@@ -23,6 +23,7 @@ use warnings;
 
 use JSON qw( to_json from_json );
 use File::Basename qw( dirname );
+use C4::Installer;
 
 use Koha::Illbackends::ReprintsDesk::Lib::API;
 use Koha::Illbackends::ReprintsDesk::Processor::PlaceOrders;
@@ -453,6 +454,8 @@ sub migrate {
             Koha::Illrequestattribute->new(
                 {
                     illrequest_id => $request->illrequest_id,
+                    # Check required for compatibility with installations before bug 33970
+                    column_exists( 'illrequestattributes', 'backend' ) ? (backend =>"ReprintsDesk") : (),
                     type          => $rd_field_name,
                     value         => $attr->{value},
                 }
@@ -574,6 +577,8 @@ sub create_illrequestattributes {
             if (!exists $existing_hash->{lc $att_type}) {
                 my $data = {
                     illrequest_id => $request->illrequest_id,
+                    # Check required for compatibility with installations before bug 33970
+                    column_exists( 'illrequestattributes', 'backend' ) ? (backend =>"ReprintsDesk") : (),
                     type          => $att_type,
                     value         => $att_value,
                     readonly      => 0
@@ -683,6 +688,8 @@ sub create_request {
         if ($request_id && length $request_id > 0) {
             Koha::Illrequestattribute->new({
                 illrequest_id => $submission->illrequest_id,
+                # Check required for compatibility with installations before bug 33970
+                column_exists( 'illrequestattributes', 'backend' ) ? (backend =>"ReprintsDesk") : (),
                 type          => 'orderId',
                 value         => $request_id
             })->store;
@@ -691,6 +698,8 @@ sub create_request {
         if ($rnd_id && length $rnd_id > 0) {
             Koha::Illrequestattribute->new({
                 illrequest_id => $submission->illrequest_id,
+                # Check required for compatibility with installations before bug 33970
+                column_exists( 'illrequestattributes', 'backend' ) ? (backend =>"ReprintsDesk") : (),
                 type          => 'rndId',
                 value         => $rnd_id
             })->store;
