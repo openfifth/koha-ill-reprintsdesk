@@ -73,7 +73,7 @@ Make a call to the /Order_PlaceOrder2 API
 =cut
 
 sub Order_PlaceOrder2 {
-    my ($self, $metadata, $borrowernumber) = @_;
+    my ($self, $metadata, $borrowernumber, $illrequest_id) = @_;
 
     my $borrower = Koha::Patrons->find( $borrowernumber );
 
@@ -82,6 +82,7 @@ sub Order_PlaceOrder2 {
 
     # Request including passed metadata
     my $body = {
+        illrequest_id => $illrequest_id,
         orderdetail => $metadata,
         deliveryprofile => {
             firstname   => $borrower->firstname || "",
