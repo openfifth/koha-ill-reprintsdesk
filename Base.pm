@@ -21,7 +21,7 @@ use Modern::Perl;
 use strict;
 use warnings;
 
-use JSON qw( to_json from_json );
+use JSON           qw( to_json from_json );
 use File::Basename qw( dirname );
 use C4::Installer;
 
@@ -35,21 +35,19 @@ use Koha::Patrons;
 our $VERSION = "1.0.0";
 
 sub new {
-    my ($class, $params) = @_;
+    my ( $class, $params ) = @_;
 
     my $api = Koha::Illbackends::ReprintsDesk::Lib::API->new($VERSION);
 
     my $self = {
-        _api    => $api,
+        _api      => $api,
         templates => {
-            'REPRINTS_DESK_MIGRATE_IN' =>
-              dirname(__FILE__) . '/intra-includes/log/reprints_desk_migrate_in.tt',
-            'REPRINTS_DESK_REQUEST_SUCCEEDED' =>
-              dirname(__FILE__) . '/intra-includes/log/reprints_desk_request_succeeded.tt',
-            'REPRINTS_DESK_REQUEST_ORDER_UPDATED' =>
-              dirname(__FILE__) . '/intra-includes/log/reprints_desk_request_order_updated.tt',
-            'REPRINTS_DESK_REQUEST_FAILED' =>
-              dirname(__FILE__) . '/intra-includes/log/reprints_desk_request_failed.tt'
+            'REPRINTS_DESK_MIGRATE_IN'        => dirname(__FILE__) . '/intra-includes/log/reprints_desk_migrate_in.tt',
+            'REPRINTS_DESK_REQUEST_SUCCEEDED' => dirname(__FILE__)
+                . '/intra-includes/log/reprints_desk_request_succeeded.tt',
+            'REPRINTS_DESK_REQUEST_ORDER_UPDATED' => dirname(__FILE__)
+                . '/intra-includes/log/reprints_desk_request_order_updated.tt',
+            'REPRINTS_DESK_REQUEST_FAILED' => dirname(__FILE__) . '/intra-includes/log/reprints_desk_request_failed.tt'
         }
     };
 
@@ -61,7 +59,7 @@ sub new {
         Koha::Illbackends::ReprintsDesk::Processor::EnqueueNotices->new
     ];
 
-    bless($self, $class);
+    bless( $self, $class );
 
     return $self;
 }
@@ -73,7 +71,7 @@ Handle the "create" flow
 =cut
 
 sub create {
-    my ($self, $params) = @_;
+    my ( $self, $params ) = @_;
 
     my $other = $params->{other};
     my $stage = $other->{stage};
@@ -89,37 +87,35 @@ sub create {
         message        => "",
         error          => 0,
         field_map      => $self->fieldmap_sorted,
-        field_map_json => to_json($self->fieldmap())
+        field_map_json => to_json( $self->fieldmap() )
     };
 
     # Check for borrowernumber, but only if we're not receiving an OpenURL
-    if (
-        !$other->{openurl} &&
-        (!$other->{borrowernumber} && defined( $other->{cardnumber} ))
-    ) {
+    if ( !$other->{openurl}
+        && ( !$other->{borrowernumber} && defined( $other->{cardnumber} ) ) )
+    {
         $response->{cardnumber} = $other->{cardnumber};
 
         # 'cardnumber' here could also be a surname (or in the case of
         # search it will be a borrowernumber).
         my ( $brw_count, $brw ) =
-          _validate_borrower( $other->{'cardnumber'}, $stage );
+            _validate_borrower( $other->{'cardnumber'}, $stage );
 
         if ( $brw_count == 0 ) {
             $response->{status} = "invalid_borrower";
             $response->{value}  = $params;
-            $response->{stage} = "init";
+            $response->{stage}  = "init";
             $response->{error}  = 1;
             return $response;
-        }
-        elsif ( $brw_count > 1 ) {
+        } elsif ( $brw_count > 1 ) {
+
             # We must select a specific borrower out of our options.
             $params->{brw}     = $brw;
             $response->{value} = $params;
             $response->{stage} = "borrowers";
             $response->{error} = 0;
             return $response;
-        }
-        else {
+        } else {
             $other->{borrowernumber} = $brw->borrowernumber;
         }
 
@@ -132,7 +128,8 @@ sub create {
         # First thing we want to do, is check if we're receiving
         # an OpenURL and transform it into something we can
         # understand
-        if ($other->{openurl}) {
+        if ( $other->{openurl} ) {
+
             # We only want to transform once
             delete $other->{openurl};
             $params = _openurl_to_reprints_desk($params);
@@ -140,52 +137,53 @@ sub create {
 
         # Pass the map of form fields in forms that can be used by TT
         # and JS
-        $response->{field_map} = $self->fieldmap_sorted;
-        $response->{field_map_json} = to_json($self->fieldmap());
+        $response->{field_map}      = $self->fieldmap_sorted;
+        $response->{field_map_json} = to_json( $self->fieldmap() );
+
         # We just need to request the snippet that builds the Creation
         # interface.
         $response->{stage} = 'init';
         $response->{value} = $params;
         return $response;
     }
+
     # Validate form and perform search if valid
     elsif ( $stage eq 'validate' || $stage eq 'form' ) {
 
         if ( _fail( $other->{'branchcode'} ) ) {
+
             # Pass the map of form fields in forms that can be used by TT
             # and JS
-            $response->{field_map} = $self->fieldmap_sorted;
-            $response->{field_map_json} = to_json($self->fieldmap());
-            $response->{status} = "missing_branch";
-            $response->{error}  = 1;
-            $response->{stage}  = 'init';
-            $response->{value}  = $params;
+            $response->{field_map}      = $self->fieldmap_sorted;
+            $response->{field_map_json} = to_json( $self->fieldmap() );
+            $response->{status}         = "missing_branch";
+            $response->{error}          = 1;
+            $response->{stage}          = 'init';
+            $response->{value}          = $params;
             return $response;
-        }
-        elsif ( !Koha::Libraries->find( $other->{'branchcode'} ) ) {
+        } elsif ( !Koha::Libraries->find( $other->{'branchcode'} ) ) {
+
             # Pass the map of form fields in forms that can be used by TT
             # and JS
-            $response->{field_map} = $self->fieldmap_sorted;
-            $response->{field_map_json} = to_json($self->fieldmap());
-            $response->{status} = "invalid_branch";
-            $response->{error}  = 1;
-            $response->{stage}  = 'init';
-            $response->{value}  = $params;
+            $response->{field_map}      = $self->fieldmap_sorted;
+            $response->{field_map_json} = to_json( $self->fieldmap() );
+            $response->{status}         = "invalid_branch";
+            $response->{error}          = 1;
+            $response->{stage}          = 'init';
+            $response->{value}          = $params;
             return $response;
-        }
-        elsif ( !$self->_validate_metadata($other)) {
-            $response->{field_map} = $self->fieldmap_sorted;
-            $response->{field_map_json} = to_json($self->fieldmap());
-            $response->{status} = "invalid_metadata";
-            $response->{error}  = 1;
-            $response->{stage}  = 'init';
-            $response->{value}  = $params;
+        } elsif ( !$self->_validate_metadata($other) ) {
+            $response->{field_map}      = $self->fieldmap_sorted;
+            $response->{field_map_json} = to_json( $self->fieldmap() );
+            $response->{status}         = "invalid_metadata";
+            $response->{error}          = 1;
+            $response->{stage}          = 'init';
+            $response->{value}          = $params;
             return $response;
-        }
-        else {
+        } else {
             my $result = $self->create_submission($params);
             $response->{stage}  = 'commit';
-            $response->{next} = "illview";
+            $response->{next}   = "illview";
             $response->{params} = $params;
             return $response;
         }
@@ -199,7 +197,7 @@ sub create {
 =cut
 
 sub cancel {
-    my ($self, $params) = @_;
+    my ( $self, $params ) = @_;
 
     # Update the submission's status
     $params->{request}->status("CANCREQ")->store;
@@ -212,10 +210,10 @@ sub cancel {
 =cut
 
 sub illview {
-    my ($self, $params) = @_;
+    my ( $self, $params ) = @_;
 
     return {
-        field_map_json => to_json(fieldmap()),
+        field_map_json => to_json( fieldmap() ),
         method         => "illview"
     };
 }
@@ -227,33 +225,34 @@ Edit an item's metadata
 =cut
 
 sub edititem {
-    my ($self, $params) = @_;
+    my ( $self, $params ) = @_;
 
     # Don't allow editing of requested or completed submissions
     return {
         cwd    => dirname(__FILE__),
         method => 'illlist'
-    } if ($params->{request}->status eq 'REQ' || $params->{request}->status eq 'COMP' );
+    } if ( $params->{request}->status eq 'REQ' || $params->{request}->status eq 'COMP' );
 
     my $other = $params->{other};
     my $stage = $other->{stage};
     if ( !$stage || $stage eq 'init' ) {
         my $attrs = $params->{request}->illrequestattributes->unblessed;
-        foreach my $attr(@{$attrs}) {
-            $other->{$attr->{type}} = $attr->{value};
+        foreach my $attr ( @{$attrs} ) {
+            $other->{ $attr->{type} } = $attr->{value};
         }
         return {
-            cwd     => dirname(__FILE__),
-            error   => 0,
-            status  => '',
-            message => '',
-            method  => 'edititem',
-            stage   => 'form',
-            value   => $params,
-            field_map => $self->fieldmap_sorted,
-            field_map_json => to_json($self->fieldmap)
+            cwd            => dirname(__FILE__),
+            error          => 0,
+            status         => '',
+            message        => '',
+            method         => 'edititem',
+            stage          => 'form',
+            value          => $params,
+            field_map      => $self->fieldmap_sorted,
+            field_map_json => to_json( $self->fieldmap )
         };
     } elsif ( $stage eq 'form' ) {
+
         # Update submission
         my $submission = $params->{request};
         $submission->updated( DateTime->now );
@@ -262,18 +261,18 @@ sub edititem {
         # We may be receiving a submitted form due to the user having
         # changed request material type, so we just need to go straight
         # back to the form, the type has been changed in the params
-        if (defined $other->{change_type}) {
+        if ( defined $other->{change_type} ) {
             delete $other->{change_type};
             return {
-                cwd     => dirname(__FILE__),
-                error   => 0,
-                status  => '',
-                message => '',
-                method  => 'edititem',
-                stage   => 'form',
-                value   => $params,
-                field_map => $self->fieldmap_sorted,
-                field_map_json => to_json($self->fieldmap)
+                cwd            => dirname(__FILE__),
+                error          => 0,
+                status         => '',
+                message        => '',
+                method         => 'edititem',
+                stage          => 'form',
+                value          => $params,
+                field_map      => $self->fieldmap_sorted,
+                field_map_json => to_json( $self->fieldmap )
             };
         }
 
@@ -284,46 +283,51 @@ sub edititem {
         my $dbh    = C4::Context->dbh;
         my $schema = Koha::Database->new->schema;
         $schema->txn_do(
-            sub{
+            sub {
                 # Delete all existing attributes for this request
-                $dbh->do( q|
+                $dbh->do(
+                    q|
                     DELETE FROM illrequestattributes WHERE illrequest_id=?
-                |, undef, $submission->id);
+                |, undef, $submission->id
+                );
+
                 # Insert all current attributes for this request
                 my $fields = $self->fieldmap;
 
                 # First insert our Reprints Desk fields
-                foreach my $field(%{$other}) {
+                foreach my $field ( %{$other} ) {
                     my $value = $other->{$field};
-                    if (
-                        $other->{$field} &&
-                        length $other->{$field} > 0
-                    ) {
-                        my @bind = ($submission->id, $field, $value, 0);
-                        $dbh->do ( q|
+                    if ( $other->{$field}
+                        && length $other->{$field} > 0 )
+                    {
+                        my @bind = ( $submission->id, $field, $value, 0 );
+                        $dbh->do(
+                            q|
                             INSERT INTO illrequestattributes
                             (illrequest_id, type, value, readonly) VALUES
                             (?, ?, ?, ?)
-                        |, undef, @bind);
+                        |, undef, @bind
+                        );
                     }
                 }
 
                 # Now insert our core equivalents, if an equivalently named Rapid field
                 # doesn't already exist
-                foreach my $field(%{$other}) {
+                foreach my $field ( %{$other} ) {
                     my $value = $other->{$field};
-                    if (
-                        $other->{$field} &&
-                        $fields->{$field}->{ill} &&
-                        length $other->{$field} > 0 &&
-                        !$fields->{$fields->{$field}->{ill}}
-                    ) {
-                        my @bind = ($submission->id, $fields->{$field}->{ill}, $value, 0);
-                        $dbh->do ( q|
+                    if (   $other->{$field}
+                        && $fields->{$field}->{ill}
+                        && length $other->{$field} > 0
+                        && !$fields->{ $fields->{$field}->{ill} } )
+                    {
+                        my @bind = ( $submission->id, $fields->{$field}->{ill}, $value, 0 );
+                        $dbh->do(
+                            q|
                             INSERT INTO illrequestattributes
                             (illrequest_id, type, value, readonly) VALUES
                             (?, ?, ?, ?)
-                        |, undef, @bind);
+                        |, undef, @bind
+                        );
                     }
                 }
             }
@@ -340,7 +344,7 @@ sub edititem {
             next           => 'illview',
             value          => $params,
             field_map      => $self->fieldmap_sorted,
-            field_map_json => to_json($self->fieldmap)
+            field_map_json => to_json( $self->fieldmap )
         };
     }
 }
@@ -355,9 +359,9 @@ value or display, then do it
 sub do_join {
     my ( $self, $field, $metadata ) = @_;
     my $fields = $self->fieldmap;
-    my $value = $metadata->{$field};
-    my $join = $fields->{$field}->{join};
-    if ($join && $metadata->{$join} && $value) {
+    my $value  = $metadata->{$field};
+    my $join   = $fields->{$field}->{join};
+    if ( $join && $metadata->{$join} && $value ) {
         my @to_join = ( $value, $metadata->{$join} );
         $value = join " ", @to_join;
     }
@@ -371,9 +375,9 @@ Mark a request as completed (status = COMP).
 =cut
 
 sub mark_completed {
-    my ( $self ) = @_;
+    my ($self) = @_;
     $self->status('COMP')->store;
-    $self->completed(dt_from_string())->store;
+    $self->completed( dt_from_string() )->store;
     return {
         error   => 0,
         status  => '',
@@ -432,8 +436,9 @@ sub migrate {
     my $migrating_from = $request->backend;
 
     # Cancel the original if appropriate
-    if ( $request->status eq 'REQ') {
+    if ( $request->status eq 'REQ' ) {
         $request->_backend_capability( 'cancel', { request => $request } );
+
         # The orderid is no longer applicable
         $request->orderid(undef);
     }
@@ -444,20 +449,23 @@ sub migrate {
 
     # Translate the core metadata into our schema
     my $all_attrs = $request->illrequestattributes->unblessed;
+
     # For each attribute, if the property name is a core one we change it to the Reprints Desk
     # equivalent, otherwise we can skip it as it already exists in the attributes list
-    foreach my $attr(@{$all_attrs}) {
-        my $rd_field_name = $self->find_reprints_desk_property($attr->{type});
+    foreach my $attr ( @{$all_attrs} ) {
+        my $rd_field_name = $self->find_reprints_desk_property( $attr->{type} );
+
         # If we've found a Reprints Desk field name and an attribute doesn't already exist
         # with this name, create a new one
-        if ($rd_field_name && !$self->find_illrequestattribute($all_attrs, $rd_field_name)) {
+        if ( $rd_field_name && !$self->find_illrequestattribute( $all_attrs, $rd_field_name ) ) {
             Koha::Illrequestattribute->new(
                 {
                     illrequest_id => $request->illrequest_id,
+
                     # Check required for compatibility with installations before bug 33970
-                    column_exists( 'illrequestattributes', 'backend' ) ? (backend =>"ReprintsDesk") : (),
-                    type          => $rd_field_name,
-                    value         => $attr->{value},
+                    column_exists( 'illrequestattributes', 'backend' ) ? ( backend => "ReprintsDesk" ) : (),
+                    type  => $rd_field_name,
+                    value => $attr->{value},
                 }
             )->store;
         }
@@ -469,11 +477,13 @@ sub migrate {
             modulename   => 'ILL',
             actionname   => 'REPRINTS_DESK_MIGRATE_IN',
             objectnumber => $request->id,
-            infos        => to_json({
-                log_origin    => $self->name,
-                migrated_from => $migrating_from,
-                migrated_to   => $self->name
-            })
+            infos        => to_json(
+                {
+                    log_origin    => $self->name,
+                    migrated_from => $migrating_from,
+                    migrated_to   => $self->name
+                }
+            )
         };
         $self->_logger->log_something($payload);
     }
@@ -498,7 +508,7 @@ API specification
 =cut
 
 sub _validate_metadata {
-    my ($self, $metadata) = @_;
+    my ( $self, $metadata ) = @_;
     return 1;
 }
 
@@ -509,13 +519,13 @@ Create a local submission, for later Reprints Desk request creation
 =cut
 
 sub create_submission {
-    my ($self, $params) = @_;
+    my ( $self, $params ) = @_;
 
     my $patron = Koha::Patrons->find( $params->{other}->{borrowernumber} );
 
     my $request = $params->{request};
-    $request->borrowernumber($patron->borrowernumber);
-    $request->branchcode($params->{other}->{branchcode});
+    $request->borrowernumber( $patron->borrowernumber );
+    $request->branchcode( $params->{other}->{branchcode} );
 
     # Request creation came from opac: Set status as 'NEW'
     if ( $params->{other}->{interface} && $params->{other}->{interface} eq 'opac' ) {
@@ -524,17 +534,18 @@ sub create_submission {
         $request->status('READY');
     }
 
-    $request->batch_id($params->{other}->{batch_id});
-    $request->backend($self->name);
-    $request->placed(DateTime->now);
-    $request->updated(DateTime->now);
+    $request->batch_id( $params->{other}->{batch_id} );
+    $request->backend( $self->name );
+    $request->placed( DateTime->now );
+    $request->updated( DateTime->now );
 
     $request->store;
 
     # Store the request attributes
-    $self->create_illrequestattributes($request, $params->{other});
+    $self->create_illrequestattributes( $request, $params->{other} );
+
     # Now store the core equivalents
-    $self->create_illrequestattributes($request, $params->{other}, 1);
+    $self->create_illrequestattributes( $request, $params->{other}, 1 );
 
     return $request;
 }
@@ -546,7 +557,7 @@ Store metadata for a given request for our Reprints Desk fields
 =cut
 
 sub create_illrequestattributes {
-    my ($self, $request, $metadata, $core) = @_;
+    my ( $self, $request, $metadata, $core ) = @_;
 
     # Get the canonical list of metadata fields
     my $fields = $self->fieldmap;
@@ -554,34 +565,39 @@ sub create_illrequestattributes {
     # Get any existing illrequestattributes for this request,
     # so we can avoid trying to create duplicates
     my $existing_attrs = $request->illrequestattributes->unblessed;
-    my $existing_hash = {};
-    foreach my $a(@{$existing_attrs}) {
-        $existing_hash->{lc $a->{type}} = $a->{value};
+    my $existing_hash  = {};
+    foreach my $a ( @{$existing_attrs} ) {
+        $existing_hash->{ lc $a->{type} } = $a->{value};
     }
+
     # Iterate our list of fields
-    foreach my $field (keys %{$fields}) {
+    foreach my $field ( keys %{$fields} ) {
         if (
             # If we're working with core metadata, check if this field
             # has a core equivalent
-            (($core && $fields->{$field}->{ill}) || !$core) &&
-            $metadata->{$field} &&
-            length $metadata->{$field} > 0
-        ) {
-            my $att_type = $core ? $fields->{$field}->{ill} : $field;
+            ( ( $core && $fields->{$field}->{ill} ) || !$core )
+            && $metadata->{$field}
+            && length $metadata->{$field} > 0
+            )
+        {
+            my $att_type  = $core ? $fields->{$field}->{ill} : $field;
             my $att_value = $metadata->{$field};
+
             # If core, we might need to join
             if ($core) {
-                $att_value = $self->do_join($field, $metadata);
+                $att_value = $self->do_join( $field, $metadata );
             }
+
             # If it doesn't already exist for this request
-            if (!exists $existing_hash->{lc $att_type}) {
+            if ( !exists $existing_hash->{ lc $att_type } ) {
                 my $data = {
                     illrequest_id => $request->illrequest_id,
+
                     # Check required for compatibility with installations before bug 33970
-                    column_exists( 'illrequestattributes', 'backend' ) ? (backend =>"ReprintsDesk") : (),
-                    type          => $att_type,
-                    value         => $att_value,
-                    readonly      => 0
+                    column_exists( 'illrequestattributes', 'backend' ) ? ( backend => "ReprintsDesk" ) : (),
+                    type     => $att_type,
+                    value    => $att_value,
+                    readonly => 0
                 };
                 Koha::Illrequestattribute->new($data)->store;
             }
@@ -599,15 +615,15 @@ is appropriate for this material type
 =cut
 
 sub prep_submission_metadata {
-    my ($self, $metadata, $return) = @_;
+    my ( $self, $metadata, $return ) = @_;
 
     $return = $return //= {};
 
     my $metadata_hashref = {};
 
-    if (ref $metadata eq "Koha::Illrequestattributes") {
-        while (my $attr = $metadata->next) {
-            $metadata_hashref->{$attr->type} = $attr->value;
+    if ( ref $metadata eq "Koha::Illrequestattributes" ) {
+        while ( my $attr = $metadata->next ) {
+            $metadata_hashref->{ $attr->type } = $attr->value;
         }
     } else {
         $metadata_hashref = $metadata;
@@ -617,14 +633,13 @@ sub prep_submission_metadata {
     my $fields = $self->fieldmap;
 
     # Iterate our list of fields
-    foreach my $field(keys %{$fields}) {
-        if (
-            $metadata_hashref->{$field} &&
-            length $metadata_hashref->{$field} > 0
-        ) {
-            $metadata_hashref->{$field}=~s/  / /g;
+    foreach my $field ( keys %{$fields} ) {
+        if ( $metadata_hashref->{$field}
+            && length $metadata_hashref->{$field} > 0 )
+        {
+            $metadata_hashref->{$field} =~ s/  / /g;
             if ( $fields->{$field}->{api_max_length} ) {
-                $return->{$field} = substr( $metadata_hashref->{$field}, 0, $fields->{$field}->{api_max_length} )
+                $return->{$field} = substr( $metadata_hashref->{$field}, 0, $fields->{$field}->{api_max_length} );
             } else {
                 $return->{$field} = $metadata_hashref->{$field};
             }
@@ -642,7 +657,7 @@ a Reprints Desk request
 =cut
 
 sub submit_and_request {
-    my ($self, $params) = @_;
+    my ( $self, $params ) = @_;
 
     # First we create a submission
     my $submission = $self->create_submission($params);
@@ -659,7 +674,7 @@ in order to create a request
 =cut
 
 sub create_request {
-    my ($self, $submission) = @_;
+    my ( $self, $submission ) = @_;
 
     my $metadata = {};
 
@@ -670,66 +685,79 @@ sub create_request {
 
     # We may need to remove fields prior to sending the request
     my $fields = fieldmap();
-    foreach my $field(keys %{$fields}) {
-        if ($fields->{$field}->{no_submit}) {
+    foreach my $field ( keys %{$fields} ) {
+        if ( $fields->{$field}->{no_submit} ) {
             delete $metadata->{$field};
         }
     }
 
     # Make the request with Reprints Desk via the koha-plugin-reprintsdesk API
-    my $response = $self->{_api}->Order_PlaceOrder2( $metadata, $submission->borrowernumber, $submission->illrequest_id );
+    my $response =
+        $self->{_api}->Order_PlaceOrder2( $metadata, $submission->borrowernumber, $submission->illrequest_id );
 
     # If the call to Reprints Desk was successful,
     # add the Reprints Desk request ID to our submission's metadata
-    my $body = from_json($response->decoded_content);
+    my $body = from_json( $response->decoded_content );
 
-    if (scalar @{$body->{errors}} == 0 && $body->{result}->{Order_PlaceOrder2Result} == 1) {
+    if ( scalar @{ $body->{errors} } == 0 && $body->{result}->{Order_PlaceOrder2Result} == 1 ) {
         my $request_id = $body->{result}->{orderID};
-        if ($request_id && length $request_id > 0) {
-            Koha::Illrequestattribute->new({
-                illrequest_id => $submission->illrequest_id,
-                # Check required for compatibility with installations before bug 33970
-                column_exists( 'illrequestattributes', 'backend' ) ? (backend =>"ReprintsDesk") : (),
-                type          => 'orderId',
-                value         => $request_id
-            })->store;
+        if ( $request_id && length $request_id > 0 ) {
+            Koha::Illrequestattribute->new(
+                {
+                    illrequest_id => $submission->illrequest_id,
+
+                    # Check required for compatibility with installations before bug 33970
+                    column_exists( 'illrequestattributes', 'backend' ) ? ( backend => "ReprintsDesk" ) : (),
+                    type  => 'orderId',
+                    value => $request_id
+                }
+            )->store;
         }
         my $rnd_id = $body->{result}->{rndID};
-        if ($rnd_id && length $rnd_id > 0) {
-            Koha::Illrequestattribute->new({
-                illrequest_id => $submission->illrequest_id,
-                # Check required for compatibility with installations before bug 33970
-                column_exists( 'illrequestattributes', 'backend' ) ? (backend =>"ReprintsDesk") : (),
-                type          => 'rndId',
-                value         => $rnd_id
-            })->store;
+        if ( $rnd_id && length $rnd_id > 0 ) {
+            Koha::Illrequestattribute->new(
+                {
+                    illrequest_id => $submission->illrequest_id,
+
+                    # Check required for compatibility with installations before bug 33970
+                    column_exists( 'illrequestattributes', 'backend' ) ? ( backend => "ReprintsDesk" ) : (),
+                    type  => 'rndId',
+                    value => $rnd_id
+                }
+            )->store;
         }
+
         # Add the Reprints Desk ID to the orderid field
         $submission->orderid($request_id);
+
         # Update the submission status
         $submission->status('REQ')->store;
 
         # Log the outcome
-        $self->log_request_outcome({
-            outcome => 'REPRINTS_DESK_REQUEST_SUCCEEDED',
-            request => $submission
-        });
+        $self->log_request_outcome(
+            {
+                outcome => 'REPRINTS_DESK_REQUEST_SUCCEEDED',
+                request => $submission
+            }
+        );
 
         return { success => 1 };
     }
 
     # The call to Reprints Desk failed for some reason. Add the message we got back from the API
     # to the submission's Staff Notes
-    my $errors = join '. ', map { $_->{message} . ( $_->{path} ? ' path: ' . $_->{path} : '' ) } @{$body->{errors}};
+    my $errors = join '. ', map { $_->{message} . ( $_->{path} ? ' path: ' . $_->{path} : '' ) } @{ $body->{errors} };
 
     $submission->append_to_note("Reprints Desk request failed:\n$errors");
 
     # Log the outcome
-    $self->log_request_outcome({
-        outcome => 'REPRINTS_DESK_REQUEST_FAILED',
-        request => $submission,
-        message => $errors
-    });
+    $self->log_request_outcome(
+        {
+            outcome => 'REPRINTS_DESK_REQUEST_FAILED',
+            request => $submission,
+            message => $errors
+        }
+    );
 
     $submission->status('ERROR')->store;
 
@@ -750,9 +778,9 @@ the status graph
 =cut
 
 sub confirm {
-    my ($self, $params) = @_;
+    my ( $self, $params ) = @_;
 
-    my $return = $self->create_request($params->{request});
+    my $return = $self->create_request( $params->{request} );
 
     my $return_value = {
         cwd     => dirname(__FILE__),
@@ -776,9 +804,10 @@ Log the outcome of a request to the Reprints Desk API
 =cut
 
 sub log_request_outcome {
-    my ($self, $params) = @_;
+    my ( $self, $params ) = @_;
 
     if ( $self->{_logger} ) {
+
         # TODO: This is a transitionary measure, we have removed set_data
         # in Bug 20750, so calls to it won't work. But since 20750 is
         # only in 19.05+, they only won't work in earlier
@@ -787,12 +816,14 @@ sub log_request_outcome {
             modulename   => 'ILL',
             actionname   => $params->{outcome},
             objectnumber => $params->{request}->id,
-            infos        => to_json({
-                log_origin => $self->name,
-                response  => $params->{message}
-            })
+            infos        => to_json(
+                {
+                    log_origin => $self->name,
+                    response   => $params->{message}
+                }
+            )
         };
-        if ($self->{_logger}->can('set_data')) {
+        if ( $self->{_logger}->can('set_data') ) {
             $self->{_logger}->set_data($payload);
         } else {
             $self->{_logger}->log_something($payload);
@@ -824,17 +855,17 @@ illrequestattributes store
 sub metadata {
     my ( $self, $request ) = @_;
 
-    my $attrs = $request->illrequestattributes;
+    my $attrs  = $request->illrequestattributes;
     my $fields = $self->fieldmap;
 
-    my $metadata = {};
+    my $metadata               = {};
     my $metadata_keyed_on_prop = {};
 
-    while (my $attr = $attrs->next) {
-        if ($fields->{$attr->type}) {
-            my $label = $fields->{$attr->type}->{label};
+    while ( my $attr = $attrs->next ) {
+        if ( $fields->{ $attr->type } ) {
+            my $label = $fields->{ $attr->type }->{label};
             $metadata->{$label} = $attr->value;
-            $metadata_keyed_on_prop->{$attr->type} = $attr->value;
+            $metadata_keyed_on_prop->{ $attr->type } = $attr->value;
         }
     }
 
@@ -856,13 +887,17 @@ capability is not implemented.
 sub capabilities {
     my ( $self, $name ) = @_;
     my $capabilities = {
+
         # View and manage a request
         illview => sub { illview(@_); },
+
         # Migrate
         migrate => sub { $self->migrate(@_); },
+
         # Return whether we are ready to display availability
         should_display_availability => sub { _can_create_request(@_) },
-        provides_batch_requests => sub { return 1; },
+        provides_batch_requests     => sub { return 1; },
+
         # We can create ILL requests with data passed from the API
         create_api => sub { $self->create_api(@_) }
     };
@@ -881,12 +916,10 @@ sub _can_create_request {
     return ( defined $params->{'stage'} ) ? 1 : 0;
 }
 
-
 =head3 status_graph
 
 
 =cut
-
 
 sub status_graph {
     return {
@@ -900,7 +933,7 @@ sub status_graph {
             ui_method_icon => 'fa-edit',
         },
         CIT => {
-            prev_actions   => [ 'REQ' ],
+            prev_actions   => ['REQ'],
             id             => 'CIT',
             name           => 'Citation Verification',
             ui_method_name => 0,
@@ -909,7 +942,7 @@ sub status_graph {
             ui_method_icon => 0,
         },
         SOURCE => {
-            prev_actions   => [ 'REQ' ],
+            prev_actions   => ['REQ'],
             id             => 'SOURCE',
             name           => 'Sourcing',
             ui_method_name => 0,
@@ -918,7 +951,7 @@ sub status_graph {
             ui_method_icon => 0,
         },
         ERROR => {
-            prev_actions   => [ ],
+            prev_actions   => [],
             id             => 'ERROR',
             name           => 'Request error',
             ui_method_name => 0,
@@ -936,7 +969,7 @@ sub status_graph {
             ui_method_icon => 'fa-check',
         },
         READY => {
-            prev_actions => [ 'NEW', 'ERROR' ],
+            prev_actions   => [ 'NEW', 'ERROR' ],
             id             => 'READY',
             name           => 'Request ready',
             ui_method_name => 'Mark request as ready for Reprints Desk',
@@ -945,7 +978,7 @@ sub status_graph {
             ui_method_icon => 'fa-check',
         },
         NEW => {
-            prev_actions => [ ],
+            prev_actions   => [],
             id             => 'NEW',
             name           => 'New request',
             ui_method_name => 'New request',
@@ -953,6 +986,7 @@ sub status_graph {
             next_actions   => [ 'READY', 'GENREQ', 'KILL', 'MIG', 'EDITITEM' ],
             ui_method_icon => 'fa-plus'
         },
+
         # Override REQ so we can rename the button
         # Talk about a sledgehammer to crack a nut
         REQ => {
@@ -965,17 +999,16 @@ sub status_graph {
             ui_method_icon => 'fa-check',
         },
         MIG => {
-            prev_actions =>[ 'NEW', 'REQ', 'GENREQ', 'REQREV', 'QUEUED', 'CANCREQ', ],
+            prev_actions   => [ 'NEW', 'REQ', 'GENREQ', 'REQREV', 'QUEUED', 'CANCREQ', ],
             id             => 'MIG',
             name           => 'Switched provider',
             ui_method_name => 'Switch provider',
             method         => 'migrate',
-            next_actions   => ['REQ', 'GENREQ', 'KILL', 'MIG'],
+            next_actions   => [ 'REQ', 'GENREQ', 'KILL', 'MIG' ],
             ui_method_icon => 'fa-search',
         },
     };
 }
-
 
 sub name {
     return "ReprintsDesk";
@@ -984,7 +1017,6 @@ sub name {
 =head3 _fail
 
 =cut
-
 
 sub _fail {
     my @values = @_;
@@ -998,11 +1030,10 @@ sub _fail {
 
 =cut
 
-
 sub find_illrequestattribute {
-    my ($self, $attributes, $prop) = @_;
-    foreach my $attr(@{$attributes}) {
-        if ($attr->{type} eq $prop) {
+    my ( $self, $attributes, $prop ) = @_;
+    foreach my $attr ( @{$attributes} ) {
+        if ( $attr->{type} eq $prop ) {
             return 1;
         }
     }
@@ -1015,12 +1046,11 @@ name. Or undef if there is not one
 
 =cut
 
-
 sub find_reprints_desk_property {
-    my ($self, $core) = @_;
+    my ( $self, $core ) = @_;
     my $fields = $self->fieldmap;
-    foreach my $field(keys %{$fields}) {
-        if ($fields->{$field}->{ill} && $fields->{$field}->{ill} eq $core) {
+    foreach my $field ( keys %{$fields} ) {
+        if ( $fields->{$field}->{ill} && $fields->{$field}->{ill} eq $core ) {
             return $field;
         }
     }
@@ -1033,7 +1063,6 @@ those same parameters but transformed to the Reprints Desk
 schema
 
 =cut
-
 
 sub _openurl_to_reprints_desk {
     my ($params) = @_;
@@ -1057,14 +1086,14 @@ sub _openurl_to_reprints_desk {
     my $return = {};
 
     # First make sure our keys are correct
-    foreach my $meta_key(keys %{$params->{other}}) {
+    foreach my $meta_key ( keys %{ $params->{other} } ) {
 
         # If we are transforming this property...
-        if (exists $transform_metadata->{$meta_key}) {
+        if ( exists $transform_metadata->{$meta_key} ) {
 
             # ...do it if we have valid mapping
-            if (length $transform_metadata->{$meta_key} > 0) {
-                $return->{$transform_metadata->{$meta_key}} = $params->{other}->{$meta_key};
+            if ( length $transform_metadata->{$meta_key} > 0 ) {
+                $return->{ $transform_metadata->{$meta_key} } = $params->{other}->{$meta_key};
             }
         } else {
 
@@ -1083,19 +1112,18 @@ API call
 
 =cut
 
-
 sub create_api {
-    my ($self, $body, $request) = @_;
+    my ( $self, $body, $request ) = @_;
 
     # We are receiving metadata in core schema, we need to
     # translate to Reprints Desk schema before we can proceed
     # We merge the supplied core metadata with the Reprints Desk
     # equivalents
-    foreach my $attr(@{$body->{extended_attributes}}) {
-        my $prop = $attr->{type};
+    foreach my $attr ( @{ $body->{extended_attributes} } ) {
+        my $prop    = $attr->{type};
         my $rd_prop = find_core_to_reprints_desk($prop);
         if ($rd_prop) {
-            my @value = map { $_->{type} eq $rd_prop ? $_->{value} : () } @{$body->{extended_attributes}};
+            my @value = map { $_->{type} eq $rd_prop ? $_->{value} : () } @{ $body->{extended_attributes} };
             $body->{$rd_prop} = $value[0];
         }
     }
@@ -1107,7 +1135,7 @@ sub create_api {
     my $submission = $self->create_submission(
         {
             request => $request,
-            other => $body
+            other   => $body
         }
     );
 
@@ -1121,14 +1149,13 @@ in fieldmap that has that as the "ill" property
 
 =cut
 
-
 sub find_core_to_reprints_desk {
     my ($prop) = @_;
 
     my $fieldmap = fieldmap();
 
-    foreach my $field(keys %{$fieldmap}) {
-        if ($fieldmap->{$field}->{ill} && $fieldmap->{$field}->{ill} eq $prop) {
+    foreach my $field ( keys %{$fieldmap} ) {
+        if ( $fieldmap->{$field}->{ill} && $fieldmap->{$field}->{ill} eq $prop ) {
             return $field;
         }
     }
@@ -1142,7 +1169,6 @@ property of the returned hash
 
 =cut
 
-
 sub fieldmap_sorted {
     my ($self) = @_;
 
@@ -1150,7 +1176,7 @@ sub fieldmap_sorted {
 
     my @out = ();
 
-    foreach my $key (sort {$fields->{$a}->{position} <=> $fields->{$b}->{position}} keys %{$fields}) {
+    foreach my $key ( sort { $fields->{$a}->{position} <=> $fields->{$b}->{position} } keys %{$fields} ) {
         my $el = $fields->{$key};
         $el->{key} = $key;
         push @out, $el;
@@ -1178,120 +1204,120 @@ Key = API metadata element name
 sub fieldmap {
     return {
         title => {
-            exclude   => 1,
-            type      => "string",
-            label     => "Journal title",
-            ill       => "title",
+            exclude        => 1,
+            type           => "string",
+            label          => "Journal title",
+            ill            => "title",
             api_max_length => 255,
-            position  => 0
+            position       => 0
         },
         atitle => {
-            exclude   => 1,
-            type      => "string",
-            label     => "Article title",
-            ill       => "article_title",
+            exclude        => 1,
+            type           => "string",
+            label          => "Article title",
+            ill            => "article_title",
             api_max_length => 255,
-            position  => 1
+            position       => 1
         },
         article_title => {
-            exclude   => 1,
-            type      => "string",
-            label     => "Article title",
-            ill       => "article_title",
+            exclude        => 1,
+            type           => "string",
+            label          => "Article title",
+            ill            => "article_title",
             api_max_length => 255,
-            no_submit => 1,
-            position  => 1
+            no_submit      => 1,
+            position       => 1
         },
         aufirst => {
-            type      => "string",
-            label     => "Author's first name",
-            ill       => "article_author",
+            type           => "string",
+            label          => "Author's first name",
+            ill            => "article_author",
             api_max_length => 50,
-            position  => 2,
-            join      => "aulast"
+            position       => 2,
+            join           => "aulast"
         },
         aulast => {
-            type      => "string",
-            label     => "Author's last name",
+            type           => "string",
+            label          => "Author's last name",
             api_max_length => 50,
-            position  => 3
+            position       => 3
         },
         volume => {
-            type      => "string",
-            label     => "Volume number",
-            ill       => "volume",
+            type           => "string",
+            label          => "Volume number",
+            ill            => "volume",
             api_max_length => 50,
-            position  => 4
+            position       => 4
         },
         issue => {
-            type      => "string",
-            label     => "Journal issue number",
-            ill       => "issue",
+            type           => "string",
+            label          => "Journal issue number",
+            ill            => "issue",
             api_max_length => 50,
-            position  => 5
+            position       => 5
         },
         date => {
-            type      => "string",
-            ill       => "year",
+            type           => "string",
+            ill            => "year",
             api_max_length => 50,
-            position  => 7,
-            label     => "Item publication date"
+            position       => 7,
+            label          => "Item publication date"
         },
         pages => {
-            type      => "string",
-            label     => "Pages in journal",
-            ill       => "pages",
+            type           => "string",
+            label          => "Pages in journal",
+            ill            => "pages",
             api_max_length => 50,
-            position  => 8
+            position       => 8
         },
         spage => {
-            type      => "string",
-            label     => "First page of article in journal",
-            ill       => "spage",
+            type           => "string",
+            label          => "First page of article in journal",
+            ill            => "spage",
             api_max_length => 50,
-            position  => 8
+            position       => 8
         },
         epage => {
-            type      => "string",
-            label     => "Last page of article in journal",
-            ill       => "epage",
+            type           => "string",
+            label          => "Last page of article in journal",
+            ill            => "epage",
             api_max_length => 50,
-            position  => 9
+            position       => 9
         },
         doi => {
-            type      => "string",
-            label     => "DOI",
-            ill       => "doi",
+            type           => "string",
+            label          => "DOI",
+            ill            => "doi",
             api_max_length => 96,
-            position  => 10
+            position       => 10
         },
         pubmedid => {
-            type      => "string",
-            label     => "PubMed ID",
-            ill       => "pubmedid",
+            type           => "string",
+            label          => "PubMed ID",
+            ill            => "pubmedid",
             api_max_length => 16,
-            position  => 11
+            position       => 11
         },
         isbn => {
-            type      => "string",
-            label     => "ISBN",
-            ill       => "isbn",
+            type           => "string",
+            label          => "ISBN",
+            ill            => "isbn",
             api_max_length => 50,
-            position  => 12
+            position       => 12
         },
         issn => {
-            type      => "string",
-            label     => "ISSN",
-            ill       => "issn",
+            type           => "string",
+            label          => "ISSN",
+            ill            => "issn",
             api_max_length => 50,
-            position  => 13
+            position       => 13
         },
         eissn => {
-            type      => "string",
-            label     => "EISSN",
-            ill       => "eissn",
+            type           => "string",
+            label          => "EISSN",
+            ill            => "eissn",
             api_max_length => 50,
-            position  => 14
+            position       => 14
         },
         orderdateutc => {
             type      => "string",
@@ -1322,7 +1348,6 @@ sub fieldmap {
 
 =cut
 
-
 sub _validate_borrower {
 
     # Perform cardnumber search.  If no results, perform surname search.
@@ -1342,12 +1367,12 @@ sub _validate_borrower {
     while ( $count == 0 ) {
         my $criterium = shift @criteria;
         return ( 0, undef ) if ( "end" eq $criterium );
-        $brws = $patrons->search( { $criterium => $input } );
+        $brws  = $patrons->search( { $criterium => $input } );
         $count = $brws->count;
     }
     if ( $count == 1 ) {
         $brw = $brws->next;
-    }else {
+    } else {
         $brw = $brws;    # found multiple results
     }
     return ( $count, $brw );
@@ -1360,7 +1385,6 @@ sub _validate_borrower {
     Getter/Setter for our Logger object.
 
 =cut
-
 
 sub _logger {
     my ( $self, $logger ) = @_;

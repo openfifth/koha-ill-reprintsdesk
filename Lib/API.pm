@@ -35,20 +35,20 @@ ReprintsDesk - Client interface to ReprintsDesk API plugin (koha-plugin-reprints
 
 =cut
 
-
 sub new {
     my ($class) = @_;
 
     my $cgi = new CGI;
 
     my $interface = C4::Context->interface;
-    my $url = $interface eq "intranet" ?
-        C4::Context->preference('staffClientBaseURL') :
-        C4::Context->preference('OPACBaseURL');
+    my $url =
+        $interface eq "intranet"
+        ? C4::Context->preference('staffClientBaseURL')
+        : C4::Context->preference('OPACBaseURL');
 
     # We need a URL to continue, otherwise we can't make the API call to
     # the ReprintsDesk API plugin
-    if (!$url) {
+    if ( !$url ) {
         Koha::Logger->get->warn("Syspref staffClientBaseURL or OPACBaseURL not set!");
         die;
     }
@@ -58,7 +58,7 @@ sub new {
     my $self = {
         ua      => LWP::UserAgent->new,
         cgi     => new CGI,
-        logger  => Koha::Logger->get({ category => 'Koha.Illbackends.ReprintsDesk.Lib.API' }),
+        logger  => Koha::Logger->get( { category => 'Koha.Illbackends.ReprintsDesk.Lib.API' } ),
         baseurl => $uri->scheme . "://" . $uri->host . ":" . $uri->port . "/api/v1/contrib/reprintsdesk"
     };
 
@@ -73,29 +73,30 @@ Make a call to the /Order_PlaceOrder2 API
 =cut
 
 sub Order_PlaceOrder2 {
-    my ($self, $metadata, $borrowernumber, $illrequest_id) = @_;
+    my ( $self, $metadata, $borrowernumber, $illrequest_id ) = @_;
 
-    my $borrower = Koha::Patrons->find( $borrowernumber );
+    my $borrower = Koha::Patrons->find($borrowernumber);
 
-    my @address1_arr = grep { defined && length $_ > 0 } ($borrower->streetnumber, $borrower->address, $borrower->address2);
+    my @address1_arr =
+        grep { defined && length $_ > 0 } ( $borrower->streetnumber, $borrower->address, $borrower->address2 );
     my $address1_str = join ", ", @address1_arr;
 
     # Request including passed metadata
     my $body = {
-        illrequest_id => $illrequest_id,
-        orderdetail => $metadata,
+        illrequest_id   => $illrequest_id,
+        orderdetail     => $metadata,
         deliveryprofile => {
             firstname   => $borrower->firstname || "",
-            lastname    => $borrower->surname || "",
+            lastname    => $borrower->surname   || "",
             address1    => $address1_str,
-            city        => $borrower->city || "",
-            statecode   => $metadata->{statecode} || "",
-            statename   => $metadata->{statename} || "",
-            zip         => $metadata->{zipcode} || "",
+            city        => $borrower->city          || "",
+            statecode   => $metadata->{statecode}   || "",
+            statename   => $metadata->{statename}   || "",
+            zip         => $metadata->{zipcode}     || "",
             countrycode => $metadata->{countrycode} || "",
-            phone       => $borrower->phone || "",
-            fax         => $borrower->fax || "",
-            email       => $borrower->email || ""
+            phone       => $borrower->phone         || "",
+            fax         => $borrower->fax           || "",
+            email       => $borrower->email         || ""
         }
     };
 
@@ -104,7 +105,7 @@ sub Order_PlaceOrder2 {
     $request->header( "Content-type" => "application/json" );
     $request->content( encode_json($body) );
 
-    return $self->{ua}->request( $request );
+    return $self->{ua}->request($request);
 }
 
 =head3 User_GetOrderHistory
@@ -114,18 +115,16 @@ Make a call to the /User_GetOrderHistory API
 =cut
 
 sub User_GetOrderHistory {
-    my ($self, $filter_type_id) = @_;
+    my ( $self, $filter_type_id ) = @_;
 
-    my $body = encode_json({
-        filterTypeID => $filter_type_id
-    });
+    my $body = encode_json( { filterTypeID => $filter_type_id } );
 
     my $request = HTTP::Request->new( 'POST', $self->{baseurl} . "/getorderhistory" );
 
     $request->header( "Content-type" => "application/json" );
-    $request->content( $body );
+    $request->content($body);
 
-    return $self->{ua}->request( $request );
+    return $self->{ua}->request($request);
 }
 
 1;
