@@ -127,4 +127,43 @@ sub User_GetOrderHistory {
     return $self->{ua}->request($request);
 }
 
+=head3 ArticleShelf_CheckAvailability
+
+Make a call to the /ArticleShelf_CheckAvailability ReprinsDesk webservice
+
+=cut
+
+sub ArticleShelf_CheckAvailability {
+    my ( $self, $ids_to_check ) = @_;
+
+    my $body = encode_json($ids_to_check);
+
+    my $request = HTTP::Request->new( 'POST', $self->{baseurl} . "/checkavailability" );
+
+    $request->header( "Content-type" => "application/json" );
+    $request->content($body);
+
+    return $self->{ua}->request($request);
+}
+
+
+=head3 Order_GetPriceEstimate2
+
+Make a call to the /Order_GetPriceEstimate2 ReprinsDesk webservice
+
+=cut
+
+sub Order_GetPriceEstimate2 {
+    my ( $self, $params ) = @_;
+
+    my $body = encode_json($params);
+
+    my $request = HTTP::Request->new( 'POST', $self->{baseurl} . "/getpriceestimate" );
+
+    $request->header( "Content-type" => "application/json" );
+    $request->content($body);
+
+    return $self->{ua}->request($request);
+}
+
 1;
