@@ -28,6 +28,7 @@ use C4::Installer;
 use Koha::Illbackends::ReprintsDesk::Lib::API;
 use Koha::Illbackends::ReprintsDesk::Processor::PlaceOrders;
 use Koha::Illbackends::ReprintsDesk::Processor::GetOrderHistory;
+use Koha::Illbackends::ReprintsDesk::Processor::CheckAvailability;
 use Koha::Illbackends::ReprintsDesk::Processor::EnqueueNotices;
 use Koha::Libraries;
 use Koha::Patrons;
@@ -56,6 +57,7 @@ sub new {
     $self->{backend_wide_processors} = [
         Koha::Illbackends::ReprintsDesk::Processor::PlaceOrders->new,
         Koha::Illbackends::ReprintsDesk::Processor::GetOrderHistory->new,
+        Koha::Illbackends::ReprintsDesk::Processor::CheckAvailability->new,
         Koha::Illbackends::ReprintsDesk::Processor::EnqueueNotices->new
     ];
 
