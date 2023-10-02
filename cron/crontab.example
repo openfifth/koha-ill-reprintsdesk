@@ -8,6 +8,10 @@ PERL5LIB=/usr/share/koha/lib:/home/koha/kohaclone
 KOHA_CRON_PATH = /usr/share/koha/bin/cronjobs
 RPDESK_CRON_PATH = /usr/share/koha/lib/Koha/Illbackends/ReprintsDesk
 
+# Check for 'NEW' requests to check for availability and price
+# Runs every minute, from 8:00 to 18:00, every weekday
+* 8-18 * * 1-5 $RPDESK_CRON_PATH/cron/process_ill_backend_wide_processors.pl --backend ReprintsDesk --processor CheckAvailability --debug
+
 # Check for 'READY' requests and attempt to place orders
 # Runs every minute, from 8:00 to 18:00, every weekday
 * 8-18 * * 1-5 $RPDESK_CRON_PATH/cron/process_ill_backend_wide_processors.pl --backend ReprintsDesk --processor PlaceOrders --debug
