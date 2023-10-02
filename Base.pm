@@ -968,12 +968,21 @@ sub status_graph {
             ui_method_icon => 'fa-check',
         },
         READY => {
-            prev_actions   => [ 'NEW', 'ERROR' ],
+            prev_actions   => [ 'ERROR', 'STANDBY' ],
             id             => 'READY',
             name           => 'Request ready',
             ui_method_name => 'Mark request as ready for Reprints Desk',
             method         => 'ready',
             next_actions   => [],
+            ui_method_icon => 'fa-check',
+        },
+        STANDBY => {
+            prev_actions   => [ 'NEW', 'ERROR' ],
+            id             => 'STANDBY',
+            name           => 'Request standing by',
+            ui_method_name => 0,
+            method         => 0,
+            next_actions   => ['READY'],
             ui_method_icon => 'fa-check',
         },
         NEW => {
@@ -982,7 +991,7 @@ sub status_graph {
             name           => 'New request',
             ui_method_name => 'New request',
             method         => 'create',
-            next_actions   => [ 'READY', 'GENREQ', 'KILL', 'MIG', 'EDITITEM' ],
+            next_actions   => [ 'GENREQ', 'KILL', 'MIG', 'EDITITEM' ],
             ui_method_icon => 'fa-plus'
         },
 
