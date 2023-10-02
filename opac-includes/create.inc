@@ -37,7 +37,6 @@
     <legend>Place an interlibrary loan request</legend>
     <input name="stage" id="stage" value="validate" type="hidden"/>
     <input name="method" id="method" value="create" type="hidden"/>
-    <input name="interface" value="opac" type="hidden"/>
     <input name="backend" id="backend" value="[% whole.value.other.backend %]" type="hidden"/>
     <ol>
       <li id="reprints_desk_field_title">
