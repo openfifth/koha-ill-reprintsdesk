@@ -526,14 +526,7 @@ sub create_submission {
     my $request = $params->{request};
     $request->borrowernumber( $patron->borrowernumber );
     $request->branchcode( $params->{other}->{branchcode} );
-
-    # Request creation came from opac: Set status as 'NEW'
-    if ( $params->{other}->{interface} && $params->{other}->{interface} eq 'opac' ) {
-        $request->status('NEW');
-    } else {
-        $request->status('READY');
-    }
-
+    $request->status('NEW');
     $request->batch_id( $params->{other}->{batch_id} );
     $request->backend( $self->name );
     $request->placed( DateTime->now );
