@@ -415,6 +415,33 @@ sub ready {
     };
 }
 
+=head3 mark_new
+
+Mark this request as 'NEW'
+
+=cut
+
+sub mark_new {
+    my ( $self, $params ) = @_;
+    my $other = $params->{other};
+
+    my $request = Koha::Illrequests->find( $other->{illrequest_id} );
+
+    $request->status('NEW');
+    $request->updated( DateTime->now );
+    $request->store;
+
+    return {
+        error   => 0,
+        status  => '',
+        message => '',
+        method  => 'mark_new',
+        stage   => 'commit',
+        next    => 'illview',
+        value   => $params,
+    };
+}
+
 =head3 migrate
 
 Migrate a request into or out of this backend
@@ -955,7 +982,7 @@ sub status_graph {
             name           => 'Request error',
             ui_method_name => 0,
             method         => 0,
-            next_actions   => [ 'COMP', 'EDITITEM', 'READY', 'MIG', 'KILL' ],
+            next_actions   => [ 'MARK_NEW', 'COMP', 'EDITITEM', 'STANDBY', 'READY', 'MIG', 'KILL' ],
             ui_method_icon => 0,
         },
         COMP => {
@@ -971,7 +998,7 @@ sub status_graph {
             prev_actions   => [ 'ERROR', 'STANDBY' ],
             id             => 'READY',
             name           => 'Request ready',
-            ui_method_name => 'Mark request as ready for Reprints Desk',
+            ui_method_name => 'Mark request READY',
             method         => 'ready',
             next_actions   => [],
             ui_method_icon => 'fa-check',
@@ -993,6 +1020,15 @@ sub status_graph {
             method         => 'create',
             next_actions   => [ 'GENREQ', 'KILL', 'MIG', 'EDITITEM' ],
             ui_method_icon => 'fa-plus'
+        },
+        MARK_NEW => {
+            prev_actions   => ['ERROR'],
+            id             => 'MARK_NEW',
+            name           => 'New request',
+            ui_method_name => 'Mark request NEW',
+            method         => 'mark_new',
+            next_actions   => [],
+            ui_method_icon => 'fa-refresh'
         },
 
         # Override REQ so we can rename the button
