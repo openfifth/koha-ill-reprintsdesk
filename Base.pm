@@ -1204,7 +1204,7 @@ sub find_core_to_reprints_desk {
 
     foreach my $field ( keys %{$fieldmap} ) {
         if ( $fieldmap->{$field}->{ill} && $fieldmap->{$field}->{ill} eq $prop ) {
-            return $field;
+            return $prop;
         }
     }
 }
@@ -1386,6 +1386,14 @@ sub fieldmap {
             label     => "Author",
             ill       => "author",
             exclude   => 1,
+            no_submit => 1,
+            position  => 99
+        },
+        year => {
+            type      => "string",
+            ill       => "year",
+            exclude   => 1,
+            label     => "Year",
             no_submit => 1,
             position  => 99
         },
