@@ -563,6 +563,8 @@ sub create_submission {
 
     $request->store;
 
+    $params->{other}->{type} = 'article';
+
     # Store the request attributes
     $self->create_illrequestattributes( $request, $params->{other} );
 
@@ -1386,7 +1388,15 @@ sub fieldmap {
             exclude   => 1,
             no_submit => 1,
             position  => 99
-        }
+        },
+        type => {
+            type      => "string",
+            ill       => "type",
+            exclude   => 1,
+            label     => "Type",
+            no_submit => 1,
+            position  => 99
+        },
     };
 }
 
