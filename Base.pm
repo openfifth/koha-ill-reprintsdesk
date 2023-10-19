@@ -556,7 +556,8 @@ sub create_submission {
     $request->borrowernumber( $patron->borrowernumber );
     $request->branchcode( $params->{other}->{branchcode} );
     $request->status('NEW');
-    $request->batch_id( $params->{other}->{batch_id} );
+    $request->batch_id(
+        $params->{other}->{ill_batch_id} ? $params->{other}->{ill_batch_id} : $params->{other}->{batch_id} );
     $request->backend( $self->name );
     $request->placed( DateTime->now );
     $request->updated( DateTime->now );
