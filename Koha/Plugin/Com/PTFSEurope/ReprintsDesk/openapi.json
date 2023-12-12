@@ -1,0 +1,332 @@
+{
+    "/placeorder2": {
+        "post": {
+            "x-mojo-to": "Com::PTFSEurope::ReprintsDesk::Api#PlaceOrder2",
+            "operationId": "ApiReprintsDeskILLPlaceOrder2",
+            "tags": ["reprintsdesk", "placeorder2"],
+            "parameters": [
+                {
+                    "name": "body",
+                    "in": "body",
+                    "description": "The request payload",
+                    "required": true,
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "illrequest_id": {
+                                "type": "integer",
+                                "description": "ILL request ID",
+                                "additionalProperties": false
+                            },
+                            "orderdetail": {
+                                "type": "object",
+                                "properties": {
+                                    "batchid": {
+                                        "description": "The batch the order will part of.",
+                                        "type": "integer"
+                                    },
+                                    "billinggroupid": {
+                                        "description": "The billing group to associate with the order",
+                                        "type": "integer"
+                                    },
+                                    "aulast": {
+                                        "description": "A string with the first author's last name",
+                                        "type": "string",
+                                        "maxLength": 50
+                                    },
+                                    "aufirst": {
+                                        "description": "A string with the first author's first name",
+                                        "type": "string",
+                                        "maxLength": 50
+                                    },
+                                    "issn": {
+                                        "description": "An ISSN number",
+                                        "type": "string",
+                                        "maxLength": 50
+                                    },
+                                    "eissn": {
+                                        "description": "An electronic ISSN number",
+                                        "type": "string",
+                                        "maxLength": 50
+                                    },
+                                    "isbn": {
+                                        "description": "An ISBN number",
+                                        "type": "string",
+                                        "maxLength": 50
+                                    },
+                                    "title": {
+                                        "description": "The title of a bundle (journal, book, conference)",
+                                        "type": "string",
+                                        "maxLength": 255
+                                    },
+                                    "atitle": {
+                                        "description": "The title of an individual item (article, preprint, conference proceeding, part of a book )",
+                                        "type": "string",
+                                        "maxLength": 255
+                                    },
+                                    "volume": {
+                                        "description": "The volume of a bundle",
+                                        "type": "string",
+                                        "maxLength": 50
+                                    },
+                                    "issue": {
+                                        "description": "The issue of a bundle",
+                                        "type": "string",
+                                        "maxLength": 50
+                                    },
+                                    "spage": {
+                                        "description": "The start page of an individual item in a bundle",
+                                        "type": "string",
+                                        "maxLength": 50
+                                    },
+                                    "epage": {
+                                        "description": "The end page of an individual item in a bundle",
+                                        "type": "string",
+                                        "maxLength": 50
+                                    },
+                                    "pages": {
+                                        "description": "Pages covered by an individual item in a bundle. The format of this field is 'spage-epage'",
+                                        "type": "string",
+                                        "maxLength": 50
+                                    },
+                                    "date": {
+                                        "description": "The publication date of the item or bundle encoded in the 'Complete date' variant of ISO8601 (see http://www.w3.org/TR/NOTE-datetime). This format is YYYY-MM-DD where YYYY is the four-digit year, MM is the month of the year between 01 (January) and 12 (December), and DD is the day of the month between 01 and 28 or 29 or 30 or 31, depending on length of the month and whether it is a leap year.",
+                                        "type": "string",
+                                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$|^\\d{4}-\\d{2}$|^\\d{4}$",
+                                        "maxLength": 50
+                                    },
+                                    "doi": {
+                                        "description": "The DOI of the document",
+                                        "type": "string",
+                                        "maxLength": 96
+                                    },
+                                    "pubmedid": {
+                                        "description": "The PubMedId of the document",
+                                        "type": "string",
+                                        "maxLength": 16
+                                    }
+                                },
+                                "additionalProperties": false
+                            },
+                            "deliveryprofile": {
+                                "type": "object",
+                                "properties": {
+                                    "firstname": {
+                                        "description": "First Name",
+                                        "type": "string",
+                                        "maxLength": 50
+                                    },
+                                    "lastname": {
+                                        "description": "Last name",
+                                        "type": "string",
+                                        "maxLength": 50
+                                    },
+                                    "companyname": {
+                                        "description": "Company",
+                                        "type": "string",
+                                        "maxLength": 50
+                                    },
+                                    "address1": {
+                                        "description": "Address 1",
+                                        "type": "string",
+                                        "maxLength": 50
+                                    },
+                                    "address2": {
+                                        "description": "Address 2",
+                                        "type": "string",
+                                        "maxLength": 50
+                                    },
+                                    "city": {
+                                        "description": "City",
+                                        "type": "string",
+                                        "maxLength": 50
+                                    },
+                                    "statecode": {
+                                        "description": "State – Two (2) character abbreviation. Required IF countrycode = 'US'",
+                                        "type": "string",
+                                        "maxLength": 50
+                                    },
+                                    "statename": {
+                                        "description": "State / Province. Required IF countrycode <> 'US'",
+                                        "type": "string",
+                                        "maxLength": 50
+                                    },
+                                    "zip": {
+                                        "description": "Zip code",
+                                        "type": "string",
+                                        "maxLength": 50
+                                    },
+                                    "countrycode": {
+                                        "description": "Two (2) character ISO country code. United States = 'US'",
+                                        "type": "string",
+                                        "maxLength": 2
+                                    },
+                                    "phone": {
+                                        "description": "Phone number",
+                                        "type": "string",
+                                        "maxLength": 50
+                                    },
+                                    "fax": {
+                                        "description": "Fax Number",
+                                        "type": "string",
+                                        "maxLength": 50
+                                    },
+                                    "email": {
+                                        "description": "Email address used for delivery of document",
+                                        "type": "string",
+                                        "maxLength": 64
+                                    }
+                                },
+                                "additionalProperties": false,
+                                "required": ["firstname", "lastname", "address1", "city", "zip", "countrycode", "phone", "email"]
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": ["orderdetail", "deliveryprofile" ]
+                    }
+                }
+            ],
+            "produces": [
+                "application/json"
+            ],
+            "responses": {
+                "200": {
+                    "description": "The result of the placeorder2 call"
+                }
+            }
+        }
+    },
+    "/getorderhistory": {
+        "post": {
+            "x-mojo-to": "Com::PTFSEurope::ReprintsDesk::Api#GetOrderHistory",
+            "operationId": "ApiReprintsDeskILLGetOrderHistory",
+            "tags": ["reprintsdesk", "getorderhistory"],
+            "parameters": [
+                {
+                    "name": "body",
+                    "in": "body",
+                    "description": "The request payload containing filterTypeID",
+                    "required": true,
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "filterTypeID": {
+                                "type": "integer",
+                                "description": "The filterTypeID for User_GetOrderHistory. 1 = open only; 2 = all orders",
+                                "additionalProperties": false
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [ "filterTypeID" ]
+                    }
+                }
+            ],
+            "produces": [
+                "application/json"
+            ],
+            "responses": {
+                "200": {
+                    "description": "The result of the getorderhistory call"
+                }
+            }
+        }
+    },
+    "/checkavailability": {
+        "post": {
+            "x-mojo-to": "Com::PTFSEurope::ReprintsDesk::Api#CheckAvailability",
+            "operationId": "ApiReprintsDeskILLCheckAvailability",
+            "tags": ["reprintsdesk", "checkavailability"],
+            "parameters": [
+                {
+                    "name": "body",
+                    "in": "body",
+                    "description": "The request payload containing DOIs",
+                    "required": true,
+                    "schema": {
+                        "type": "array"
+                    }
+                }
+            ],
+            "produces": [
+                "application/json"
+            ],
+            "responses": {
+                "200": {
+                    "description": "The result of the checkavailability call"
+                }
+            }
+        }
+    },
+    "/getpriceestimate": {
+        "post": {
+            "x-mojo-to": "Com::PTFSEurope::ReprintsDesk::Api#GetPriceEstimate",
+            "operationId": "ApiReprintsDeskILLGetPriceEstimate",
+            "tags": ["reprintsdesk", "getpriceestimate"],
+            "parameters": [
+                {
+                    "name": "body",
+                    "in": "body",
+                    "description": "The request payload containing standardNumber",
+                    "required": true,
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "standardNumber": {
+                                "type": "string",
+                                "description": "The standardNumber for Order_GetPriceEstimate2",
+                                "additionalProperties": false
+                            },
+                            "year": {
+                                "type": "string",
+                                "description": "The year for Order_GetPriceEstimate2",
+                                "additionalProperties": false
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [ "standardNumber" ]
+                    }
+                }
+            ],
+            "produces": [
+                "application/json"
+            ],
+            "responses": {
+                "200": {
+                    "description": "The result of the getpriceestimate call"
+                }
+            }
+        }
+    },
+    "/account_getintendeduses": {
+        "get": {
+            "x-mojo-to": "Com::PTFSEurope::ReprintsDesk::Api#Account_GetIntendedUses",
+            "operationId": "ApiReprintsDeskILLAccount_GetIntendedUses",
+            "tags": ["reprintsdesk", "accountgetintendeduses"],
+            "parameters": [],
+            "produces": [
+                "application/json"
+            ],
+            "responses": {
+                "200": {
+                    "description": "The result of the account_getintendeduses call"
+                }
+            }
+        }
+    },
+    "/test_credentials": {
+        "get": {
+            "x-mojo-to": "Com::PTFSEurope::ReprintsDesk::Api#Test_Credentials",
+            "operationId": "ApiReprintsDeskILLTest_Credentials",
+            "tags": ["reprintsdesk", "testcredentials"],
+            "parameters": [],
+            "produces": [
+                "application/json"
+            ],
+            "responses": {
+                "200": {
+                    "description": "The result of the test_credentials call"
+                }
+            }
+        }
+    }
+}

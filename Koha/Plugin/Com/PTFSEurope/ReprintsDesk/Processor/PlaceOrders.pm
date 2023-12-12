@@ -1,4 +1,4 @@
-package Koha::Illbackends::ReprintsDesk::Processor::PlaceOrders;
+package Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Processor::PlaceOrders;
 
 use Modern::Perl;
 

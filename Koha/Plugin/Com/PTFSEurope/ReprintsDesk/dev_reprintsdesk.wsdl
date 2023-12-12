@@ -1,0 +1,1696 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://reprintsdesk.com/webservices/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" targetNamespace="http://reprintsdesk.com/webservices/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://reprintsdesk.com/webservices/">
+      <s:element name="Order_PlaceOrder">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="xmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Order_PlaceOrderResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="Order_PlaceOrderResult" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="orderID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UserCredentials" type="tns:UserCredentials" />
+      <s:complexType name="UserCredentials">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="UserName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Password" type="s:string" />
+        </s:sequence>
+        <s:anyAttribute />
+      </s:complexType>
+      <s:element name="Order_PlaceOrder2">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="xmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Order_PlaceOrder2Response">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="Order_PlaceOrder2Result" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="orderID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="rndID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Order_GetPriceEstimate">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="issn" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="year" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="totalPages" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Order_GetPriceEstimateResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="Order_GetPriceEstimateResult" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="xmlData">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Order_GetPriceEstimate2">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="xmlInput">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Order_GetPriceEstimate2Response">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="xmlOutput">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="User_GetOrderHistory">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="typeID" type="s:unsignedByte" />
+            <s:element minOccurs="1" maxOccurs="1" name="orderTypeID" type="s:unsignedByte" />
+            <s:element minOccurs="1" maxOccurs="1" name="filterTypeID" type="s:unsignedByte" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="User_GetOrderHistoryResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="User_GetOrderHistoryResult" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="xmlData">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Holdings_Check">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="xmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+            <s:element minOccurs="1" maxOccurs="1" name="holdingsTypeID" type="s:unsignedByte" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Holdings_CheckResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="Holdings_CheckResult" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="xmlData">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Holdings_Check_Detail">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="xmlInput">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+            <s:element minOccurs="0" maxOccurs="1" name="xmlConfig">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Holdings_Check_DetailResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="Holdings_Check_DetailResult" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="xmlOutput">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Orders_NotYetDownloaded">
+        <s:complexType />
+      </s:element>
+      <s:element name="Orders_NotYetDownloadedResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="Orders_NotYetDownloadedResult" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="xmlOutput">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Batch_CreateBatch">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="inputXmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Batch_CreateBatchResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="Batch_CreateBatchResult" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="outputXmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Batch_MarkComplete">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="inputXmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Batch_MarkCompleteResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="Batch_MarkCompleteResult" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="outputXmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Order_GetOrderInfo">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="inputXmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Order_GetOrderInfoResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="Order_GetOrderInfoResult" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="outputXmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ArticleShelf_CheckAvailability">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="inputXmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ArticleShelf_CheckAvailabilityResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="ArticleShelf_CheckAvailabilityResult" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="outputXmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Report_RequestReport">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="inputXmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Report_RequestReportResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="Report_RequestReportResult" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="outputXmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Archive_GetArchiveInfo">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="inputXmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Archive_GetArchiveInfoResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="Archive_GetArchiveInfoResult" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="outputXmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="User_GetCreditCards">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="inputXmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="User_GetCreditCardsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="User_GetCreditCardsResult" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="outputXmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Account_GetIntendedUses">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="inputXmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Account_GetIntendedUsesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="Account_GetIntendedUsesResult" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="outputXmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CheckAvailability">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="inputXmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CheckAvailabilityResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="CheckAvailabilityResult" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="outputXmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Account_GetAccountType">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="inputXmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Account_GetAccountTypeResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="Account_GetAccountTypeResult" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="outputXmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ReUseRights">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="inputXmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ReUseRightsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="ReUseRightsResult" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="outputXmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Test_Cookie">
+        <s:complexType />
+      </s:element>
+      <s:element name="Test_CookieResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="Test_CookieResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Test_SessionID">
+        <s:complexType />
+      </s:element>
+      <s:element name="Test_SessionIDResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="Test_SessionIDResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Test_Credentials">
+        <s:complexType />
+      </s:element>
+      <s:element name="Test_CredentialsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="Test_CredentialsResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Test_PlaceOrder">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="xmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Test_PlaceOrderResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="Test_PlaceOrderResult" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="orderID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Test_PlaceOrder2">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="data" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Test_PlaceOrder2Response">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="Test_PlaceOrder2Result" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="orderID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Test_PlaceOrder3">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="xmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Test_PlaceOrder3Response">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="Test_PlaceOrder3Result" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="orderID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Test_RaiseError">
+        <s:complexType />
+      </s:element>
+      <s:element name="Test_RaiseErrorResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="Test_RaiseErrorResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Test_RaiseSoapException">
+        <s:complexType />
+      </s:element>
+      <s:element name="Test_RaiseSoapExceptionResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="Test_RaiseSoapExceptionResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Archive_ArchiveDownload">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="inputXmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Archive_ArchiveDownloadResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="Archive_ArchiveDownloadResult" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="outputXmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Order_OrderDownload">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="inputXmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Order_OrderDownloadResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="Order_OrderDownloadResult" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="outputXmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Report_ReportDownload">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="inputXmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Report_ReportDownloadResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="Report_ReportDownloadResult" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="outputXmlNode">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="Order_PlaceOrderSoapIn">
+    <wsdl:part name="parameters" element="tns:Order_PlaceOrder" />
+  </wsdl:message>
+  <wsdl:message name="Order_PlaceOrderSoapOut">
+    <wsdl:part name="parameters" element="tns:Order_PlaceOrderResponse" />
+  </wsdl:message>
+  <wsdl:message name="Order_PlaceOrderUserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:message name="Order_PlaceOrder2SoapIn">
+    <wsdl:part name="parameters" element="tns:Order_PlaceOrder2" />
+  </wsdl:message>
+  <wsdl:message name="Order_PlaceOrder2SoapOut">
+    <wsdl:part name="parameters" element="tns:Order_PlaceOrder2Response" />
+  </wsdl:message>
+  <wsdl:message name="Order_PlaceOrder2UserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:message name="Order_GetPriceEstimateSoapIn">
+    <wsdl:part name="parameters" element="tns:Order_GetPriceEstimate" />
+  </wsdl:message>
+  <wsdl:message name="Order_GetPriceEstimateSoapOut">
+    <wsdl:part name="parameters" element="tns:Order_GetPriceEstimateResponse" />
+  </wsdl:message>
+  <wsdl:message name="Order_GetPriceEstimateUserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:message name="Order_GetPriceEstimate2SoapIn">
+    <wsdl:part name="parameters" element="tns:Order_GetPriceEstimate2" />
+  </wsdl:message>
+  <wsdl:message name="Order_GetPriceEstimate2SoapOut">
+    <wsdl:part name="parameters" element="tns:Order_GetPriceEstimate2Response" />
+  </wsdl:message>
+  <wsdl:message name="Order_GetPriceEstimate2UserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:message name="User_GetOrderHistorySoapIn">
+    <wsdl:part name="parameters" element="tns:User_GetOrderHistory" />
+  </wsdl:message>
+  <wsdl:message name="User_GetOrderHistorySoapOut">
+    <wsdl:part name="parameters" element="tns:User_GetOrderHistoryResponse" />
+  </wsdl:message>
+  <wsdl:message name="User_GetOrderHistoryUserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:message name="Holdings_CheckSoapIn">
+    <wsdl:part name="parameters" element="tns:Holdings_Check" />
+  </wsdl:message>
+  <wsdl:message name="Holdings_CheckSoapOut">
+    <wsdl:part name="parameters" element="tns:Holdings_CheckResponse" />
+  </wsdl:message>
+  <wsdl:message name="Holdings_CheckUserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:message name="Holdings_Check_DetailSoapIn">
+    <wsdl:part name="parameters" element="tns:Holdings_Check_Detail" />
+  </wsdl:message>
+  <wsdl:message name="Holdings_Check_DetailSoapOut">
+    <wsdl:part name="parameters" element="tns:Holdings_Check_DetailResponse" />
+  </wsdl:message>
+  <wsdl:message name="Holdings_Check_DetailUserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:message name="Orders_NotYetDownloadedSoapIn">
+    <wsdl:part name="parameters" element="tns:Orders_NotYetDownloaded" />
+  </wsdl:message>
+  <wsdl:message name="Orders_NotYetDownloadedSoapOut">
+    <wsdl:part name="parameters" element="tns:Orders_NotYetDownloadedResponse" />
+  </wsdl:message>
+  <wsdl:message name="Orders_NotYetDownloadedUserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:message name="Batch_CreateBatchSoapIn">
+    <wsdl:part name="parameters" element="tns:Batch_CreateBatch" />
+  </wsdl:message>
+  <wsdl:message name="Batch_CreateBatchSoapOut">
+    <wsdl:part name="parameters" element="tns:Batch_CreateBatchResponse" />
+  </wsdl:message>
+  <wsdl:message name="Batch_CreateBatchUserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:message name="Batch_MarkCompleteSoapIn">
+    <wsdl:part name="parameters" element="tns:Batch_MarkComplete" />
+  </wsdl:message>
+  <wsdl:message name="Batch_MarkCompleteSoapOut">
+    <wsdl:part name="parameters" element="tns:Batch_MarkCompleteResponse" />
+  </wsdl:message>
+  <wsdl:message name="Batch_MarkCompleteUserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:message name="Order_GetOrderInfoSoapIn">
+    <wsdl:part name="parameters" element="tns:Order_GetOrderInfo" />
+  </wsdl:message>
+  <wsdl:message name="Order_GetOrderInfoSoapOut">
+    <wsdl:part name="parameters" element="tns:Order_GetOrderInfoResponse" />
+  </wsdl:message>
+  <wsdl:message name="Order_GetOrderInfoUserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:message name="ArticleShelf_CheckAvailabilitySoapIn">
+    <wsdl:part name="parameters" element="tns:ArticleShelf_CheckAvailability" />
+  </wsdl:message>
+  <wsdl:message name="ArticleShelf_CheckAvailabilitySoapOut">
+    <wsdl:part name="parameters" element="tns:ArticleShelf_CheckAvailabilityResponse" />
+  </wsdl:message>
+  <wsdl:message name="ArticleShelf_CheckAvailabilityUserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:message name="Report_RequestReportSoapIn">
+    <wsdl:part name="parameters" element="tns:Report_RequestReport" />
+  </wsdl:message>
+  <wsdl:message name="Report_RequestReportSoapOut">
+    <wsdl:part name="parameters" element="tns:Report_RequestReportResponse" />
+  </wsdl:message>
+  <wsdl:message name="Report_RequestReportUserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:message name="Archive_GetArchiveInfoSoapIn">
+    <wsdl:part name="parameters" element="tns:Archive_GetArchiveInfo" />
+  </wsdl:message>
+  <wsdl:message name="Archive_GetArchiveInfoSoapOut">
+    <wsdl:part name="parameters" element="tns:Archive_GetArchiveInfoResponse" />
+  </wsdl:message>
+  <wsdl:message name="Archive_GetArchiveInfoUserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:message name="User_GetCreditCardsSoapIn">
+    <wsdl:part name="parameters" element="tns:User_GetCreditCards" />
+  </wsdl:message>
+  <wsdl:message name="User_GetCreditCardsSoapOut">
+    <wsdl:part name="parameters" element="tns:User_GetCreditCardsResponse" />
+  </wsdl:message>
+  <wsdl:message name="User_GetCreditCardsUserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:message name="Account_GetIntendedUsesSoapIn">
+    <wsdl:part name="parameters" element="tns:Account_GetIntendedUses" />
+  </wsdl:message>
+  <wsdl:message name="Account_GetIntendedUsesSoapOut">
+    <wsdl:part name="parameters" element="tns:Account_GetIntendedUsesResponse" />
+  </wsdl:message>
+  <wsdl:message name="Account_GetIntendedUsesUserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:message name="CheckAvailabilitySoapIn">
+    <wsdl:part name="parameters" element="tns:CheckAvailability" />
+  </wsdl:message>
+  <wsdl:message name="CheckAvailabilitySoapOut">
+    <wsdl:part name="parameters" element="tns:CheckAvailabilityResponse" />
+  </wsdl:message>
+  <wsdl:message name="CheckAvailabilityUserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:message name="Account_GetAccountTypeSoapIn">
+    <wsdl:part name="parameters" element="tns:Account_GetAccountType" />
+  </wsdl:message>
+  <wsdl:message name="Account_GetAccountTypeSoapOut">
+    <wsdl:part name="parameters" element="tns:Account_GetAccountTypeResponse" />
+  </wsdl:message>
+  <wsdl:message name="Account_GetAccountTypeUserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:message name="ReUseRightsSoapIn">
+    <wsdl:part name="parameters" element="tns:ReUseRights" />
+  </wsdl:message>
+  <wsdl:message name="ReUseRightsSoapOut">
+    <wsdl:part name="parameters" element="tns:ReUseRightsResponse" />
+  </wsdl:message>
+  <wsdl:message name="ReUseRightsUserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:message name="Test_CookieSoapIn">
+    <wsdl:part name="parameters" element="tns:Test_Cookie" />
+  </wsdl:message>
+  <wsdl:message name="Test_CookieSoapOut">
+    <wsdl:part name="parameters" element="tns:Test_CookieResponse" />
+  </wsdl:message>
+  <wsdl:message name="Test_SessionIDSoapIn">
+    <wsdl:part name="parameters" element="tns:Test_SessionID" />
+  </wsdl:message>
+  <wsdl:message name="Test_SessionIDSoapOut">
+    <wsdl:part name="parameters" element="tns:Test_SessionIDResponse" />
+  </wsdl:message>
+  <wsdl:message name="Test_SessionIDUserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:message name="Test_CredentialsSoapIn">
+    <wsdl:part name="parameters" element="tns:Test_Credentials" />
+  </wsdl:message>
+  <wsdl:message name="Test_CredentialsSoapOut">
+    <wsdl:part name="parameters" element="tns:Test_CredentialsResponse" />
+  </wsdl:message>
+  <wsdl:message name="Test_CredentialsUserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:message name="Test_PlaceOrderSoapIn">
+    <wsdl:part name="parameters" element="tns:Test_PlaceOrder" />
+  </wsdl:message>
+  <wsdl:message name="Test_PlaceOrderSoapOut">
+    <wsdl:part name="parameters" element="tns:Test_PlaceOrderResponse" />
+  </wsdl:message>
+  <wsdl:message name="Test_PlaceOrderUserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:message name="Test_PlaceOrder2SoapIn">
+    <wsdl:part name="parameters" element="tns:Test_PlaceOrder2" />
+  </wsdl:message>
+  <wsdl:message name="Test_PlaceOrder2SoapOut">
+    <wsdl:part name="parameters" element="tns:Test_PlaceOrder2Response" />
+  </wsdl:message>
+  <wsdl:message name="Test_PlaceOrder2UserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:message name="Test_PlaceOrder3SoapIn">
+    <wsdl:part name="parameters" element="tns:Test_PlaceOrder3" />
+  </wsdl:message>
+  <wsdl:message name="Test_PlaceOrder3SoapOut">
+    <wsdl:part name="parameters" element="tns:Test_PlaceOrder3Response" />
+  </wsdl:message>
+  <wsdl:message name="Test_PlaceOrder3UserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:message name="Test_RaiseErrorSoapIn">
+    <wsdl:part name="parameters" element="tns:Test_RaiseError" />
+  </wsdl:message>
+  <wsdl:message name="Test_RaiseErrorSoapOut">
+    <wsdl:part name="parameters" element="tns:Test_RaiseErrorResponse" />
+  </wsdl:message>
+  <wsdl:message name="Test_RaiseErrorUserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:message name="Test_RaiseSoapExceptionSoapIn">
+    <wsdl:part name="parameters" element="tns:Test_RaiseSoapException" />
+  </wsdl:message>
+  <wsdl:message name="Test_RaiseSoapExceptionSoapOut">
+    <wsdl:part name="parameters" element="tns:Test_RaiseSoapExceptionResponse" />
+  </wsdl:message>
+  <wsdl:message name="Test_RaiseSoapExceptionUserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:message name="Archive_ArchiveDownloadSoapIn">
+    <wsdl:part name="parameters" element="tns:Archive_ArchiveDownload" />
+  </wsdl:message>
+  <wsdl:message name="Archive_ArchiveDownloadSoapOut">
+    <wsdl:part name="parameters" element="tns:Archive_ArchiveDownloadResponse" />
+  </wsdl:message>
+  <wsdl:message name="Archive_ArchiveDownloadUserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:message name="Order_OrderDownloadSoapIn">
+    <wsdl:part name="parameters" element="tns:Order_OrderDownload" />
+  </wsdl:message>
+  <wsdl:message name="Order_OrderDownloadSoapOut">
+    <wsdl:part name="parameters" element="tns:Order_OrderDownloadResponse" />
+  </wsdl:message>
+  <wsdl:message name="Order_OrderDownloadUserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:message name="Report_ReportDownloadSoapIn">
+    <wsdl:part name="parameters" element="tns:Report_ReportDownload" />
+  </wsdl:message>
+  <wsdl:message name="Report_ReportDownloadSoapOut">
+    <wsdl:part name="parameters" element="tns:Report_ReportDownloadResponse" />
+  </wsdl:message>
+  <wsdl:message name="Report_ReportDownloadUserCredentials">
+    <wsdl:part name="UserCredentials" element="tns:UserCredentials" />
+  </wsdl:message>
+  <wsdl:portType name="MainSoap">
+    <wsdl:operation name="Order_PlaceOrder">
+      <wsdl:input message="tns:Order_PlaceOrderSoapIn" />
+      <wsdl:output message="tns:Order_PlaceOrderSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Order_PlaceOrder2">
+      <wsdl:input message="tns:Order_PlaceOrder2SoapIn" />
+      <wsdl:output message="tns:Order_PlaceOrder2SoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Order_GetPriceEstimate">
+      <wsdl:input message="tns:Order_GetPriceEstimateSoapIn" />
+      <wsdl:output message="tns:Order_GetPriceEstimateSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Order_GetPriceEstimate2">
+      <wsdl:input message="tns:Order_GetPriceEstimate2SoapIn" />
+      <wsdl:output message="tns:Order_GetPriceEstimate2SoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="User_GetOrderHistory">
+      <wsdl:input message="tns:User_GetOrderHistorySoapIn" />
+      <wsdl:output message="tns:User_GetOrderHistorySoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Holdings_Check">
+      <wsdl:input message="tns:Holdings_CheckSoapIn" />
+      <wsdl:output message="tns:Holdings_CheckSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Holdings_Check_Detail">
+      <wsdl:input message="tns:Holdings_Check_DetailSoapIn" />
+      <wsdl:output message="tns:Holdings_Check_DetailSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Orders_NotYetDownloaded">
+      <wsdl:input message="tns:Orders_NotYetDownloadedSoapIn" />
+      <wsdl:output message="tns:Orders_NotYetDownloadedSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Batch_CreateBatch">
+      <wsdl:input message="tns:Batch_CreateBatchSoapIn" />
+      <wsdl:output message="tns:Batch_CreateBatchSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Batch_MarkComplete">
+      <wsdl:input message="tns:Batch_MarkCompleteSoapIn" />
+      <wsdl:output message="tns:Batch_MarkCompleteSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Order_GetOrderInfo">
+      <wsdl:input message="tns:Order_GetOrderInfoSoapIn" />
+      <wsdl:output message="tns:Order_GetOrderInfoSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ArticleShelf_CheckAvailability">
+      <wsdl:input message="tns:ArticleShelf_CheckAvailabilitySoapIn" />
+      <wsdl:output message="tns:ArticleShelf_CheckAvailabilitySoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Report_RequestReport">
+      <wsdl:input message="tns:Report_RequestReportSoapIn" />
+      <wsdl:output message="tns:Report_RequestReportSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Archive_GetArchiveInfo">
+      <wsdl:input message="tns:Archive_GetArchiveInfoSoapIn" />
+      <wsdl:output message="tns:Archive_GetArchiveInfoSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="User_GetCreditCards">
+      <wsdl:input message="tns:User_GetCreditCardsSoapIn" />
+      <wsdl:output message="tns:User_GetCreditCardsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Account_GetIntendedUses">
+      <wsdl:input message="tns:Account_GetIntendedUsesSoapIn" />
+      <wsdl:output message="tns:Account_GetIntendedUsesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckAvailability">
+      <wsdl:input message="tns:CheckAvailabilitySoapIn" />
+      <wsdl:output message="tns:CheckAvailabilitySoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Account_GetAccountType">
+      <wsdl:input message="tns:Account_GetAccountTypeSoapIn" />
+      <wsdl:output message="tns:Account_GetAccountTypeSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ReUseRights">
+      <wsdl:input message="tns:ReUseRightsSoapIn" />
+      <wsdl:output message="tns:ReUseRightsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Test_Cookie">
+      <wsdl:input message="tns:Test_CookieSoapIn" />
+      <wsdl:output message="tns:Test_CookieSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Test_SessionID">
+      <wsdl:input message="tns:Test_SessionIDSoapIn" />
+      <wsdl:output message="tns:Test_SessionIDSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Test_Credentials">
+      <wsdl:input message="tns:Test_CredentialsSoapIn" />
+      <wsdl:output message="tns:Test_CredentialsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Test_PlaceOrder">
+      <wsdl:input message="tns:Test_PlaceOrderSoapIn" />
+      <wsdl:output message="tns:Test_PlaceOrderSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Test_PlaceOrder2">
+      <wsdl:input message="tns:Test_PlaceOrder2SoapIn" />
+      <wsdl:output message="tns:Test_PlaceOrder2SoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Test_PlaceOrder3">
+      <wsdl:input message="tns:Test_PlaceOrder3SoapIn" />
+      <wsdl:output message="tns:Test_PlaceOrder3SoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Test_RaiseError">
+      <wsdl:input message="tns:Test_RaiseErrorSoapIn" />
+      <wsdl:output message="tns:Test_RaiseErrorSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Test_RaiseSoapException">
+      <wsdl:input message="tns:Test_RaiseSoapExceptionSoapIn" />
+      <wsdl:output message="tns:Test_RaiseSoapExceptionSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Archive_ArchiveDownload">
+      <wsdl:input message="tns:Archive_ArchiveDownloadSoapIn" />
+      <wsdl:output message="tns:Archive_ArchiveDownloadSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Order_OrderDownload">
+      <wsdl:input message="tns:Order_OrderDownloadSoapIn" />
+      <wsdl:output message="tns:Order_OrderDownloadSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Report_ReportDownload">
+      <wsdl:input message="tns:Report_ReportDownloadSoapIn" />
+      <wsdl:output message="tns:Report_ReportDownloadSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="MainSoap" type="tns:MainSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="Order_PlaceOrder">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/Order_PlaceOrder" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:Order_PlaceOrderUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Order_PlaceOrder2">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/Order_PlaceOrder2" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:Order_PlaceOrder2UserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Order_GetPriceEstimate">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/Order_GetPriceEstimate" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:Order_GetPriceEstimateUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Order_GetPriceEstimate2">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/Order_GetPriceEstimate2" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:Order_GetPriceEstimate2UserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="User_GetOrderHistory">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/User_GetOrderHistory" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:User_GetOrderHistoryUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Holdings_Check">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/Holdings_Check" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:Holdings_CheckUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Holdings_Check_Detail">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/Holdings_Check_Detail" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:Holdings_Check_DetailUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Orders_NotYetDownloaded">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/Orders_NotYetDownloaded" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:Orders_NotYetDownloadedUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Batch_CreateBatch">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/Batch_CreateBatch" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:Batch_CreateBatchUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Batch_MarkComplete">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/Batch_MarkComplete" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:Batch_MarkCompleteUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Order_GetOrderInfo">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/Order_GetOrderInfo" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:Order_GetOrderInfoUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ArticleShelf_CheckAvailability">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/ArticleShelf_CheckAvailability" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:ArticleShelf_CheckAvailabilityUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Report_RequestReport">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/Report_RequestReport" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:Report_RequestReportUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Archive_GetArchiveInfo">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/Archive_GetArchiveInfo" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:Archive_GetArchiveInfoUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="User_GetCreditCards">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/User_GetCreditCards" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:User_GetCreditCardsUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Account_GetIntendedUses">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/Account_GetIntendedUses" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:Account_GetIntendedUsesUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckAvailability">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/CheckAvailability" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:CheckAvailabilityUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Account_GetAccountType">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/Account_GetAccountType" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:Account_GetAccountTypeUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ReUseRights">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/ReUseRights" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:ReUseRightsUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Test_Cookie">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/Test_Cookie" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Test_SessionID">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/Test_SessionID" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:Test_SessionIDUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Test_Credentials">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/Test_Credentials" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:Test_CredentialsUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Test_PlaceOrder">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/Test_PlaceOrder" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:Test_PlaceOrderUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Test_PlaceOrder2">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/Test_PlaceOrder2" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:Test_PlaceOrder2UserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Test_PlaceOrder3">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/Test_PlaceOrder3" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:Test_PlaceOrder3UserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Test_RaiseError">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/Test_RaiseError" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:Test_RaiseErrorUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Test_RaiseSoapException">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/Test_RaiseSoapException" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:Test_RaiseSoapExceptionUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Archive_ArchiveDownload">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/Archive_ArchiveDownload" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:Archive_ArchiveDownloadUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Order_OrderDownload">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/Order_OrderDownload" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:Order_OrderDownloadUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Report_ReportDownload">
+      <soap:operation soapAction="http://reprintsdesk.com/webservices/Report_ReportDownload" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:Report_ReportDownloadUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="MainSoap12" type="tns:MainSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="Order_PlaceOrder">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/Order_PlaceOrder" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:Order_PlaceOrderUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Order_PlaceOrder2">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/Order_PlaceOrder2" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:Order_PlaceOrder2UserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Order_GetPriceEstimate">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/Order_GetPriceEstimate" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:Order_GetPriceEstimateUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Order_GetPriceEstimate2">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/Order_GetPriceEstimate2" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:Order_GetPriceEstimate2UserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="User_GetOrderHistory">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/User_GetOrderHistory" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:User_GetOrderHistoryUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Holdings_Check">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/Holdings_Check" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:Holdings_CheckUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Holdings_Check_Detail">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/Holdings_Check_Detail" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:Holdings_Check_DetailUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Orders_NotYetDownloaded">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/Orders_NotYetDownloaded" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:Orders_NotYetDownloadedUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Batch_CreateBatch">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/Batch_CreateBatch" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:Batch_CreateBatchUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Batch_MarkComplete">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/Batch_MarkComplete" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:Batch_MarkCompleteUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Order_GetOrderInfo">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/Order_GetOrderInfo" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:Order_GetOrderInfoUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ArticleShelf_CheckAvailability">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/ArticleShelf_CheckAvailability" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:ArticleShelf_CheckAvailabilityUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Report_RequestReport">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/Report_RequestReport" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:Report_RequestReportUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Archive_GetArchiveInfo">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/Archive_GetArchiveInfo" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:Archive_GetArchiveInfoUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="User_GetCreditCards">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/User_GetCreditCards" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:User_GetCreditCardsUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Account_GetIntendedUses">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/Account_GetIntendedUses" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:Account_GetIntendedUsesUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckAvailability">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/CheckAvailability" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:CheckAvailabilityUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Account_GetAccountType">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/Account_GetAccountType" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:Account_GetAccountTypeUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ReUseRights">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/ReUseRights" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:ReUseRightsUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Test_Cookie">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/Test_Cookie" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Test_SessionID">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/Test_SessionID" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:Test_SessionIDUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Test_Credentials">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/Test_Credentials" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:Test_CredentialsUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Test_PlaceOrder">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/Test_PlaceOrder" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:Test_PlaceOrderUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Test_PlaceOrder2">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/Test_PlaceOrder2" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:Test_PlaceOrder2UserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Test_PlaceOrder3">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/Test_PlaceOrder3" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:Test_PlaceOrder3UserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Test_RaiseError">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/Test_RaiseError" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:Test_RaiseErrorUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Test_RaiseSoapException">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/Test_RaiseSoapException" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:Test_RaiseSoapExceptionUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Archive_ArchiveDownload">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/Archive_ArchiveDownload" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:Archive_ArchiveDownloadUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Order_OrderDownload">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/Order_OrderDownload" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:Order_OrderDownloadUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Report_ReportDownload">
+      <soap12:operation soapAction="http://reprintsdesk.com/webservices/Report_ReportDownload" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:Report_ReportDownloadUserCredentials" part="UserCredentials" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="Main">
+    <wsdl:port name="MainSoap" binding="tns:MainSoap">
+      <soap:address location="https://wwwstg.reprintsdesk.com/webservice/main.asmx" />
+    </wsdl:port>
+    <wsdl:port name="MainSoap12" binding="tns:MainSoap12">
+      <soap12:address location="https://wwwstg.reprintsdesk.com/webservice/main.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

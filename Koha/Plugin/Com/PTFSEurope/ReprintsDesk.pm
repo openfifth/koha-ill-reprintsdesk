@@ -42,7 +42,7 @@ use Koha::Patrons;
 our $VERSION = "1.0.0";
 
 our $metadata = {
-    name            => 'Reprints Desk',
+    name            => 'ReprintsDesk',
     author          => 'PTFS-Europe',
     date_authored   => '2022-04-26',
     date_updated    => "2023-10-04",
@@ -51,6 +51,15 @@ our $metadata = {
     version         => $VERSION,
     description     => 'This plugin provides Koha API routes enabling access to the Reprints Desk API'
 };
+
+sub ill_backend {
+    my ( $class, $args ) = @_;
+    return 'ReprintsDesk';
+}
+
+sub name {
+    return 'ReprintsDesk';
+}
 
 sub new {
     my ( $class, $args ) = @_;
@@ -211,7 +220,6 @@ sub uninstall() {
     return 1;
 }
 
-
 =head2 ILL backend methods
 
 =head3 new_backend
@@ -240,10 +248,10 @@ sub new_backend {
     $self->{_logger} = $params->{logger} if ( $params->{logger} );
 
     $self->{backend_wide_processors} = [
-        Koha::Illbackends::ReprintsDesk::Processor::PlaceOrders->new,
-        Koha::Illbackends::ReprintsDesk::Processor::GetOrderHistory->new,
-        Koha::Illbackends::ReprintsDesk::Processor::CheckAvailability->new,
-        Koha::Illbackends::ReprintsDesk::Processor::EnqueueNotices->new
+        Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Processor::PlaceOrders->new,
+        Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Processor::GetOrderHistory->new,
+        Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Processor::CheckAvailability->new,
+        Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Processor::EnqueueNotices->new
     ];
 
     bless( $self, $class );
@@ -1242,10 +1250,6 @@ sub status_graph {
             ui_method_icon => 'fa-search',
         },
     };
-}
-
-sub name {
-    return "ReprintsDesk";
 }
 
 =head3 _fail
