@@ -1,4 +1,4 @@
-package Koha::Illbackends::ReprintsDesk::Lib::API;
+package Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Lib::API;
 
 # Copyright PTFS Europe 2022
 #
@@ -54,11 +54,10 @@ sub new {
     }
 
     my $uri = URI->new($url);
-
     my $self = {
         ua      => LWP::UserAgent->new,
         cgi     => new CGI,
-        logger  => Koha::Logger->get( { category => 'Koha.Illbackends.ReprintsDesk.Lib.API' } ),
+        logger => Koha::Logger->get( { category => 'Koha.Plugin.Com.PTFSEurope.ReprintsDesk.Lib.API' } ),
         baseurl => $uri->scheme . "://" . $uri->host . ":" . $uri->port . "/api/v1/contrib/reprintsdesk"
     };
 

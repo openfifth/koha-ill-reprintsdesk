@@ -1,10 +1,10 @@
-package Koha::Illbackends::ReprintsDesk::Processor::EnqueueNotices;
+package Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Processor::EnqueueNotices;
 
 use Modern::Perl;
 use JSON qw( from_json );
 
 use parent qw(Koha::Illrequest::SupplierUpdateProcessor);
-use Koha::Illbackends::ReprintsDesk::Base;
+use Koha::Plugin::Com::PTFSEurope::ReprintsDesk;
 
 sub new {
     my ( $class ) = @_;
@@ -34,7 +34,7 @@ sub run {
     $self->{do_debug} = $options->{debug};
     $self->{dry_run} = $options->{dry_run};
     $self->{env} = $options->{env};
-    $self->{rd} = Koha::Illbackends::ReprintsDesk::Base->new( { logger => Koha::Illrequest::Logger->new } );
+    $self->{rd} = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new( { logger => Koha::Illrequest::Logger->new } );
 
     # Get branches that contain not 'COMP' requests
     # FIXME: There must be a prettier/better way of doing this

@@ -1,11 +1,11 @@
-package Koha::Illbackends::ReprintsDesk::Processor::GetOrderHistory;
+package Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Processor::GetOrderHistory;
 
 use Modern::Perl;
 use JSON qw( from_json );
 
 use Encode qw( decode_utf8);
 use parent qw(Koha::Illrequest::SupplierUpdateProcessor);
-use Koha::Illbackends::ReprintsDesk::Base;
+use Koha::Plugin::Com::PTFSEurope::ReprintsDesk;
 
 sub new {
     my ( $class ) = @_;
@@ -21,7 +21,7 @@ sub run {
     $self->{dry_run} = $options->{dry_run};
     $self->{env} = $options->{env};
 
-    my $rd = Koha::Illbackends::ReprintsDesk::Base->new( { logger => Koha::Illrequest::Logger->new } );
+    my $rd = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new( { logger => Koha::Illrequest::Logger->new } );
     my $response = $rd->{_api}->User_GetOrderHistory(2);
     my $body = from_json($response->decoded_content);
 

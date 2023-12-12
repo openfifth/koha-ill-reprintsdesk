@@ -1,11 +1,11 @@
-package Koha::Illbackends::ReprintsDesk::Processor::CheckAvailability;
+package Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Processor::CheckAvailability;
 
 use Modern::Perl;
 use JSON qw( from_json );
 
 use Encode qw( decode_utf8);
 use parent qw(Koha::Illrequest::SupplierUpdateProcessor);
-use Koha::Illbackends::ReprintsDesk::Base;
+use Koha::Plugin::Com::PTFSEurope::ReprintsDesk;
 
 sub new {
     my ($class) = @_;

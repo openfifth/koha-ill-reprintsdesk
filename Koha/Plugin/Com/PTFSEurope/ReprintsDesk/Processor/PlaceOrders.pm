@@ -3,7 +3,7 @@ package Koha::Illbackends::ReprintsDesk::Processor::PlaceOrders;
 use Modern::Perl;
 
 use parent qw(Koha::Illrequest::SupplierUpdateProcessor);
-use Koha::Illbackends::ReprintsDesk::Base;
+use Koha::Plugin::Com::PTFSEurope::ReprintsDesk;
 
 sub new {
     my ( $class ) = @_;
@@ -19,7 +19,7 @@ sub run {
     $self->{dry_run} = $options->{dry_run};
     $self->{env} = $options->{env};
 
-    my $rd = Koha::Illbackends::ReprintsDesk::Base->new( { logger => Koha::Illrequest::Logger->new } );
+    my $rd = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new( { logger => Koha::Illrequest::Logger->new } );
 
     # Prepare the query
     my $dbh   = C4::Context->dbh;
