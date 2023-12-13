@@ -276,7 +276,7 @@ sub GetPriceEstimate {
     my $client = _build_client('Order_GetPriceEstimate2');
 
     my $smart = XML::Smart->new;
-    $smart->{wrapper}->{xmlInput}->{input}->{xmlns} = '';
+    $smart->{wrapper}->{xmlInput}->{input}->{xmlns}           = '';
     $smart->{wrapper}->{xmlInput}->{input}->{schemaversionid} = '1';
 
     $smart->{wrapper}->{xmlInput}->{input}->{standardnumber} = $metadata->{standardNumber};

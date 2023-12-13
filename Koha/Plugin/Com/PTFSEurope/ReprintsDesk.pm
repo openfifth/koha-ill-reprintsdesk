@@ -21,13 +21,13 @@ use Modern::Perl;
 use strict;
 use warnings;
 
-use base qw(Koha::Plugins::Base);
+use base            qw(Koha::Plugins::Base);
 use Koha::DateUtils qw( dt_from_string );
 
 use File::Basename qw( dirname );
 use CGI;
 
-use JSON qw( encode_json decode_json to_json from_json );
+use JSON           qw( encode_json decode_json to_json from_json );
 use File::Basename qw( dirname );
 use C4::Installer;
 

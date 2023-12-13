@@ -178,7 +178,7 @@ sub run {
             );
             my $note_instructions =
                 "Please correct this and mark the request as 'NEW' for a new ReprintsDesk availability and price check.";
-                $unavailable_request_to_update->append_to_note(
+            $unavailable_request_to_update->append_to_note(
                 "Request is missing 'ISSN' or 'ISBN' required for price check." . $note_instructions )
                 unless $unavailable_id->{standardnumber};
             $unavailable_request_to_update->append_to_note(

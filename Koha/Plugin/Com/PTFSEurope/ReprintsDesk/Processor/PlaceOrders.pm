@@ -6,8 +6,8 @@ use parent qw(Koha::Illrequest::SupplierUpdateProcessor);
 use Koha::Plugin::Com::PTFSEurope::ReprintsDesk;
 
 sub new {
-    my ( $class ) = @_;
-    my $self = $class->SUPER::new('backend', 'ReprintsDesk', 'PlaceOrders');
+    my ($class) = @_;
+    my $self = $class->SUPER::new( 'backend', 'ReprintsDesk', 'PlaceOrders' );
     bless $self, $class;
     return $self;
 }
@@ -16,8 +16,8 @@ sub run {
     my ( $self, $update, $options, $status ) = @_;
 
     $self->{do_debug} = $options->{debug};
-    $self->{dry_run} = $options->{dry_run};
-    $self->{env} = $options->{env};
+    $self->{dry_run}  = $options->{dry_run};
+    $self->{env}      = $options->{env};
 
     my $rd = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new( { logger => Koha::Illrequest::Logger->new } );
 
@@ -36,17 +36,18 @@ sub run {
     # Bail if we got nothing to work with
     my $requests_count = scalar @{$ill_requests_hash};
     if ( $requests_count == 0 ) {
-        die ("No 'READY' requests found. Bailing");
+        die("No 'READY' requests found. Bailing");
     }
 
     # Attempt to place an order for each 'READY' request
-    $self->debug_msg('Found ' . $requests_count . ' \'READY\' requests');
-    foreach my $ill_request_hash (@{$ill_requests_hash}) {
+    $self->debug_msg( 'Found ' . $requests_count . ' \'READY\' requests' );
+    foreach my $ill_request_hash ( @{$ill_requests_hash} ) {
         my $ill_request = Koha::Illrequests->find( $ill_request_hash->{illrequest_id} );
         $rd->create_request($ill_request) if !$options->{dry_run};
     }
 
     $self->debug_msg('Getting order history from RPDesk');
+
     # Wait a bit before asking RPDesk the history of the orders we just placed
     sleep(10);
     my $get_order_history_proc = Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Processor::GetOrderHistory->new;
@@ -62,9 +63,9 @@ sub run {
 
 sub debug_msg {
     my ( $self, $msg ) = @_;
-    if ($self->{do_debug} && ref $self->{do_debug} eq 'CODE') {
-        &{$self->{do_debug}}($self->{dry_run} ? "DRY RUN: $msg" : $msg);
+    if ( $self->{do_debug} && ref $self->{do_debug} eq 'CODE' ) {
+        &{ $self->{do_debug} }( $self->{dry_run} ? "DRY RUN: $msg" : $msg );
     }
-};
+}
 
 1;
