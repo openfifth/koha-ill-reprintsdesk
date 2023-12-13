@@ -39,17 +39,17 @@ use Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Processor::EnqueueNotices;
 use Koha::Libraries;
 use Koha::Patrons;
 
-our $VERSION = "1.0.0";
+our $VERSION = "2.0.0";
 
 our $metadata = {
     name            => 'ReprintsDesk',
     author          => 'PTFS-Europe',
     date_authored   => '2022-04-26',
-    date_updated    => "2023-10-04",
-    minimum_version => '22.11.05.000',
+    date_updated    => "2023-12-13",
+    minimum_version => '24.05.00.000',
     maximum_version => undef,
     version         => $VERSION,
-    description     => 'This plugin provides Koha API routes enabling access to the Reprints Desk API'
+    description     => 'This plugin is a ReprintsDesk ILL backend and provides Koha API routes enabling access to the Reprints Desk API'
 };
 
 sub ill_backend {
