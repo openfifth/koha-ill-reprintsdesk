@@ -77,13 +77,8 @@ my $options_to_pass = {
 };
 
 # Load the backend
-my @raw = qw/Koha Illbackends/; # Base Path
-my $location = join "/", @raw, $backend, "Base.pm";    # File to load
-my $backend_class = join "::", @raw, $backend, "Base"; # Package name
-
-require $location;
-
-$backend = $backend_class->new;
+my $backend_class = Koha::Illrequest->new->load_backend($backend);
+$backend = $backend_class->{_my_backend};
 
 # Backend processor specified, run only this processor
 if( $processor ) {

@@ -49,7 +49,7 @@ sub run {
     $self->debug_msg('Getting order history from RPDesk');
     # Wait a bit before asking RPDesk the history of the orders we just placed
     sleep(10);
-    my $get_order_history_proc = Koha::Illbackends::ReprintsDesk::Processor::GetOrderHistory->new;
+    my $get_order_history_proc = Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Processor::GetOrderHistory->new;
     $get_order_history_proc->run(
         undef,
         {

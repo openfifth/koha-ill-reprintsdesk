@@ -21,7 +21,7 @@ sub run {
     $self->{dry_run}  = $options->{dry_run};
     $self->{env}      = $options->{env};
 
-    my $rd = Koha::Illbackends::ReprintsDesk::Base->new( { logger => Koha::Illrequest::Logger->new } );
+    my $rd = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new_backend( { logger => Koha::Illrequest::Logger->new } );
 
     my $availability_backend                = 'ReprintsDesk';
     my $availability_check_status           = 'NEW';

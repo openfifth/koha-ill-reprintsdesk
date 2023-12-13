@@ -21,7 +21,7 @@ sub run {
     $self->{dry_run} = $options->{dry_run};
     $self->{env} = $options->{env};
 
-    my $rd = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new( { logger => Koha::Illrequest::Logger->new } );
+    my $rd = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new_backend( { logger => Koha::Illrequest::Logger->new } );
     my $response = $rd->{_api}->User_GetOrderHistory(2);
     my $body = from_json($response->decoded_content);
 

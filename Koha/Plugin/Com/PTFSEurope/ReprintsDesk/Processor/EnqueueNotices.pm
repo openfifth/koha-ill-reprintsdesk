@@ -34,7 +34,8 @@ sub run {
     $self->{do_debug} = $options->{debug};
     $self->{dry_run} = $options->{dry_run};
     $self->{env} = $options->{env};
-    $self->{rd} = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new( { logger => Koha::Illrequest::Logger->new } );
+    $self->{rd} =
+        Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new_backend( { logger => Koha::Illrequest::Logger->new } );
 
     # Get branches that contain not 'COMP' requests
     # FIXME: There must be a prettier/better way of doing this

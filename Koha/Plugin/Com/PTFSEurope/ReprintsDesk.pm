@@ -909,9 +909,11 @@ sub create_request {
         }
     }
 
+    my $backend_api = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new_backend;
+
     # Make the request with Reprints Desk via the koha-plugin-reprintsdesk API
     my $response =
-        $self->{_api}->Order_PlaceOrder2( $metadata, $submission->borrowernumber, $submission->illrequest_id );
+        $backend_api->{_api}->Order_PlaceOrder2( $metadata, $submission->borrowernumber, $submission->illrequest_id );
 
     # If the call to Reprints Desk was successful,
     # add the Reprints Desk request ID to our submission's metadata
