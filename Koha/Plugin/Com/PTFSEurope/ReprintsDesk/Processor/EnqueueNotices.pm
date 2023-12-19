@@ -3,7 +3,7 @@ package Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Processor::EnqueueNotices;
 use Modern::Perl;
 use JSON qw( from_json );
 
-use parent qw(Koha::Illrequest::SupplierUpdateProcessor);
+use parent qw(Koha::ILL::Request::SupplierUpdateProcessor);
 use Koha::Plugin::Com::PTFSEurope::ReprintsDesk;
 
 sub new {
@@ -35,7 +35,7 @@ sub run {
     $self->{dry_run}  = $options->{dry_run};
     $self->{env}      = $options->{env};
     $self->{rd} =
-        Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new_backend( { logger => Koha::Illrequest::Logger->new } );
+        Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new_backend( { logger => Koha::ILL::Request::Logger->new } );
 
     # Get branches that contain not 'COMP' requests
     # FIXME: There must be a prettier/better way of doing this
@@ -62,7 +62,7 @@ sub run {
 
         # Get the requests not updated in over 24 hours
         my $one_day_ago = DateTime->now( time_zone => 'local' )->subtract( days => 2 );
-        my $requests    = Koha::Illrequests->search(
+        my $requests    = Koha::ILL::Requests->search(
             {
                 branchcode => $branch->branchcode,
                 status     => { '!=', 'COMP' },

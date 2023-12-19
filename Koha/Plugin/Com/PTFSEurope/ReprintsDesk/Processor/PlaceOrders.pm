@@ -2,7 +2,7 @@ package Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Processor::PlaceOrders;
 
 use Modern::Perl;
 
-use parent qw(Koha::Illrequest::SupplierUpdateProcessor);
+use parent qw(Koha::ILL::Request::SupplierUpdateProcessor);
 use Koha::Plugin::Com::PTFSEurope::ReprintsDesk;
 
 sub new {
@@ -19,7 +19,7 @@ sub run {
     $self->{dry_run}  = $options->{dry_run};
     $self->{env}      = $options->{env};
 
-    my $rd = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new( { logger => Koha::Illrequest::Logger->new } );
+    my $rd = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new( { logger => Koha::ILL::Request::Logger->new } );
 
     # Prepare the query
     my $dbh   = C4::Context->dbh;
@@ -42,7 +42,7 @@ sub run {
     # Attempt to place an order for each 'READY' request
     $self->debug_msg( 'Found ' . $requests_count . ' \'READY\' requests' );
     foreach my $ill_request_hash ( @{$ill_requests_hash} ) {
-        my $ill_request = Koha::Illrequests->find( $ill_request_hash->{illrequest_id} );
+        my $ill_request = Koha::ILL::Requests->find( $ill_request_hash->{illrequest_id} );
         $rd->create_request($ill_request) if !$options->{dry_run};
     }
 

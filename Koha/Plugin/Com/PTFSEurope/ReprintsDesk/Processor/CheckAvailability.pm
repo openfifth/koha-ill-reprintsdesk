@@ -4,7 +4,7 @@ use Modern::Perl;
 use JSON qw( from_json );
 
 use Encode qw( decode_utf8);
-use parent qw(Koha::Illrequest::SupplierUpdateProcessor);
+use parent qw(Koha::ILL::Request::SupplierUpdateProcessor);
 use Koha::Plugin::Com::PTFSEurope::ReprintsDesk;
 
 sub new {
@@ -21,7 +21,7 @@ sub run {
     $self->{dry_run}  = $options->{dry_run};
     $self->{env}      = $options->{env};
 
-    my $rd = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new_backend( { logger => Koha::Illrequest::Logger->new } );
+    my $rd = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new_backend( { logger => Koha::ILL::Request::Logger->new } );
 
     my $availability_backend                = 'ReprintsDesk';
     my $availability_check_status           = 'NEW';
@@ -31,7 +31,7 @@ sub run {
 
     # Get the local ILL requests we want to work with
     # TODO: Get only the first 15 like PlaceOrders? RPDesk has a max of 50 citations allowed
-    my $new_requests = Koha::Illrequests->search(
+    my $new_requests = Koha::ILL::Requests->search(
         {
             status  => $availability_check_status,
             backend => $availability_backend
@@ -140,7 +140,7 @@ sub run {
 
     # Update available requests locally
     foreach my $id_to_update (@available_ids) {
-        my $request_to_update = Koha::Illrequests->find( $id_to_update->{illrequest_id} );
+        my $request_to_update = Koha::ILL::Requests->find( $id_to_update->{illrequest_id} );
 
         if ( $request_to_update->status eq $availability_check_status ) {
             $request_to_update->status($status_if_available)->store if !$options->{dry_run};
@@ -166,7 +166,7 @@ sub run {
     # Iterate on unavailable requests locally
     foreach my $unavailable_id (@unavailable_ids) {
 
-        my $unavailable_request_to_update = Koha::Illrequests->find( $unavailable_id->{illrequest_id} );
+        my $unavailable_request_to_update = Koha::ILL::Requests->find( $unavailable_id->{illrequest_id} );
 
         # Bail if we can't price check
         if ( !$unavailable_id->{standardnumber} || !$unavailable_id->{year} ) {

@@ -224,7 +224,7 @@ sub uninstall() {
 
 =head3 new_backend
 
-Required method utilized by I<Koha::Illrequest> load_backend
+Required method utilized by I<Koha::ILL::Request> load_backend
 
 =cut
 
@@ -593,7 +593,7 @@ sub ready {
     my ( $self, $params ) = @_;
     my $other = $params->{other};
 
-    my $request = Koha::Illrequests->find( $other->{illrequest_id} );
+    my $request = Koha::ILL::Requests->find( $other->{illrequest_id} );
 
     $request->status('READY');
     $request->updated( DateTime->now );
@@ -620,7 +620,7 @@ sub mark_new {
     my ( $self, $params ) = @_;
     my $other = $params->{other};
 
-    my $request = Koha::Illrequests->find( $other->{illrequest_id} );
+    my $request = Koha::ILL::Requests->find( $other->{illrequest_id} );
 
     $request->status('NEW');
     $request->updated( DateTime->now );
@@ -652,7 +652,7 @@ sub migrate {
 
     my $fields = $self->fieldmap;
 
-    my $request = Koha::Illrequests->find( $other->{illrequest_id} );
+    my $request = Koha::ILL::Requests->find( $other->{illrequest_id} );
 
     # Record where we're migrating from, so we can log that
     my $migrating_from = $request->backend;
@@ -680,7 +680,7 @@ sub migrate {
         # If we've found a Reprints Desk field name and an attribute doesn't already exist
         # with this name, create a new one
         if ( $rd_field_name && !$self->find_illrequestattribute( $all_attrs, $rd_field_name ) ) {
-            Koha::Illrequestattribute->new(
+            Koha::ILL::Request::Attribute->new(
                 {
                     illrequest_id => $request->illrequest_id,
 
@@ -817,7 +817,7 @@ sub create_illrequestattributes {
                     value    => $att_value,
                     readonly => 0
                 };
-                Koha::Illrequestattribute->new($data)->store;
+                Koha::ILL::Request::Attribute->new($data)->store;
             }
         }
     }
@@ -826,7 +826,7 @@ sub create_illrequestattributes {
 =head3 prep_submission_metadata
 
 Given a submission's metadata, probably from a form,
-but maybe as an Illrequestattributes object,
+but maybe as an ILL::Request::Attributes object,
 and a partly constructed hashref, add any metadata that
 is appropriate for this material type
 
@@ -839,7 +839,7 @@ sub prep_submission_metadata {
 
     my $metadata_hashref = {};
 
-    if ( ref $metadata eq "Koha::Illrequestattributes" ) {
+    if ( ref $metadata eq "Koha::ILL::Request::Attributes" ) {
         while ( my $attr = $metadata->next ) {
             $metadata_hashref->{ $attr->type } = $attr->value;
         }
@@ -922,7 +922,7 @@ sub create_request {
     if ( scalar @{ $body->{errors} } == 0 && $body->{result}->{Order_PlaceOrder2Result} == 1 ) {
         my $request_id = $body->{result}->{orderID};
         if ( $request_id && length $request_id > 0 ) {
-            Koha::Illrequestattribute->new(
+            Koha::ILL::Request::Attribute->new(
                 {
                     illrequest_id => $submission->illrequest_id,
 
@@ -935,7 +935,7 @@ sub create_request {
         }
         my $rnd_id = $body->{result}->{rndID};
         if ( $rnd_id && length $rnd_id > 0 ) {
-            Koha::Illrequestattribute->new(
+            Koha::ILL::Request::Attribute->new(
                 {
                     illrequest_id => $submission->illrequest_id,
 

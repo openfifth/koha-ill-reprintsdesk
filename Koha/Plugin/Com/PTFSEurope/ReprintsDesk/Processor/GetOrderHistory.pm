@@ -4,7 +4,7 @@ use Modern::Perl;
 use JSON qw( from_json );
 
 use Encode qw( decode_utf8);
-use parent qw(Koha::Illrequest::SupplierUpdateProcessor);
+use parent qw(Koha::ILL::Request::SupplierUpdateProcessor);
 use Koha::Plugin::Com::PTFSEurope::ReprintsDesk;
 
 sub new {
@@ -21,7 +21,7 @@ sub run {
     $self->{dry_run}  = $options->{dry_run};
     $self->{env}      = $options->{env};
 
-    my $rd = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new_backend( { logger => Koha::Illrequest::Logger->new } );
+    my $rd = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new_backend( { logger => Koha::ILL::Request::Logger->new } );
     my $response = $rd->{_api}->User_GetOrderHistory(2);
     my $body     = from_json( $response->decoded_content );
 
@@ -33,7 +33,7 @@ sub run {
         foreach my $orderdetail (@orders) {
 
             my @orderid     = $orderdetail->getChildrenByTagName('orderid');
-            my $ill_request = Koha::Illrequests->find( { orderid => $orderid[0]->textContent } );
+            my $ill_request = Koha::ILL::Requests->find( { orderid => $orderid[0]->textContent } );
 
             if ( !$ill_request ) {
                 $self->debug_msg( 'No ILL request found with orderID #' . $orderid[0]->textContent );

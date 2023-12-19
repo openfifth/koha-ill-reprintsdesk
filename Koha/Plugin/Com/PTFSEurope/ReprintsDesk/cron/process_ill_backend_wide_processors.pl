@@ -21,7 +21,7 @@ use Modern::Perl;
 use Getopt::Long qw( GetOptions );
 
 use Koha::Script;
-use Koha::Illrequests;
+use Koha::ILL::Requests;
 
 # Command line option values
 my $get_help = 0;
@@ -51,7 +51,7 @@ if (!$backend) {
 }
 
 # First check we can proceed
-my $cfg = Koha::Illrequest::Config->new;
+my $cfg = Koha::ILL::Request::Config->new;
 my $backends = $cfg->available_backends;
 my $has_branch = $cfg->has_branch;
 my $backends_available = ( scalar @{$backends} > 0 );
@@ -77,7 +77,7 @@ my $options_to_pass = {
 };
 
 # Load the backend
-my $backend_class = Koha::Illrequest->new->load_backend($backend);
+my $backend_class = Koha::ILL::Request->new->load_backend($backend);
 $backend = $backend_class->{_my_backend};
 
 # Backend processor specified, run only this processor
