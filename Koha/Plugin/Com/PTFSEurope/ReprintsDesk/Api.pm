@@ -12,7 +12,10 @@ use XML::Compile::SOAP12;
 use XML::Compile::SOAP11;
 use XML::Compile::Transport::SOAPHTTP;
 use XML::Smart;
-use JSON qw( decode_json );
+use JSON         qw( decode_json );
+use MIME::Base64 qw( decode_base64 );
+use Encode qw( decode_utf8);
+use URI::Escape  qw ( uri_unescape );
 
 use Koha::Logger;
 use Koha::Patrons;
@@ -459,6 +462,50 @@ sub _get_environment {
     my $config = decode_json( $plugin->retrieve_data("reprintsdesk_config") || {} );
 
     return $config->{environment};
+}
+
+sub Backend_Availability {
+    my $c = shift->openapi->valid_input or return;
+
+    my $metadata = $c->validation->param('metadata') || '';
+    $metadata = decode_json( decode_base64( uri_unescape($metadata) ) );
+
+    unless ( $metadata->{doi} || $metadata->{pubmedid} ) {
+        return $c->render(
+            status  => 400,
+            openapi => {
+                error => 'No doi or pubmedid provided',
+            }
+        );
+    }
+
+    my $ids_to_check = $metadata->{doi} ? [ { doi => $metadata->{doi} } ] : [ { pubmedid => $metadata->{pubmedid} } ];
+
+    my $response =
+        Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Lib::API->new->ArticleShelf_CheckAvailability($ids_to_check);
+    my $body = decode_json( $response->decoded_content );
+
+    die 'ArticleShelf_CheckAvailability returned error ' . join( '.', map { $_->{message} } @{ $body->{errors} } )
+        if scalar @{ $body->{errors} } || !$body->{result}->{ArticleShelf_CheckAvailabilityResult};
+
+    my $dom       = XML::LibXML->load_xml( string => decode_utf8( $body->{outputXmlNode} ) );
+    my @citations = $dom->findnodes('/outputXmlNode/output/citations/*');
+
+    if ( scalar @citations ) {
+        return $c->render(
+            status  => 200,
+            openapi => {
+                success => "",
+            }
+        );
+    } else {
+        return $c->render(
+            status  => 404,
+            openapi => {
+                error => 'Provided doi or pubmedid is not available in ReprintsDesk',
+            }
+        );
+    }
 }
 
 1;
