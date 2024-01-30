@@ -1227,7 +1227,7 @@ sub status_graph {
             ui_method_icon => 'fa-plus'
         },
         MARK_NEW => {
-            prev_actions   => ['ERROR'],
+            prev_actions   => ['ERROR', 'MIG'],
             id             => 'MARK_NEW',
             name           => 'New request',
             ui_method_name => 'Mark request NEW',
@@ -1253,7 +1253,7 @@ sub status_graph {
             name           => 'Switched provider',
             ui_method_name => 'Switch provider',
             method         => 'migrate',
-            next_actions   => [ 'REQ', 'GENREQ', 'KILL', 'MIG' ],
+            next_actions   => [ 'MARK_NEW', 'GENREQ', 'KILL', 'MIG'],
             ui_method_icon => 'fa-search',
         },
     };
