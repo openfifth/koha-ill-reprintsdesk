@@ -107,6 +107,11 @@
             <input id="reprintsdesk_pricetypeid_input" class="required_input" placeholder="Enter price type ID" type="text" name="pricetypeid" value="[% config.pricetypeid | html %]">
             <p>The price type ID as supplied by Reprints Desk for Order_GetPriceEstimate2</p>
         </div>
+        <div id="reprintsdesk_price_threshold" class="ill_config_field">
+            <label for="reprintsdesk_price_threshold_input">Price type ID: </label>
+            <input id="reprintsdesk_price_threshold_input" class="required_input" placeholder="Enter price threshold" type="number" name="price_threshold" value="[% config.price_threshold || 0 | html %]">
+            <p>The price threshold. All requests up to (and including) this value will have their orders placed automatically.</p>
+        </div>
         <h4 class="section_header">Delivery detail preferences</h4>
         <div id="reprintsdesk_deliveryprofile_use_borrower_details" class="ill_config_field">
             <label for="reprintsdesk_deliveryprofile_use_borrower_details_checkbox">Use borrower details if available: </label>
@@ -277,4 +282,10 @@
         }
         return el_completed.length === 0 ? false : true;
     };
+
+    $('#reprintsdesk_price_threshold_input').on('change', function(e) {
+        if (e.target.value == '') {
+            e.target.value = 0
+        }
+    });
 </script>
