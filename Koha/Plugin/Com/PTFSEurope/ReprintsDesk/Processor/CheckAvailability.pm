@@ -1,7 +1,7 @@
 package Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Processor::CheckAvailability;
 
 use Modern::Perl;
-use JSON qw( from_json );
+use JSON qw( decode_json from_json );
 
 use Encode qw( decode_utf8);
 use parent qw(Koha::ILL::Request::SupplierUpdateProcessor);
@@ -22,6 +22,9 @@ sub run {
     $self->{env}      = $options->{env};
 
     my $rd = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new_backend( { logger => Koha::ILL::Request::Logger->new } );
+
+    my $plugin = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new();
+    my $config = decode_json( $plugin->retrieve_data("reprintsdesk_config") || {} );
 
     my $availability_backend                = 'ReprintsDesk';
     my $availability_check_status           = 'NEW';
@@ -212,8 +215,25 @@ sub run {
             )
         );
 
+        if ( $totalcharge <= $config->{price_threshold} ) {
+            $unavailable_request_to_update->status($status_if_available)->store;
+            my $below_message = sprintf(
+                "Price is below or equal to configured threshold of '%s'. Request is ready to be placed.",
+                $config->{price_threshold}
+            );
+            $unavailable_request_to_update->append_to_note($below_message);
+            $self->debug_msg( "Request #" . $unavailable_id->{illrequest_id} . " " . $below_message );
+        } else {
+            $unavailable_request_to_update->status($status_if_unavailable_with_price)->store;
+            my $above_message = sprintf(
+                "Price is above configured threshold of '%s'. Request is standing by.",
+                $config->{price_threshold}
+            );
+            $unavailable_request_to_update->append_to_note($above_message);
+            $self->debug_msg( "Request #" . $unavailable_id->{illrequest_id} . " " . $above_message );
+        }
+
         $unavailable_request_to_update->cost($totalcharge)->store;
-        $unavailable_request_to_update->status($status_if_unavailable_with_price)->store;
         $unavailable_request_to_update->append_to_note("Price is in USD currency.");
         $unavailable_request_to_update->append_to_note("Price may be inaccurate. Copyright charge returned 'unknown'.")
             if $unknown_copyrightcharge;
