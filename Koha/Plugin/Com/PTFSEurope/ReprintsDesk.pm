@@ -1237,7 +1237,7 @@ sub status_graph {
             name           => 'New request',
             ui_method_name => 'New request',
             method         => 'create',
-            next_actions   => [ 'GENREQ', 'KILL', 'MIG', 'EDITITEM' ],
+            next_actions   => [ 'KILL', 'MIG', 'EDITITEM' ],
             ui_method_icon => 'fa-plus'
         },
         MARK_NEW => {
