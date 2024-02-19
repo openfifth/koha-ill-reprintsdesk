@@ -79,6 +79,11 @@ sub run {
         my @year = map { $_->{type} eq 'year' ? $_ : () } @{ $ill_request->extended_attributes->unblessed };
         my $year = $year[0];
 
+        my @date = map { $_->{type} eq 'date' ? $_ : () } @{ $ill_request->extended_attributes->unblessed };
+        my $date = $date[0];
+
+        $year = $year // $date;
+
         my $id_to_push = {
             $doi               ? ( doi  => $doi->{value} )      : (),
             $pubmedid && !$doi ? ( pmid => $pubmedid->{value} ) : (),
