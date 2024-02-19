@@ -108,7 +108,7 @@
             <p>The price type ID as supplied by Reprints Desk for Order_GetPriceEstimate2</p>
         </div>
         <div id="reprintsdesk_price_threshold" class="ill_config_field">
-            <label for="reprintsdesk_price_threshold_input">Price type ID: </label>
+            <label for="reprintsdesk_price_threshold_input">Price threshold: </label>
             <input id="reprintsdesk_price_threshold_input" class="required_input" placeholder="Enter price threshold" type="number" name="price_threshold" value="[% config.price_threshold || 0 | html %]">
             <p>The price threshold. All requests up to (and including) this value will have their orders placed automatically.</p>
         </div>
