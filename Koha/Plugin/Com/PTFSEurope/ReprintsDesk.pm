@@ -501,12 +501,19 @@ sub edititem {
                     if ( $other->{$field}
                         && length $other->{$field} > 0 )
                     {
-                        my @bind = ( $submission->id, $field, $value, 0 );
+                        my @bind = (
+                            $submission->id,
+                            column_exists( 'illrequestattributes', 'backend' ) ? "ReprintsDesk" : (),
+                            $field, $value, 0
+                        );
+
                         $dbh->do(
                             q|
-                            INSERT INTO illrequestattributes
-                            (illrequest_id, type, value, readonly) VALUES
-                            (?, ?, ?, ?)
+                            INSERT IGNORE INTO illrequestattributes
+                            (illrequest_id,|
+                                . ( column_exists( 'illrequestattributes', 'backend' ) ? q|backend,| : q|| ) . q|
+                             type, value, readonly) VALUES
+                            (?, ?, ?, ?, ?)
                         |, undef, @bind
                         );
                     }
@@ -521,12 +528,19 @@ sub edititem {
                         && length $other->{$field} > 0
                         && !$fields->{ $fields->{$field}->{ill} } )
                     {
-                        my @bind = ( $submission->id, $fields->{$field}->{ill}, $value, 0 );
+                        my @bind = (
+                            $submission->id,
+                            column_exists( 'illrequestattributes', 'backend' ) ? "ReprintsDesk" : (),
+                            $field, $value, 0
+                        );
+
                         $dbh->do(
                             q|
-                            INSERT INTO illrequestattributes
-                            (illrequest_id, type, value, readonly) VALUES
-                            (?, ?, ?, ?)
+                            INSERT IGNORE INTO illrequestattributes
+                            (illrequest_id,|
+                                . ( column_exists( 'illrequestattributes', 'backend' ) ? q|backend,| : q|| ) . q|
+                             type, value, readonly) VALUES
+                            (?, ?, ?, ?, ?)
                         |, undef, @bind
                         );
                     }
