@@ -137,7 +137,7 @@ sub run {
         # Set ->{available} = 1 if DOI/PMID returned by ArticleShelf_CheckAvailability
         # exists within our local $ids_to_check
         foreach my $id_to_check (@ids_to_check) {
-            if (   $id_to_check->{doi} && $doi && $id_to_check->{doi} eq $doi
+            if (   $id_to_check->{doi} && $doi && lc $id_to_check->{doi} eq lc $doi
                 || $id_to_check->{pmid} && $pmid && $id_to_check->{pmid} eq $pmid )
             {
                 $id_to_check->{available} = 1;
