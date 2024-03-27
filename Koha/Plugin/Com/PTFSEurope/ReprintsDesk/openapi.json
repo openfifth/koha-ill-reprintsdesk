@@ -144,7 +144,7 @@
                                     "statecode": {
                                         "description": "State – Two (2) character abbreviation. Required IF countrycode = 'US'",
                                         "type": "string",
-                                        "maxLength": 50
+                                        "maxLength": 2
                                     },
                                     "statename": {
                                         "description": "State / Province. Required IF countrycode <> 'US'",
