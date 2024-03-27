@@ -85,17 +85,17 @@ sub Order_PlaceOrder2 {
         illrequest_id   => $illrequest_id,
         orderdetail     => $metadata,
         deliveryprofile => {
-            firstname   => $borrower->firstname || "",
-            lastname    => $borrower->surname   || "",
-            address1    => $address1_str,
-            city        => $borrower->city          || "",
-            statecode   => $metadata->{statecode}   || "",
-            statename   => $metadata->{statename}   || "",
-            zip         => $metadata->{zipcode}     || "",
-            countrycode => $metadata->{countrycode} || "",
-            phone       => $borrower->phone         || "",
-            fax         => $borrower->fax           || "",
-            email       => $borrower->email         || ""
+            firstname   => substr( $borrower->firstname,     0, 50 ) || "",
+            lastname    => substr( $borrower->surname,       0, 50 ) || "",
+            address1    => substr( $address1_str,            0, 50 ) || "",
+            city        => substr( $borrower->city,          0, 50 ) || "",
+            statecode   => substr( $metadata->{statecode},   0, 2 )  || "",
+            statename   => substr( $metadata->{statename},   0, 50 ) || "",
+            zip         => substr( $metadata->{zipcode},     0, 50 ) || "",
+            countrycode => substr( $metadata->{countrycode}, 0, 2 )  || "",
+            phone       => substr( $borrower->phone,         0, 50 ) || "",
+            fax         => substr( $borrower->fax,           0, 50 ) || "",
+            email       => substr( $borrower->email,         0, 64 ) || "",
         }
     };
 
