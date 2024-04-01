@@ -1662,8 +1662,8 @@ sub _validate_borrower {
 
 sub _logger {
     my ( $self, $logger ) = @_;
-    $self->{logger} = $logger if ($logger);
-    return $self->{logger};
+    $self->{_logger} = $logger if ($logger);
+    return $self->{_logger};
 }
 
 1;
