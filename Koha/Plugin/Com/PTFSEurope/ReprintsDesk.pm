@@ -250,17 +250,16 @@ Required method utilized by I<Koha::ILL::Request> load_backend
 sub new_backend {
     my ( $class, $params ) = @_;
 
-    my $api = Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Lib::API->new($VERSION);
+    my $api        = Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Lib::API->new($VERSION);
+    my $log_tt_dir = dirname(__FILE__) . '/'. name() .'/intra-includes/log/';
 
     my $self = {
         _api      => $api,
         templates => {
-            'REPRINTS_DESK_MIGRATE_IN'        => dirname(__FILE__) . '/intra-includes/log/reprints_desk_migrate_in.tt',
-            'REPRINTS_DESK_REQUEST_SUCCEEDED' => dirname(__FILE__)
-                . '/intra-includes/log/reprints_desk_request_succeeded.tt',
-            'REPRINTS_DESK_REQUEST_ORDER_UPDATED' => dirname(__FILE__)
-                . '/intra-includes/log/reprints_desk_request_order_updated.tt',
-            'REPRINTS_DESK_REQUEST_FAILED' => dirname(__FILE__) . '/intra-includes/log/reprints_desk_request_failed.tt'
+            'REPRINTS_DESK_MIGRATE_IN'            => $log_tt_dir . 'reprints_desk_migrate_in.tt',
+            'REPRINTS_DESK_REQUEST_SUCCEEDED'     => $log_tt_dir . 'reprints_desk_request_succeeded.tt',
+            'REPRINTS_DESK_REQUEST_ORDER_UPDATED' => $log_tt_dir . 'reprints_desk_request_order_updated.tt',
+            'REPRINTS_DESK_REQUEST_FAILED'        => $log_tt_dir . 'reprints_desk_request_failed.tt'
         }
     };
 
