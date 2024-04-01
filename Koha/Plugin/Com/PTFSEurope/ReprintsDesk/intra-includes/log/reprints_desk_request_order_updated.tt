@@ -1,4 +1,5 @@
-<p>
-[% log.timestamp | $KohaDates with_hours => 1 %] : <b>ReprintsDesk request order update succeeded </b>
+[% USE KohaDates %]
+[% PROCESS 'ill-request-log.inc' %]
+[% WRAPPER ill_request_log action_label = 'ReprintsDesk request order update succeeded ' %]
 Metadata: &quot;[% log.info.response.replace('\n', ', ') | html %]&quot;
-</p>
+[% END %]

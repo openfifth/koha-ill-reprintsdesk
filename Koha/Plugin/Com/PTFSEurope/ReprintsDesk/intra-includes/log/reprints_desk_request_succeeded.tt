@@ -1,3 +1,4 @@
-<p>
-[% log.timestamp | $KohaDates with_hours => 1 %] : <b>ReprintsDesk request succeeded </b>
-</p>
+[% USE KohaDates %]
+[% PROCESS 'ill-request-log.inc' %]
+[% WRAPPER ill_request_log action_label = 'ReprintsDesk request succeeded' %]
+[% END %]
