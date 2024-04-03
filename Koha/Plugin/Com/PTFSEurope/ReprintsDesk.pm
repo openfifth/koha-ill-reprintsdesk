@@ -241,38 +241,32 @@ sub availability_check_info {
 
 =head2 ILL backend methods
 
-=head3 new_backend
+=head3 new_ill_backend
 
 Required method utilized by I<Koha::ILL::Request> load_backend
 
 =cut
 
-sub new_backend {
-    my ( $class, $params ) = @_;
+sub new_ill_backend {
+    my ( $self, $params ) = @_;
 
     my $api        = Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Lib::API->new($VERSION);
     my $log_tt_dir = dirname(__FILE__) . '/'. name() .'/intra-includes/log/';
 
-    my $self = {
-        _api      => $api,
-        templates => {
-            'REPRINTS_DESK_MIGRATE_IN'            => $log_tt_dir . 'reprints_desk_migrate_in.tt',
-            'REPRINTS_DESK_REQUEST_SUCCEEDED'     => $log_tt_dir . 'reprints_desk_request_succeeded.tt',
-            'REPRINTS_DESK_REQUEST_ORDER_UPDATED' => $log_tt_dir . 'reprints_desk_request_order_updated.tt',
-            'REPRINTS_DESK_REQUEST_FAILED'        => $log_tt_dir . 'reprints_desk_request_failed.tt'
-        }
+    $self->{_api}      = $api;
+    $self->{templates} = {
+        'REPRINTS_DESK_MIGRATE_IN'            => $log_tt_dir . 'reprints_desk_migrate_in.tt',
+        'REPRINTS_DESK_REQUEST_SUCCEEDED'     => $log_tt_dir . 'reprints_desk_request_succeeded.tt',
+        'REPRINTS_DESK_REQUEST_ORDER_UPDATED' => $log_tt_dir . 'reprints_desk_request_order_updated.tt',
+        'REPRINTS_DESK_REQUEST_FAILED'        => $log_tt_dir . 'reprints_desk_request_failed.tt'
     };
-
-    $self->{_logger} = $params->{logger} if ( $params->{logger} );
-
+    $self->{_logger}                 = $params->{logger} if ( $params->{logger} );
     $self->{backend_wide_processors} = [
         Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Processor::PlaceOrders->new,
         Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Processor::GetOrderHistory->new,
         Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Processor::CheckAvailability->new,
         Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Processor::EnqueueNotices->new
     ];
-
-    bless( $self, $class );
 
     return $self;
 }
@@ -925,7 +919,7 @@ sub create_request {
         }
     }
 
-    my $backend_api = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new_backend;
+    my $backend_api = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new_ill_backend;
 
     # Make the request with Reprints Desk via the koha-plugin-reprintsdesk API
     my $response =
