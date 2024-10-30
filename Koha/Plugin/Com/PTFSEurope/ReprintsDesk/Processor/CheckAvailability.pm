@@ -21,7 +21,7 @@ sub run {
     $self->{dry_run}  = $options->{dry_run};
     $self->{env}      = $options->{env};
 
-    my $rd = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new_backend( { logger => Koha::ILL::Request::Logger->new } );
+    my $rd = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new->new_ill_backend( { logger => Koha::ILL::Request::Logger->new } );
 
     my $plugin = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new();
     my $config = decode_json( $plugin->retrieve_data("reprintsdesk_config") || {} );

@@ -19,7 +19,7 @@ sub run {
     $self->{dry_run}  = $options->{dry_run};
     $self->{env}      = $options->{env};
 
-    my $rd = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new_backend( { logger => Koha::ILL::Request::Logger->new } );
+    my $rd = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new->new_ill_backend( { logger => Koha::ILL::Request::Logger->new } );
 
     # Prepare the query
     my $dbh   = C4::Context->dbh;
