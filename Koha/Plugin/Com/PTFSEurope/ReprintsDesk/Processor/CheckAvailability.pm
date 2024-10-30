@@ -177,7 +177,7 @@ sub run {
         my $unavailable_request_to_update = Koha::ILL::Requests->find( $unavailable_id->{illrequest_id} );
 
         # Bail if we can't price check
-        if ( !$unavailable_id->{standardnumber} || !$unavailable_id->{year} ) {
+        if ( !$unavailable_id->{standardnumber} || !$unavailable_id->{year} || $unavailable_id->{year} !~ /^\d{4}$/) {
             $self->debug_msg(
                 sprintf(
                     "Request #%d does not have a ISSN/ISBN or year. Skipping this price check.",
@@ -192,6 +192,9 @@ sub run {
             $unavailable_request_to_update->append_to_note(
                 "Request is missing 'year' required for price check." . $note_instructions )
                 unless $unavailable_id->{year};
+            $unavailable_request_to_update->append_to_note(
+                "Request 'year' is not in expected format (YYYY) for price check. " . $note_instructions )
+                unless $unavailable_id->{year} =~ /^\d{4}$/;
             $unavailable_request_to_update->status($status_if_unavailable_without_price);
             next;
         }
