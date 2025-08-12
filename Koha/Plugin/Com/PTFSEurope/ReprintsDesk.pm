@@ -919,7 +919,7 @@ sub create_request {
         }
     }
 
-    my $backend_api = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new_ill_backend;
+    my $backend_api = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new->new_ill_backend;
 
     # Make the request with Reprints Desk via the koha-plugin-reprintsdesk API
     my $response =
