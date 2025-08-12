@@ -39,7 +39,7 @@ use Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Processor::EnqueueNotices;
 use Koha::Libraries;
 use Koha::Patrons;
 
-our $VERSION = "3.0.3";
+our $VERSION = "3.0.4";
 
 our $metadata = {
     name            => 'ReprintsDesk',
