@@ -39,13 +39,13 @@ use Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Processor::EnqueueNotices;
 use Koha::Libraries;
 use Koha::Patrons;
 
-our $VERSION = "2.0.0";
+our $VERSION = "3.0.3";
 
 our $metadata = {
     name            => 'ReprintsDesk',
     author          => 'PTFS-Europe',
     date_authored   => '2022-04-26',
-    date_updated    => "2023-12-13",
+    date_updated    => "2025-08-12",
     minimum_version => '24.05.00.000',
     maximum_version => undef,
     version         => $VERSION,
