@@ -43,7 +43,7 @@ our $VERSION = "3.0.4";
 
 our $metadata = {
     name            => 'ReprintsDesk',
-    author          => 'PTFS-Europe',
+    author          => 'Open Fifth',
     date_authored   => '2022-04-26',
     date_updated    => "2025-08-12",
     minimum_version => '24.05.00.000',
