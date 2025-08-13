@@ -12,7 +12,7 @@ use XML::Compile::SOAP12;
 use XML::Compile::SOAP11;
 use XML::Compile::Transport::SOAPHTTP;
 use XML::Smart;
-use JSON         qw( decode_json );
+use JSON         qw( decode_json from_json);
 use MIME::Base64 qw( decode_base64 );
 use Encode qw( decode_utf8);
 use URI::Escape  qw ( uri_unescape );
@@ -470,6 +470,9 @@ sub Backend_Availability {
     my $metadata = $c->validation->param('metadata') || '';
     $metadata = decode_json( decode_base64( uri_unescape($metadata) ) );
 
+    my $plugin = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new();
+    my $config = decode_json( $plugin->retrieve_data("reprintsdesk_config") || {} );
+
     unless ( $metadata->{doi} || $metadata->{pubmedid} ) {
         return $c->render(
             status  => 400,
@@ -491,21 +494,67 @@ sub Backend_Availability {
     my $dom       = XML::LibXML->load_xml( string => decode_utf8( $body->{outputXmlNode} ) );
     my @citations = $dom->findnodes('/outputXmlNode/output/citations/*');
 
-    if ( scalar @citations ) {
+    return $c->render(
+        status  => 200,
+        openapi => {
+            success => "Article is immediately available",
+        }
+    ) if scalar @citations;
+
+    my $standardnumber = $metadata->{issn} // $metadata->{isbn};
+    my $year = $metadata->{year} // $metadata->{date};
+
+    return $c->render(
+        status  => 404,
+        openapi => {
+            error => "Article not immediately available. Missing ISSN/ISBN or year for price check.",
+        }
+    ) if !$standardnumber || !$year;
+
+    my $price_response = Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Lib::API->new->Order_GetPriceEstimate2(
+        { standardNumber => $standardnumber, year => $year } );
+    my $price_body = from_json( $price_response->decoded_content );
+
+    my $price_dom = XML::LibXML->load_xml( string => decode_utf8( $price_body->{xmlOutput} ) );
+
+    my @servicecharge_el = $price_dom->findnodes('/xmlOutput/output/servicecharge');
+    my $servicecharge    = $servicecharge_el[0]->textContent if $servicecharge_el[0];
+
+    my @copyrightcharge         = $price_dom->findnodes('/xmlOutput/output/copyrightcharge');
+    my $copyrightcharge         = $copyrightcharge[0]->textContent if $copyrightcharge[0];
+    my $unknown_copyrightcharge = $copyrightcharge eq '-1.00' ? 1 : 0;
+
+    my $totalcharge = $unknown_copyrightcharge ? $servicecharge : $servicecharge + $copyrightcharge;
+
+    if ( $totalcharge <= $config->{price_threshold} ) {
         return $c->render(
             status  => 200,
             openapi => {
-                success => "",
+                success => sprintf(
+                    "Price of %s\$ is below or equal to the configured threshold of %s\$. Request can be placed.",
+                    $totalcharge, $config->{price_threshold}
+                )
             }
         );
     } else {
         return $c->render(
             status  => 404,
             openapi => {
-                error => 'Provided doi or pubmedid is not available in ReprintsDesk',
+                error => sprintf(
+                    "Price of %s\$ is above the configured threshold of %s\$. Request cannot be placed.",
+                    $totalcharge, $config->{price_threshold}
+                )
             }
         );
     }
+
+    #FIXME: When is this case possible?
+    return $c->render(
+        status  => 404,
+        openapi => {
+            error => 'Provided doi or pubmedid is not available in ReprintsDesk',
+        }
+    );
 }
 
 1;
