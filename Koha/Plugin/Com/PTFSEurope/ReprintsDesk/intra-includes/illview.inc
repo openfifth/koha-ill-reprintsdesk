@@ -22,7 +22,7 @@
     document.addEventListener('DOMContentLoaded', function(){
 
         // Hide "Mark request READY" button if an Order ID exists
-        if( $('li.orderid').text().indexOf('N/A') == -1 ){
+        if( $('li.orderid').length !== 0 ){
             $('#ill-toolbar-btn-ready').hide();
         }
         // The Reprints Desk API doesn't have any provision for request cancellation
