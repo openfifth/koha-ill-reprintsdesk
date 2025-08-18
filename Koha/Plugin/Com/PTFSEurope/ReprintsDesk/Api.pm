@@ -538,10 +538,10 @@ sub Backend_Availability {
         );
     } else {
         return $c->render(
-            status  => 404,
+            status  => 200,
             openapi => {
-                error => sprintf(
-                    "Price of %s\$ is above the configured threshold of %s\$. Request cannot be placed.",
+                success => sprintf(
+                    "Attention: Price of %s\$ is above the configured threshold of %s\$. Request will be put on 'Standby'",
                     $totalcharge, $config->{price_threshold}
                 )
             }
