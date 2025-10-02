@@ -183,7 +183,7 @@ sub configure {
 
         $self->store_data( { reprintsdesk_config => scalar encode_json($p) } );
         print $cgi->redirect(
-            -url => '/cgi-bin/koha/plugins/run.pl?class=Koha::Plugin::Com::PTFSEurope::ReprintsDesk&method=configure' );
+            -url => '/cgi-bin/koha/plugins/plugins-home.pl' );
         exit;
     }
 }
