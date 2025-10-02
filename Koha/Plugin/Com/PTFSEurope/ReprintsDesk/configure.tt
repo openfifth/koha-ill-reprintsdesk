@@ -53,7 +53,7 @@
                             <li>
                                 <div id="reprintsdesk_password">
                                     <label for="reprintsdesk_password_input">Password: </label>
-                                    <input id="reprintsdesk_password_input" class="required_input" placeholder="Enter password" type="text" name="password" value="[% config.password | html %]">
+                                    <input id="reprintsdesk_password_input" class="required_input" placeholder="Enter password" type="password" name="password" value="[% config.password | html %]">
                                     <a href="#" data-bs-toggle="tooltip" title="The password to be used for accessing the Reprints Desk API"><i class="fa-solid fa-circle-question"></i></a>
                                 </div>
                             </li>
