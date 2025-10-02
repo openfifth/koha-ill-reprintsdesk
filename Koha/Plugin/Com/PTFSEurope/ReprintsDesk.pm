@@ -39,14 +39,14 @@ use Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Processor::EnqueueNotices;
 use Koha::Libraries;
 use Koha::Patrons;
 
-our $VERSION = "3.2.0";
+our $VERSION = "3.2.1";
 
 our $metadata = {
     name            => 'ReprintsDesk',
     author          => 'Open Fifth',
     date_authored   => '2022-04-26',
-    date_updated    => "2025-08-18",
-    minimum_version => '24.05.00.000',
+    date_updated    => "2025-10-02",
+    minimum_version => '24.11.00.000',
     maximum_version => undef,
     version         => $VERSION,
     description     => 'This plugin is a ReprintsDesk ILL backend and provides Koha API routes enabling access to the Reprints Desk API'
