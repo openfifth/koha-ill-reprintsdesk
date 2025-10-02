@@ -1,219 +1,271 @@
+[% USE raw %]
 [% INCLUDE 'doc-head-open.inc' %]
-<title>Koha: Reprints Desk Plugin: Configuration</title>
-<style>
-    #reprintsdesk_config_h3 {
-        margin: 20px;
-    }
-
-    #reprintsdesk_configure {
-        display: block;
-        margin: 20px;
-    }
-
-    .reprintsdesk_config_field {
-        padding: 20px 10px;
-        margin: 20px 0;
-        background: #eee;
-        border-radius: 10px;
-        list-style: none;
-    }
-
-    #reprintsdesk_upgrade {
-        margin: 20px;
-    }
-
-    input#reprintsdesk_email_input {
-        min-width: 500px;
-    }
-
-    h4.section_header,
-    #submit_button {
-        margin-top: 40px;
-    }
-
-    .ill_config_field {
-        padding: 10px;
-        border-radius: 5px;
-        background: #F4F8F9;
-        margin: 10px 0;
-    }
-
-    .instruction {
-        margin-bottom: 10px;
-    }
-
-</style>
+<title>Koha: ReprintsDesk</title>
 [% INCLUDE 'doc-head-close.inc' %]
+<style>
+    input:not([type="submit"]):not([type="search"]):not([type="button"]):not(
+            [type="checkbox"]
+        ):not([type="radio"]){
+        border-color: rgba(60, 60, 60, 0.26);
+        border-width: 1px;
+        border-radius: 4px;
+        min-width: 30%;
+    }
+</style>
 </head>
 <body>
-[% INCLUDE 'header.inc' %]
-[% INCLUDE 'cat-search.inc' %]
+[% WRAPPER 'header.inc' %]
+    [% INCLUDE 'cat-search.inc' %]
+[% END %]
 
-<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/plugins/plugins-home.pl">Plugins</a> &rsaquo; Reprints Desk &rsaquo; Configuration</div>
-
-<div id="doc3">
-
-    <h3 id="reprintsdesk_config_h3">Koha: Reprints Desk: Configuration</h3>
-    <div class="dialog message">All fields must be completed</div>
-    <form id="reprintsdesk_configure" method="get">
-        <input type="hidden" name="class" value="[% CLASS %]"/>
-        <input type="hidden" name="method" value="[% METHOD %]"/>
-        <h4 class="section_header">Reprints Desk API credentials</h4>
-        <div id="reprintsdesk_username" class="ill_config_field">
-            <label for="reprintsdesk_username_input">Username: </label>
-            <input id="reprintsdesk_username_input" class="required_input" placeholder="Enter username" type="text" name="username" value="[% config.username | html %]">
-            <p>The username to be used for accessing the Reprints Desk API</p>
-        </div>
-        <div id="reprintsdesk_password" class="ill_config_field">
-            <label for="reprintsdesk_password_input">Password: </label>
-            <input id="reprintsdesk_password_input" class="required_input" placeholder="Enter password" type="text" name="password" value="[% config.password | html %]">
-            <p>The password to be used for accessing the Reprints Desk API</p>
-        </div>
-        <h4 class="section_header">User configuration</h4>
-        <div id="reprintsdesk_useremail" class="ill_config_field">
-            <label for="reprintsdesk_useremail_input">User e-mail address: </label>
-            <input id="reprintsdesk_useremail_input" class="required_input" placeholder="Enter e-mail address" type="text" name="useremail" value="[% config.useremail | html %]">
-            <p>The user e-mail address - This will be used as a catchall e-mail address to receive notifications regarding the order (order confirmation and shipping notices).</p>
-            <p>Will also be used as username for User_GetOrderHistory and /order/user/username + /order/user/email for Order_PlaceOrder2.</p>
-        </div>
-        <div id="reprintsdesk_userfirstname" class="ill_config_field">
-            <label for="reprintsdesk_userfirstname_input">User first name: </label>
-            <input id="reprintsdesk_userfirstname_input" class="required_input" placeholder="Enter user first name" type="text" name="userfirstname" value="[% config.userfirstname | html %]">
-            <p>The user's first name. Used in /order/user/firstname for Order_PlaceOrder2.</p>
-        </div>
-        <div id="reprintsdesk_userlastname" class="ill_config_field">
-            <label for="reprintsdesk_userlastname_input">User last name: </label>
-            <input id="reprintsdesk_userlastname_input" class="required_input" placeholder="Enter user last name" type="text" name="userlastname" value="[% config.userlastname | html %]">
-            <p>The user's last name. Used in /order/user/lastname for Order_PlaceOrder2.</p>
-        </div>
-        <h4 class="section_header">Order configuration</h4>
-        <div id="reprintsdesk_ordertypeid" class="ill_config_field">
-            <label for="reprintsdesk_ordertypeid_input">Order type ID: </label>
-            <input id="reprintsdesk_ordertypeid_input" class="required_input" placeholder="Enter order type ID" type="text" name="ordertypeid" value="[% config.ordertypeid | html %]">
-            <p>The Order Type ID - specify 4 in this field unless advised otherwise</p>
-        </div>
-        <div id="reprintsdesk_deliverymethodid" class="ill_config_field">
-            <label for="reprintsdesk_deliverymethodid_input">Delivery method ID: </label>
-            <input id="reprintsdesk_deliverymethodid_input" class="required_input" placeholder="Enter delivery method ID" type="text" name="deliverymethodid" value="[% config.deliverymethodid | html %]">
-            <p>The Delivery Method ID - specify 5 in this field unless advised otherwise</p>
-        </div>
-        <div id="reprintsdesk_billingreference" class="ill_config_field">
-            <label for="reprintsdesk_billingreference_input">Billing reference: </label>
-            <input id="reprintsdesk_billingreference_input" class="required_input" placeholder="Enter billing reference" type="text" name="billingreference" value="[% config.billingreference | html %]">
-            <p>The billing reference as supplied by Reprints Desk</p>
-        </div>
-        <div id="reprintsdesk_pricetypeid" class="ill_config_field">
-            <label for="reprintsdesk_pricetypeid_input">Price type ID: </label>
-            <input id="reprintsdesk_pricetypeid_input" class="required_input" placeholder="Enter price type ID" type="text" name="pricetypeid" value="[% config.pricetypeid | html %]">
-            <p>The price type ID as supplied by Reprints Desk for Order_GetPriceEstimate2</p>
-        </div>
-        <div id="reprintsdesk_price_threshold" class="ill_config_field">
-            <label for="reprintsdesk_price_threshold_input">Price threshold: </label>
-            <input id="reprintsdesk_price_threshold_input" class="required_input" placeholder="Enter price threshold" type="number" name="price_threshold" value="[% config.price_threshold || 0 | html %]">
-            <p>The price threshold. All requests up to (and including) this value will have their orders placed automatically.</p>
-        </div>
-        <h4 class="section_header">Delivery detail preferences</h4>
-        <div id="reprintsdesk_deliveryprofile_use_borrower_details" class="ill_config_field">
-            <label for="reprintsdesk_deliveryprofile_use_borrower_details_checkbox">Use borrower details if available: </label>
-            [% IF config.defined('use_borrower_details') && config.use_borrower_details == 1 %]
-            <input id="reprintsdesk_deliveryprofile_use_borrower_details_checkbox" type="checkbox" name="use_borrower_details" value="[% config.use_borrower_details | html %]" checked>
-            [% ELSE %]
-            <input id="reprintsdesk_deliveryprofile_use_borrower_details_checkbox" type="checkbox" name="use_borrower_details" value="[% config.use_borrower_details | html %]">
-            [% END %]
-            <p>When placing an order, should the borrower's information be used for delivery details? If this box is not checked, the details supplied below will be used. If it is checked and the borrower's details are not complete, relevant portions from the detail's below will be used. (Reprints Desk requires all the details listed below for order placement)</p>
-        </div>
-        <div id="reprintsdesk_deliveryprofile_firstname" class="ill_config_field">
-            <label for="reprintsdesk_deliveryprofile_firstname_input">Fallback delivery first name: </label>
-            <input id="reprintsdesk_deliveryprofile_firstname_input" class="required_input" placeholder="Enter first name" type="text" name="firstname" value="[% config.firstname | html %]">
-            <p>If the patron does not have a first name, provide a value to use.</p>
-        </div>
-        <div id="reprintsdesk_deliveryprofile_lastname" class="ill_config_field">
-            <label for="reprintsdesk_deliveryprofile_firstname_input">Fallback delivery last name: </label>
-            <input id="reprintsdesk_deliveryprofile_lastname_input" class="required_input" placeholder="Enter last name" type="text" name="lastname" value="[% config.lastname | html %]">
-            <p>If the patron does not have a last name, provide a value to use.</p>
-        </div>
-        <div id="reprintsdesk_deliveryprofile_address1" class="ill_config_field">
-            <label for="reprintsdesk_deliveryprofile_address1_input">Fallback delivery first line of address: </label>
-            <input id="reprintsdesk_deliveryprofile_address1_input" class="required_input" placeholder="Enter first line of address" type="text" name="address1" value="[% config.address1 | html %]">
-            <p>If the patron does not have a first line of address specified, provide a value to use.</p>
-        </div>
-        <div id="reprintsdesk_deliveryprofile_city" class="ill_config_field">
-            <label for="reprintsdesk_deliveryprofile_city_input">Fallback delivery city: </label>
-            <input id="reprintsdesk_deliveryprofile_city_input" class="required_input" placeholder="Enter city" type="text" name="city" value="[% config.city | html %]">
-            <p>If the patron does not have a city specified, provide a value to use.</p>
-        </div>
-        <div id="reprintsdesk_deliveryprofile_countrycode" class="ill_config_field">
-            <label for="reprintsdesk_deliveryprofile_countrycode_input">Fallback country: </label>
-            [% INCLUDE "${cwd}/ReprintsDesk/countrycodes.inc" selected=config.countrycode %]
-            <p>If the patron does not have a country specified, provide a value to use.</p>
-        </div>
-        <div id="reprintsdesk_deliveryprofile_statename" class="ill_config_field required">
-            <label for="reprintsdesk_deliveryprofile_statename_input">Fallback delivery state name: </label>
-            <input id="reprintsdesk_deliveryprofile_statename_input" class="required_input" placeholder="Enter state name" type="text" name="statename" value="[% config.statename | html %]">
-            <p>If the patron does not have a state name specified, provide a value to use.</p>
-        </div>
-        <div id="reprintsdesk_deliveryprofile_statecode" class="ill_config_field" style="display:none">
-            <label for="reprintsdesk_deliveryprofile_statecode_input">Fallback delivery state code: </label>
-            <input disabled id="reprintsdesk_deliveryprofile_statecode_input" class="required_input" placeholder="Enter state code" type="text" name="statecode" value="[% config.statecode | html %]">
-            <p>If the patron does not have a state code specified, provide a value to use.</p>
-        </div>
-        <div id="reprintsdesk_deliveryprofile_zip" class="ill_config_field">
-            <label for="reprintsdesk_deliveryprofile_zip_input">Fallback zip / postal code: </label>
-            <input id="reprintsdesk_deliveryprofile_zip_input" class="required_input" placeholder="Enter zip / postal code" type="text" name="zip" value="[% config.zip | html %]">
-            <p>If the patron does not have a zip / postal code specified, provide a value to use.</p>
-        </div>
-        <div id="reprintsdesk_deliveryprofile_phone" class="ill_config_field">
-            <label for="reprintsdesk_deliveryprofile_phone_input">Fallback phone number: </label>
-            <input id="reprintsdesk_deliveryprofile_phone_input" class="required_input" placeholder="Enter phone number" type="text" name="phone" value="[% config.phone | html %]">
-            <p>If the patron does not have a phone number specified, provide a value to use.</p>
-        </div>
-        <div id="reprintsdesk_deliveryprofile_email" class="ill_config_field">
-            <label for="reprintsdesk_deliveryprofile_email_input">Fallback email address: </label>
-            <input id="reprintsdesk_deliveryprofile_email_input" class="required_input" placeholder="Enter email address" type="text" name="email" value="[% config.email | html %]">
-            <p>If the patron does not have an email address specified, provide a value to use.</p>
-        </div>
-        <h4 class="section_header">Processing instructions</h4>
-        <div id="reprintsdesk_processinginstructions" class="ill_config_field">
-            <div id="key_values_processinginstructions">
-                [% FOREACH instruction IN processinginstructions %]
-                    <div class="instruction">
-                        <label for="reprintsdesk_processing_instructions_id_[% loop.index %]">Processing instruction ID: </label>
-                        <input id="reprintsdesk_processinginstructions_id_[% loop.index %]" class="processing_instruction_id" placeholder="Enter processing instruction ID" type="text" name="processinginstructions_id_[% loop.index %]" value="[% instruction.keys.0 | html %]">
-                        <label for="reprintsdesk_processing_instructions_value_[% loop.index %]">Processing instruction value: </label>
-                        <input id="reprintsdesk_processinginstructions_value_[% loop.index %]" class="processing_instruction_value" placeholder="Enter processing instruction value" type="text" name="processinginstructions_value_[% loop.index %]" value="[% instruction.values.0 | html %]">
-                    </div>
-                [% END %]
-                <div class="instruction">
-                    <label for="reprintsdesk_processing_instructions_id_[% processinginstructions_size %]">Processing instruction ID: </label>
-                    <input id="reprintsdesk_processinginstructions_id_[% processinginstructions_size %]" class="processing_instruction_id" placeholder="Enter processing instruction ID" type="text" name="processinginstructions_id_[% processinginstructions_size %]" value="">
-                    <label for="reprintsdesk_processing_instructions_value_[% loop.index %]">Processing instruction value: </label>
-                    <input id="reprintsdesk_processinginstructions_value_[% processinginstructions_size %]" class="processing_instruction_value" placeholder="Enter processing instruction value" type="text" name="processinginstructions_value_[% processinginstructions_size %]" value="">
-                </div>
-            </div>
-            <p>These will be supplied by Reprints Desk as ID and value pairs and should be entered here. To delete an instruction, remove its value</p>
-        </div>
-        <h4 class="section_header">Environment</h4>
-        <div id="reprintsdesk_environment" class="ill_config_field">
-            <input type="radio" id="reprintsdesk_environment_input_dev" name="environment" value="dev" [% IF config.environment == 'dev' || !config.environment %]checked[% END %]>
-            <label for="reprintsdesk_environment_input_dev">Development</label><br>
-            <input type="radio" id="reprintsdesk_environment_input_prod" name="environment" value="prod" [% IF config.environment == 'prod' %]checked[% END %]>
-            <label for="reprintsdesk_environment_input_prod">Production</label><br>
-        </div>
-
-        <input type="hidden" name="save" value="1" />
-        <input id="submit_button" type="submit" value="Save configuration" />
-    </form>
-
-    <hr/>
-
-    <div id="reprintsdesk_upgrade">
-        <h5>Upgrade status</h5>
-        [% IF last_upgraded %]
-            Plugin was last upgraded on this system on [% last_upgraded | $KohaDates with_hours => 1 %]
-        [% ELSE %]
-            Plugin has never been upgraded.
+[% WRAPPER 'sub-header.inc' %]
+    [% WRAPPER breadcrumbs %]
+        [% WRAPPER breadcrumb_item %]
+            <a href="/cgi-bin/koha/plugins/plugins-home.pl">Plugins</a>
         [% END %]
+        [% WRAPPER breadcrumb_item %]
+            <a href="/cgi-bin/koha/plugins/run.pl?class=Koha%3A%3APlugin%3A%3ACom%3A%3APTFSEurope%3A%3AReprintsDesk&amp;method=configure">ReprintsDesk</a>
+        [% END %]
+        [% WRAPPER breadcrumb_item bc_active = 1 %]
+            <a href="#">Configuration</a>
+        [% END %]
+    [% END #/ WRAPPER breadcrumbs %]
+[% END #/ WRAPPER sub-header.inc %]
+<div class="main container-fluid">
+    <div class="row">
+        <div class="col-md-10 offset-md-2 order-sm-1">
+            <h1>ReprintsDesk configuration</h1>
+            <div class="alert alert-info">All fields must be completed</div>
+            <form id="reprintsdesk_configure" method="get">
+                <fieldset class="rows">
+                    <input type="hidden" name="class" value="[% CLASS %]"/>
+                    <input type="hidden" name="method" value="[% METHOD %]"/>
+                    <legend>Reprints Desk API credentials</legend>
+                    <div class="row">
+                        <ol>
+                            <li>
+                                <div id="reprintsdesk_username">
+                                    <label for="reprintsdesk_username_input">Username: </label>
+                                    <input id="reprintsdesk_username_input" class="required_input" placeholder="Enter username" type="text" name="username" value="[% config.username | html %]">
+                                    <a href="#" data-bs-toggle="tooltip" title="The username to be used for accessing the Reprints Desk API"><i class="fa-solid fa-circle-question"></i></a>
+                                </div>
+                            </li>
+                            <li>
+                                <div id="reprintsdesk_password">
+                                    <label for="reprintsdesk_password_input">Password: </label>
+                                    <input id="reprintsdesk_password_input" class="required_input" placeholder="Enter password" type="text" name="password" value="[% config.password | html %]">
+                                    <a href="#" data-bs-toggle="tooltip" title="The password to be used for accessing the Reprints Desk API"><i class="fa-solid fa-circle-question"></i></a>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+                    <legend>User configuration</legend>
+                    <div class="row">
+                        <ol>
+                            <li>
+                                <div id="reprintsdesk_useremail" class="ill_config_field">
+                                    <label for="reprintsdesk_useremail_input">User e-mail address: </label>
+                                    <input id="reprintsdesk_useremail_input" class="required_input" placeholder="Enter e-mail address" type="text" name="useremail" value="[% config.useremail | html %]">
+                                    <a href="#" data-bs-toggle="tooltip" title="The user e-mail address - This will be used as a catchall e-mail address to receive notifications regarding the order (order confirmation and shipping notices). Will also be used as username for User_GetOrderHistory and /order/user/username + /order/user/email for Order_PlaceOrder2."><i class="fa-solid fa-circle-question"></i></a>
+                                </div>
+                            </li>
+                            <li>
+                                <div id="reprintsdesk_userfirstname" class="ill_config_field">
+                                    <label for="reprintsdesk_userfirstname_input">User first name: </label>
+                                    <input id="reprintsdesk_userfirstname_input" class="required_input" placeholder="Enter user first name" type="text" name="userfirstname" value="[% config.userfirstname | html %]">
+                                    <a href="#" data-bs-toggle="tooltip" title="The user's first name. Used in /order/user/firstname for Order_PlaceOrder2."><i class="fa-solid fa-circle-question"></i></a>
+                                </div>
+                            </li>
+                            <li>
+                                <div id="reprintsdesk_userlastname" class="ill_config_field">
+                                    <label for="reprintsdesk_userlastname_input">User last name: </label>
+                                    <input id="reprintsdesk_userlastname_input" class="required_input" placeholder="Enter user last name" type="text" name="userlastname" value="[% config.userlastname | html %]">
+                                    <a href="#" data-bs-toggle="tooltip" title="The user's last name. Used in /order/user/lastname for Order_PlaceOrder2."><i class="fa-solid fa-circle-question"></i></a>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+                    <legend>Order configuration</legend>
+                    <div class="row">
+                        <ol>
+                            <li>
+                                <div id="reprintsdesk_ordertypeid" class="ill_config_field">
+                                    <label for="reprintsdesk_ordertypeid_input">Order type ID: </label>
+                                    <input id="reprintsdesk_ordertypeid_input" class="required_input" placeholder="Enter order type ID" type="text" name="ordertypeid" value="[% config.ordertypeid | html %]">
+                                    <a href="#" data-bs-toggle="tooltip" title="The Order Type ID - specify 4 in this field unless advised otherwise"><i class="fa-solid fa-circle-question"></i></a>
+                                </div>
+                            </li>
+                            <li>
+                                <div id="reprintsdesk_deliverymethodid" class="ill_config_field">
+                                    <label for="reprintsdesk_deliverymethodid_input">Delivery method ID: </label>
+                                    <input id="reprintsdesk_deliverymethodid_input" class="required_input" placeholder="Enter delivery method ID" type="text" name="deliverymethodid" value="[% config.deliverymethodid | html %]">
+                                    <a href="#" data-bs-toggle="tooltip" title="The Delivery Method ID - specify 5 in this field unless advised otherwise"><i class="fa-solid fa-circle-question"></i></a>
+                                </div>
+                            </li>
+                            <li>
+                                <div id="reprintsdesk_billingreference" class="ill_config_field">
+                                    <label for="reprintsdesk_billingreference_input">Billing reference: </label>
+                                    <input id="reprintsdesk_billingreference_input" class="required_input" placeholder="Enter billing reference" type="text" name="billingreference" value="[% config.billingreference | html %]">
+                                    <a href="#" data-bs-toggle="tooltip" title="The billing reference as supplied by Reprints Desk"><i class="fa-solid fa-circle-question"></i></a>
+                                </div>
+                            </li>
+                            <li>
+                                <div id="reprintsdesk_pricetypeid" class="ill_config_field">
+                                    <label for="reprintsdesk_pricetypeid_input">Price type ID: </label>
+                                    <input id="reprintsdesk_pricetypeid_input" class="required_input" placeholder="Enter price type ID" type="text" name="pricetypeid" value="[% config.pricetypeid | html %]">
+                                    <a href="#" data-bs-toggle="tooltip" title="The price type ID as supplied by Reprints Desk for Order_GetPriceEstimate2"><i class="fa-solid fa-circle-question"></i></a>
+                                </div>
+                            </li>
+                            <li>
+                                <div id="reprintsdesk_price_threshold" class="ill_config_field">
+                                    <label for="reprintsdesk_price_threshold_input">Price threshold: </label>
+                                    <input id="reprintsdesk_price_threshold_input" class="required_input" placeholder="Enter price threshold" type="number" name="price_threshold" value="[% config.price_threshold || 0 | html %]">
+                                    <a href="#" data-bs-toggle="tooltip" title="The price threshold. All requests up to (and including) this value will have their orders placed automatically."><i class="fa-solid fa-circle-question"></i></a>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+                    <legend>Delivery detail preferences</legend>
+                    <div class="row">
+                        <ol>
+                            <li>
+                                <div id="reprintsdesk_deliveryprofile_use_borrower_details" class="ill_config_field">
+                                    <label for="reprintsdesk_deliveryprofile_use_borrower_details_checkbox">Use borrower details if available: </label>
+                                    [% IF config.defined('use_borrower_details') && config.use_borrower_details == 1 %]
+                                    <input id="reprintsdesk_deliveryprofile_use_borrower_details_checkbox" type="checkbox" name="use_borrower_details" value="[% config.use_borrower_details | html %]" checked>
+                                    [% ELSE %]
+                                    <input id="reprintsdesk_deliveryprofile_use_borrower_details_checkbox" type="checkbox" name="use_borrower_details" value="[% config.use_borrower_details | html %]">
+                                    [% END %]
+                                    <a href="#" data-bs-toggle="tooltip" title="When placing an order, should the borrower's information be used for delivery details? If this box is not checked, the details supplied below will be used. If it is checked and the borrower's details are not complete, relevant portions from the detail's below will be used. (Reprints Desk requires all the details listed below for order placement)"><i class="fa-solid fa-circle-question"></i></a>
+                                </div>
+                            </li>
+                            <li>
+                                <div id="reprintsdesk_deliveryprofile_firstname" class="ill_config_field">
+                                    <label for="reprintsdesk_deliveryprofile_firstname_input">Fallback delivery first name: </label>
+                                    <input id="reprintsdesk_deliveryprofile_firstname_input" class="required_input" placeholder="Enter first name" type="text" name="firstname" value="[% config.firstname | html %]">
+                                    <a href="#" data-bs-toggle="tooltip" title="If the patron does not have a first name, provide a value to use."><i class="fa-solid fa-circle-question"></i></a>
+                                </div>
+                            </li>
+                            <li>
+                                <div id="reprintsdesk_deliveryprofile_lastname" class="ill_config_field">
+                                    <label for="reprintsdesk_deliveryprofile_firstname_input">Fallback delivery last name: </label>
+                                    <input id="reprintsdesk_deliveryprofile_lastname_input" class="required_input" placeholder="Enter last name" type="text" name="lastname" value="[% config.lastname | html %]">
+                                    <a href="#" data-bs-toggle="tooltip" title="If the patron does not have a last name, provide a value to use."><i class="fa-solid fa-circle-question"></i></a>
+                                </div>
+                            </li>
+                            <li>
+                                <div id="reprintsdesk_deliveryprofile_address1" class="ill_config_field">
+                                    <label for="reprintsdesk_deliveryprofile_address1_input">Fallback delivery first line of address: </label>
+                                    <input id="reprintsdesk_deliveryprofile_address1_input" class="required_input" placeholder="Enter first line of address" type="text" name="address1" value="[% config.address1 | html %]">
+                                    <a href="#" data-bs-toggle="tooltip" title="If the patron does not have a first line of address specified, provide a value to use."><i class="fa-solid fa-circle-question"></i></a>
+                                </div>
+                            </li>
+                            <li>
+                                <div id="reprintsdesk_deliveryprofile_city" class="ill_config_field">
+                                    <label for="reprintsdesk_deliveryprofile_city_input">Fallback delivery city: </label>
+                                    <input id="reprintsdesk_deliveryprofile_city_input" class="required_input" placeholder="Enter city" type="text" name="city" value="[% config.city | html %]">
+                                    <a href="#" data-bs-toggle="tooltip" title="If the patron does not have a city specified, provide a value to use."><i class="fa-solid fa-circle-question"></i></a>
+                                </div>
+                            </li>
+                            <li>
+                                <div id="reprintsdesk_deliveryprofile_countrycode" class="ill_config_field">
+                                    <label for="reprintsdesk_deliveryprofile_countrycode_input">Fallback country: </label>
+                                    [% INCLUDE "${cwd}/ReprintsDesk/countrycodes.inc" selected=config.countrycode %]
+                                    <a href="#" data-bs-toggle="tooltip" title="If the patron does not have a country specified, provide a value to use."><i class="fa-solid fa-circle-question"></i></a>
+                                </div>
+                            </li>
+                            <li>
+                                <div id="reprintsdesk_deliveryprofile_statename" class="ill_config_field required">
+                                    <label for="reprintsdesk_deliveryprofile_statename_input">Fallback delivery state name: </label>
+                                    <input id="reprintsdesk_deliveryprofile_statename_input" class="required_input" placeholder="Enter state name" type="text" name="statename" value="[% config.statename | html %]">
+                                    <a href="#" data-bs-toggle="tooltip" title="If the patron does not have a state name specified, provide a value to use."><i class="fa-solid fa-circle-question"></i></a>
+                                </div>
+                            </li>
+                            <li>
+                                <div id="reprintsdesk_deliveryprofile_statecode" class="ill_config_field" style="display:none">
+                                    <label for="reprintsdesk_deliveryprofile_statecode_input">Fallback delivery state code: </label>
+                                    <input disabled id="reprintsdesk_deliveryprofile_statecode_input" class="required_input" placeholder="Enter state code" type="text" name="statecode" value="[% config.statecode | html %]">
+                                    <a href="#" data-bs-toggle="tooltip" title="If the patron does not have a state code specified, provide a value to use."><i class="fa-solid fa-circle-question"></i></a>
+                                </div>
+                            </li>
+                            <li>
+                                <div id="reprintsdesk_deliveryprofile_zip" class="ill_config_field">
+                                    <label for="reprintsdesk_deliveryprofile_zip_input">Fallback zip / postal code: </label>
+                                    <input id="reprintsdesk_deliveryprofile_zip_input" class="required_input" placeholder="Enter zip / postal code" type="text" name="zip" value="[% config.zip | html %]">
+                                    <a href="#" data-bs-toggle="tooltip" title="If the patron does not have a zip / postal code specified, provide a value to use."><i class="fa-solid fa-circle-question"></i></a>
+                                </div>
+                            </li>
+                            <li>
+                                <div id="reprintsdesk_deliveryprofile_phone" class="ill_config_field">
+                                    <label for="reprintsdesk_deliveryprofile_phone_input">Fallback phone number: </label>
+                                    <input id="reprintsdesk_deliveryprofile_phone_input" class="required_input" placeholder="Enter phone number" type="text" name="phone" value="[% config.phone | html %]">
+                                    <a href="#" data-bs-toggle="tooltip" title="If the patron does not have a phone number specified, provide a value to use."><i class="fa-solid fa-circle-question"></i></a>
+                                </div>
+                            </li>
+                            <li>
+                                <div id="reprintsdesk_deliveryprofile_email" class="ill_config_field">
+                                    <label for="reprintsdesk_deliveryprofile_email_input">Fallback email address: </label>
+                                    <input id="reprintsdesk_deliveryprofile_email_input" class="required_input" placeholder="Enter email address" type="text" name="email" value="[% config.email | html %]">
+                                    <a href="#" data-bs-toggle="tooltip" title="If the patron does not have an email address specified, provide a value to use."><i class="fa-solid fa-circle-question"></i></a>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+                    <legend>Processing instructions</legend>
+                    <div class="row">
+                        <ol>
+                            [% FOREACH instruction IN processinginstructions %]
+                            <li>
+                                <div class="instruction">
+                                    <label for="reprintsdesk_processing_instructions_id_[% loop.index %]">Processing instruction ID: </label>
+                                    <input id="reprintsdesk_processinginstructions_id_[% loop.index %]" class="processing_instruction_id" placeholder="Enter processing instruction ID" type="text" name="processinginstructions_id_[% loop.index %]" value="[% instruction.keys.0 | html %]">
+                                    <a href="#" data-bs-toggle="tooltip" title="These will be supplied by Reprints Desk as ID and value pairs and should be entered here. To delete an instruction, remove its value"><i class="fa-solid fa-circle-question"></i></a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="instruction">
+                                    <label for="reprintsdesk_processing_instructions_value_[% loop.index %]">Processing instruction value: </label>
+                                    <input id="reprintsdesk_processinginstructions_value_[% loop.index %]" class="processing_instruction_value" placeholder="Enter processing instruction value" type="text" name="processinginstructions_value_[% loop.index %]" value="[% instruction.values.0 | html %]">
+                                    <a href="#" data-bs-toggle="tooltip" title="These will be supplied by Reprints Desk as ID and value pairs and should be entered here. To delete an instruction, remove its value"><i class="fa-solid fa-circle-question"></i></a>
+                                </div>
+                            </li>
+                            [% END %]
+                            <li>
+                                <div class="instruction">
+                                    <label for="reprintsdesk_processing_instructions_id_[% processinginstructions_size %]">Processing instruction ID: </label>
+                                    <input id="reprintsdesk_processinginstructions_id_[% processinginstructions_size %]" class="processing_instruction_id" placeholder="Enter processing instruction ID" type="text" name="processinginstructions_id_[% processinginstructions_size %]" value="">
+                                    <a href="#" data-bs-toggle="tooltip" title="These will be supplied by Reprints Desk as ID and value pairs and should be entered here. To delete an instruction, remove its value"><i class="fa-solid fa-circle-question"></i></a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="instruction">
+                                    <label for="reprintsdesk_processing_instructions_value_[% loop.index %]">Processing instruction value: </label>
+                                    <input id="reprintsdesk_processinginstructions_value_[% processinginstructions_size %]" class="processing_instruction_value" placeholder="Enter processing instruction value" type="text" name="processinginstructions_value_[% processinginstructions_size %]" value="">
+                                    <a href="#" data-bs-toggle="tooltip" title="These will be supplied by Reprints Desk as ID and value pairs and should be entered here. To delete an instruction, remove its value"><i class="fa-solid fa-circle-question"></i></a>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+                    <legend>Environment</legend>
+                    <div class="row">
+                        <ol>
+                            <li>
+                                <div id="reprintsdesk_environment" class="ill_config_field">
+                                    <input type="radio" id="reprintsdesk_environment_input_dev" name="environment" value="dev" [% IF config.environment == 'dev' || !config.environment %]checked[% END %]>
+                                    <label for="reprintsdesk_environment_input_dev">Development</label><br>
+                                    <input type="radio" id="reprintsdesk_environment_input_prod" name="environment" value="prod" [% IF config.environment == 'prod' %]checked[% END %]>
+                                    <label for="reprintsdesk_environment_input_prod">Production</label><br>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+                    <input type="hidden" name="save" value="1" />
+                    <input id="submit_button" class="btn btn-primary" type="submit" value="Save configuration" />
+                </fieldset>
+            </form>
+        </div>
     </div>
+</div>
 
 [% INCLUDE 'intranet-bottom.inc' %]
 
