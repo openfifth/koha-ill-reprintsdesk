@@ -20,3 +20,5 @@ This backend provides the ability to create Interlibrary Loan requests using the
 5) A different cronjob that runs every minute picks up all 'READY' requests and places the orders with ReprintsDesk
 6) For 'STANDBY' requests, staff members action is required. Once checked, staff members may click "Mark request 'READY'", which will prompt the request to be picked up by the cronjob mentioned in 5).
 7) If, for any reason, a request is 'ERROR', the cause of the error is added to the staff notes (service unavailable, or a field missing). Staff members may fix this problem, if possible, and click the "Mark request 'NEW'" which will prompt the request to enter the life cycle again for a new price check, etc.
+
+![workflow diagram](https://github.com/openfifth/koha-ill-reprintsdesk/blob/main/RPDesk-Status_statemachine.jpg?raw=true)
