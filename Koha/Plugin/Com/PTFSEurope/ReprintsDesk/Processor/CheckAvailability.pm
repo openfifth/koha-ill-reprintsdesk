@@ -152,6 +152,7 @@ sub run {
 
         if ( $request_to_update->status eq $availability_check_status ) {
             $request_to_update->status($status_if_available)->store if !$options->{dry_run};
+            $request_to_update->cost(0)->store if !$options->{dry_run};
 
             my $id_log_info = $id_to_update->{doi} ? "DOI:" . $id_to_update->{doi} : "PMID:" . $id_to_update->{pmid};
             $self->debug_msg(
