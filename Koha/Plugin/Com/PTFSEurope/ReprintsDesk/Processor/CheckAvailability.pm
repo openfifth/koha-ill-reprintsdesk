@@ -242,7 +242,11 @@ sub run {
             $self->debug_msg( "Request #" . $unavailable_id->{illrequest_id} . " " . $above_message );
         }
 
-        $unavailable_request_to_update->cost($totalcharge)->store;
+        if ($unknown_copyrightcharge){
+            $unavailable_request_to_update->cost('Unknown')->store;
+        }else{
+            $unavailable_request_to_update->cost($totalcharge)->store;
+        }
         $unavailable_request_to_update->append_to_note("Price is in USD currency.");
         $unavailable_request_to_update->append_to_note("Price may be inaccurate. Copyright charge returned 'unknown'.")
             if $unknown_copyrightcharge;
