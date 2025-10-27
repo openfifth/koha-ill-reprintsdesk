@@ -486,9 +486,9 @@ sub Backend_Availability {
 
     unless ( $metadata->{doi} || $metadata->{pubmedid} ) {
         return $c->render(
-            status  => 400,
+            status  => 200,
             openapi => {
-                error => 'No doi or pubmedid provided',
+                warning => 'Missing DOI/Pubmed ID. ReprintsDesk may have to manually verify it.',
             }
         );
     }
