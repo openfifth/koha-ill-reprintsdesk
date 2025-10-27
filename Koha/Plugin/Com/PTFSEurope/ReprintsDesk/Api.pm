@@ -471,7 +471,18 @@ sub Backend_Availability {
     $metadata = decode_json( decode_base64( uri_unescape($metadata) ) );
 
     my $plugin = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new();
-    my $config = decode_json( $plugin->retrieve_data("reprintsdesk_config") || {} );
+
+    my $config = $plugin->retrieve_data("reprintsdesk_config")
+         ? decode_json( $plugin->retrieve_data("reprintsdesk_config")) : undef;
+
+    unless ( $config ) {
+        return $c->render(
+            status  => 400,
+            openapi => {
+                error => 'Plugin configuration is empty.',
+            }
+        );
+    }
 
     unless ( $metadata->{doi} || $metadata->{pubmedid} ) {
         return $c->render(
