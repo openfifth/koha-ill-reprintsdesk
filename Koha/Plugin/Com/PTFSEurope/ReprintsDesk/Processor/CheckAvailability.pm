@@ -195,7 +195,7 @@ sub run {
                 unless $unavailable_id->{year};
             $unavailable_request_to_update->append_to_note(
                 "Request 'year' is not in expected format (YYYY) for price check. " . $note_instructions )
-                unless $unavailable_id->{year} =~ /^\d{4}$/;
+                unless $unavailable_id->{year} && $unavailable_id->{year} =~ /^\d{4}$/;
             $unavailable_request_to_update->status($status_if_unavailable_without_price);
             next;
         }
