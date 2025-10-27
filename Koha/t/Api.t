@@ -33,7 +33,7 @@ t::lib::Mocks::mock_preference( 'RESTBasicAuth', 1 );
 
 subtest 'Backend_Availability() tests' => sub {
 
-    plan tests => 6;
+    plan tests => 7;
 
     $schema->storage->txn_begin;
 
@@ -76,6 +76,13 @@ subtest 'Backend_Availability() tests' => sub {
             return 1;
         }
     );
+
+    subtest 'DOI/PMID missing (yellow)' => sub {
+
+        $t->get_ok( "//$userid:$password@/api/v1/contrib/reprintsdesk/ill_backend_availability_reprintsdesk?metadata="
+                . encode_base64('{ "cardnumber" : "42", "title" : "hello" }') )->status_is(200)
+            ->json_is( { warning => 'Missing DOI/Pubmed ID. ReprintsDesk may have to manually verify it.' } );
+    };
 
     subtest 'ArticleShelf_CheckAvailability returned error (red)' => sub {
 
