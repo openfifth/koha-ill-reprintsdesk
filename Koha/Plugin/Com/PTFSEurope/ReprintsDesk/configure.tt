@@ -175,7 +175,7 @@
                                 </div>
                             </li>
                             <li>
-                                <div id="reprintsdesk_deliveryprofile_statename" class="ill_config_field required">
+                                <div id="reprintsdesk_deliveryprofile_statename" class="ill_config_field">
                                     <label for="reprintsdesk_deliveryprofile_statename_input">Fallback delivery state name: </label>
                                     <input id="reprintsdesk_deliveryprofile_statename_input" class="required_input" placeholder="Enter state name" type="text" name="statename" value="[% config.statename | html %]">
                                     <a href="#" data-bs-toggle="tooltip" title="If the patron does not have a state name specified, provide a value to use."><i class="fa-solid fa-circle-question"></i></a>
