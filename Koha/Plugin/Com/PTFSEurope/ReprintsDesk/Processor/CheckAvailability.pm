@@ -224,7 +224,7 @@ sub run {
             )
         );
 
-        if ( $totalcharge <= $config->{price_threshold} ) {
+        if ( $totalcharge <= $config->{price_threshold} && !$unknown_copyrightcharge) {
             $unavailable_request_to_update->status($status_if_available)->store;
             my $below_message = sprintf(
                 "Price is below or equal to configured threshold of '%s'. Request is ready to be placed.",
