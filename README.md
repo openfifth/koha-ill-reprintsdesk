@@ -10,7 +10,14 @@ This backend provides the ability to create Interlibrary Loan requests using the
 
 ## Configuration
 
-* Mandatory configuration is done using the plugin's configure page
+* Mandatory configuration is done using the plugin's configuration page.
+
+## Run tests (k-t-d)
+
+```prove /kohadevbox/plugins/koha-ill-reprintsdesk/Koha/t/*```
+
+## Install plugins in ktd CLI:
+```perl perl /kohadevbox/koha/misc/devel/install_plugins.pl```
 
 ## User DOCS:
 1) When a ReprintsDesk request is created, its status is 'NEW'.
@@ -18,7 +25,7 @@ This backend provides the ability to create Interlibrary Loan requests using the
 3) If the article is immediately available or its price is below the configured price threshold, it's put in a 'READY' status.
 4) If the article is not immediately available and its price is above the configured price threshold, it's in a 'STANDBY' status.
 5) A different cronjob that runs every minute picks up all 'READY' requests and places the orders with ReprintsDesk
-6) For 'STANDBY' requests, staff members action is required. Once checked, staff members may click "Mark request 'READY'", which will prompt the request to be picked up by the cronjob mentioned in 5).
+6) For 'STANDBY' requests, staff members action is required. Once checked, staff members may click "Mark request 'READY'", which will prompt the request to be picked up by the cronjob mentioned in 5.
 7) If, for any reason, a request is 'ERROR', the cause of the error is added to the staff notes (service unavailable, or a field missing). Staff members may fix this problem, if possible, and click the "Mark request 'NEW'" which will prompt the request to enter the life cycle again for a new price check, etc.
 
 ![workflow diagram](https://github.com/openfifth/koha-ill-reprintsdesk/blob/main/RPDesk-Status_statemachine.jpg?raw=true)
