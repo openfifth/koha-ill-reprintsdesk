@@ -680,7 +680,7 @@ sub migrate {
     $request->store;
 
     # Translate the core metadata into our schema
-    my $all_attrs = $request->illrequestattributes->unblessed;
+    my $all_attrs = $request->extended_attributes->unblessed;
 
     # For each attribute, if the property name is a core one we change it to the Reprints Desk
     # equivalent, otherwise we can skip it as it already exists in the attributes list
