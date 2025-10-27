@@ -499,8 +499,13 @@ sub Backend_Availability {
         Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Lib::API->new->ArticleShelf_CheckAvailability($ids_to_check);
     my $body = decode_json( $response->decoded_content );
 
-    die 'ArticleShelf_CheckAvailability returned error ' . join( '.', map { $_->{message} } @{ $body->{errors} } )
-        if scalar @{ $body->{errors} } || !$body->{result}->{ArticleShelf_CheckAvailabilityResult};
+    return $c->render(
+        status  => 400,
+        openapi => {
+            error => 'ArticleShelf_CheckAvailability returned error '
+                . join( '.', map { $_->{message} } @{ $body->{errors} } ),
+        }
+    ) if scalar @{ $body->{errors} } || !$body->{result}->{ArticleShelf_CheckAvailabilityResult};
 
     my $dom       = XML::LibXML->load_xml( string => decode_utf8( $body->{outputXmlNode} ) );
     my @citations = $dom->findnodes('/outputXmlNode/output/citations/*');
