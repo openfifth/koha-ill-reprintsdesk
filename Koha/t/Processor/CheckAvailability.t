@@ -22,6 +22,7 @@ BEGIN {
 use Koha::Plugin::Com::PTFSEurope::ReprintsDesk;
 use Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Lib::API;
 use Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Processor::CheckAvailability;
+use Koha::ILL::Requests;
 
 use t::lib::Mocks;
 use t::lib::TestBuilder;
@@ -33,6 +34,8 @@ subtest 'run() tests' => sub {
     plan tests => 6;
 
     $schema->storage->txn_begin;
+
+    Koha::ILL::Requests->delete;
 
     my $plugin_mock = Test::MockModule->new('Koha::Plugin::Com::PTFSEurope::ReprintsDesk');
     $plugin_mock->mock(
