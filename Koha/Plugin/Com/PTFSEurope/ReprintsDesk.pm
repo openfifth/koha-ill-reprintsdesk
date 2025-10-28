@@ -792,7 +792,7 @@ sub create_illrequestattributes {
 
     # Get any existing illrequestattributes for this request,
     # so we can avoid trying to create duplicates
-    my $existing_attrs = $request->illrequestattributes->unblessed;
+    my $existing_attrs = $request->extended_attributes->unblessed;
     my $existing_hash  = {};
     foreach my $a ( @{$existing_attrs} ) {
         $existing_hash->{ lc $a->{type} } = $a->{value};
