@@ -96,7 +96,7 @@ sub run {
                     $ill_request->completed( DateTime->now )->store;
 
                     # Update accessurl for this completed request
-                    my $rndId = $ill_request->illrequestattributes->find(
+                    my $rndId = $ill_request->extended_attributes->find(
                         {
                             illrequest_id => $ill_request->illrequest_id,
                             type          => "rndId"
