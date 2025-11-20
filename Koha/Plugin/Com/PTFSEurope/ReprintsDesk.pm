@@ -753,12 +753,15 @@ Create a local submission, for later Reprints Desk request creation
 sub create_submission {
     my ( $self, $params ) = @_;
 
+    my $unauthenticated_request =
+        C4::Context->preference("ILLOpacUnauthenticatedRequest") && !$params->{other}->{borrowernumber};
+
     my $patron = Koha::Patrons->find( $params->{other}->{borrowernumber} );
 
     my $request = $params->{request};
-    $request->borrowernumber( $patron->borrowernumber );
+    $request->borrowernumber( $patron ? $patron->borrowernumber : undef );
     $request->branchcode( $params->{other}->{branchcode} );
-    $request->status('NEW');
+    $request->status( $unauthenticated_request ? 'UNAUTH' : 'NEW' );
     $request->batch_id(
         $params->{other}->{ill_batch_id} ? $params->{other}->{ill_batch_id} : $params->{other}->{batch_id} );
     $request->backend( $self->name );
@@ -1092,7 +1095,7 @@ sub backend_metadata {
     my $metadata_keyed_on_prop = {};
 
     while ( my $attr = $attrs->next ) {
-        if ( $fields->{ $attr->type } ) {
+        if ( $fields->{ $attr->type } && !$fields->{ $attr->type }->{hide} ) {
             my $label = $fields->{ $attr->type }->{label};
             $metadata->{$label} = $attr->value;
             $metadata_keyed_on_prop->{ $attr->type } = $attr->value;
@@ -1135,6 +1138,8 @@ sub capabilities {
         provides_backend_availability_check => sub { return 1; },
 
         provides_batch_requests => sub { return 1; },
+
+        opac_unauthenticated_ill_requests => sub { return 1; },
 
         # We can create ILL requests with data passed from the API
         create_api => sub { $self->create_api(@_) }
@@ -1262,6 +1267,15 @@ sub status_graph {
             method         => 'migrate',
             next_actions   => [ 'MARK_NEW', 'GENREQ', 'KILL', 'MIG'],
             ui_method_icon => 'fa-search',
+        },
+        UNAUTH => {
+            prev_actions   => [],
+            id             => 'UNAUTH',
+            name           => 'Unauthenticated',
+            ui_method_name => 0,
+            method         => 0,
+            next_actions   => [ 'MARK_NEW', 'MIG', 'KILL', 'EDITITEM' ],
+            ui_method_icon => 0,
         },
     };
 }
@@ -1606,6 +1620,30 @@ sub fieldmap {
             ill       => "type",
             exclude   => 1,
             label     => "Type",
+            no_submit => 1,
+            position  => 99
+        },
+        unauthenticated_first_name => {
+            type      => "string",
+            exclude   => 1,
+            label     => "unauthenticated first name",
+            hide      => 1,
+            no_submit => 1,
+            position  => 99
+        },
+        unauthenticated_last_name => {
+            type      => "string",
+            exclude   => 1,
+            label     => "unauthenticated last name",
+            hide      => 1,
+            no_submit => 1,
+            position  => 99
+        },
+        unauthenticated_email => {
+            type      => "string",
+            exclude   => 1,
+            label     => "unauthenticated email",
+            hide      => 1,
             no_submit => 1,
             position  => 99
         },
