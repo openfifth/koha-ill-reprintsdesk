@@ -13,6 +13,7 @@ This backend provides the ability to create Interlibrary Loan requests using the
 * Mandatory configuration is done using the plugin's configuration page.
 
 ## Run tests (k-t-d)
+Requires plugin to be installed, does not required plugin to be configured.
 
 ```prove /kohadevbox/plugins/koha-ill-reprintsdesk/Koha/t/*```
 
