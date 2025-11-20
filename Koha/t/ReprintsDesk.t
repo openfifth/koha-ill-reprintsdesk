@@ -1,7 +1,7 @@
 use Modern::Perl;
 
 use Test::NoWarnings;
-use Test::More tests => 2;
+use Test::More tests => 3;
 use Test::MockModule;
 
 use File::Basename qw( dirname );
@@ -12,6 +12,9 @@ BEGIN {
 }
 
 use Koha::Plugin::Com::PTFSEurope::ReprintsDesk;
+
+use Koha::ILL::Request::Logger;
+use Koha::ILL::Request;
 
 use t::lib::Mocks;
 use t::lib::TestBuilder;
@@ -62,6 +65,61 @@ subtest 'migrate() tests' => sub {
     );
     is( $request->backend, 'ReprintsDesk', "Migrated into ReprintsDesk correctly" );
     is( $request->status,  'NEW',          "Migrated into ReprintsDesk status is 'NEW'" );
+
+    $schema->storage->txn_rollback;
+};
+
+subtest 'create_submission() tests' => sub {
+    plan tests => 3;
+
+    $schema->storage->txn_begin;
+
+    t::lib::Mocks::mock_preference( 'ILLOpacUnauthenticatedRequest', 1 );
+
+    my $request = $builder->build_sample_ill_request;
+    $request->{_my_backend} = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new->new_ill_backend(
+        {
+            config => Koha::ILL::Request->new->_config,
+            logger => Koha::ILL::Request::Logger->new
+        }
+    );
+
+    my $rpdesk_submission = $request->{_my_backend}->create_submission(
+        {
+            request => $request,
+            other   => {
+                branchcode                 => $request->branchcode,
+                unauthenticated_first_name => 'My first name',
+                unauthenticated_last_name  => 'My last name',
+                unauthenticated_email      => 'myemail@openfifth.co.uk'
+            }
+        }
+    );
+
+    is( $request->backend, 'ReprintsDesk', "Newly created request is ReprintsDesk" );
+    is(
+        $request->status, 'UNAUTH',
+        "Newly created request lacks borrowernumber and ILLOpacUnauthenticatedRequest is enabled. Must be UNAUTH"
+    );
+
+    t::lib::Mocks::mock_preference( 'ILLOpacUnauthenticatedRequest', 0 );
+    my $another_submission = $request->{_my_backend}->create_submission(
+        {
+            request => $request,
+            other   => {
+                borrowernumber             => $request->borrowernumber,
+                branchcode                 => $request->branchcode,
+                unauthenticated_first_name => 'My first name',
+                unauthenticated_last_name  => 'My last name',
+                unauthenticated_email      => 'myemail@openfifth.co.uk'
+            }
+        }
+    );
+
+    is(
+        $request->status, 'NEW',
+        "Newly created request has borrowernumber and ILLOpacUnauthenticatedRequest is disabled. Must be NEW"
+    );
 
     $schema->storage->txn_rollback;
 };
