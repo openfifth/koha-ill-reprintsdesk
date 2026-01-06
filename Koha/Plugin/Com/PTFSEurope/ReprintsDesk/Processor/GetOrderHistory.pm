@@ -65,14 +65,7 @@ sub run {
                 my $metadata_log;
                 foreach my $metadata_element ( %{$metadata_elements} ) {
                     my @metadata_array = $orderdetail->getChildrenByTagName($metadata_element);
-                    $rd->create_illrequestattributes(
-                        $ill_request,
-                        { $metadata_element => $metadata_array[0]->textContent }
-                    );
-                    $rd->create_illrequestattributes(
-                        $ill_request,
-                        { $metadata_element => $metadata_array[0]->textContent }, 1
-                    );
+                    $ill_request->add_or_update_attributes( { $metadata_element => $metadata_array[0]->textContent } );
                     $metadata_log .= $metadata_element . ": " . $metadata_array[0]->textContent . "\n";
                 }
 

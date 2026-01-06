@@ -785,68 +785,56 @@ sub create_submission {
 
     $params->{other}->{type} = 'article';
 
-    # Store the request attributes
-    $self->create_illrequestattributes( $request, $params->{other} );
+    my $request_details = $self->_get_request_details( $params, $params->{other} );
 
-    # Now store the core equivalents
-    $self->create_illrequestattributes( $request, $params->{other}, 1 );
+    $request->add_or_update_attributes($request_details);
+
+    $request->add_unauthenticated_data( $params->{other} ) if $unauthenticated_request;
 
     return $request;
 }
 
-=head3
-
-Store metadata for a given request for our Reprints Desk fields
+=head3 _prepare_custom
 
 =cut
 
-sub create_illrequestattributes {
-    my ( $self, $request, $metadata, $core ) = @_;
+sub _prepare_custom {
 
-    # Get the canonical list of metadata fields
-    my $fields = $self->fieldmap;
+    # Take an arrayref of custom keys and an arrayref
+    # of custom values, return a hashref of them
+    my ( $keys, $values ) = @_;
+    my %out = ();
+    if ($keys) {
+        my @k = split( "\0", $keys );
+        my @v = split( "\0", $values );
+        %out = map { $k[$_] => $v[$_] } 0 .. $#k;
+    }
+    return \%out;
+}
 
-    # Get any existing illrequestattributes for this request,
-    # so we can avoid trying to create duplicates
-    my $existing_attrs = $request->extended_attributes->unblessed;
-    my $existing_hash  = {};
-    foreach my $a ( @{$existing_attrs} ) {
-        $existing_hash->{ lc $a->{type} } = $a->{value};
+=head3 _get_request_details
+
+    my $request_details = _get_request_details($params, $other);
+
+Return the illrequestattributes for a given request
+
+=cut
+
+sub _get_request_details {
+    my ( $self, $params, $other ) = @_;
+
+    # Get custom key / values we've been passed
+    # Prepare them for addition into the Illrequestattribute object
+    my $custom =
+        _prepare_custom( $other->{'custom_key'}, $other->{'custom_value'} );
+
+    my $return = {%$custom};
+    my $core   = $self->fieldmap;
+    foreach my $key ( keys %{$core} ) {
+        $return->{$key} = $params->{other}->{$key};
     }
 
-    # Iterate our list of fields
-    foreach my $field ( keys %{$fields} ) {
-        if (
-            # If we're working with core metadata, check if this field
-            # has a core equivalent
-            ( ( $core && $fields->{$field}->{ill} ) || !$core )
-            && $metadata->{$field}
-            && length $metadata->{$field} > 0
-            )
-        {
-            my $att_type  = $core ? $fields->{$field}->{ill} : $field;
-            my $att_value = $metadata->{$field};
-
-            # If core, we might need to join
-            if ($core) {
-                $att_value = $self->do_join( $field, $metadata );
-            }
-
-            # If it doesn't already exist for this request
-            if ( !exists $existing_hash->{ lc $att_type } ) {
-                my $data = {
-                    illrequest_id => $request->illrequest_id,
-
-                    # Check required for compatibility with installations before bug 33970
-                    column_exists( 'illrequestattributes', 'backend' ) ? ( backend => "ReprintsDesk" ) : (),
-                    type     => $att_type,
-                    value    => $att_value,
-                    readonly => 0
-                };
-                Koha::ILL::Request::Attribute->new($data)->store;
-            }
-        }
-    }
+    return $return;
 }
 
 =head3 prep_submission_metadata
@@ -1633,30 +1621,6 @@ sub fieldmap {
             ill       => "type",
             exclude   => 1,
             label     => "Type",
-            no_submit => 1,
-            position  => 99
-        },
-        unauthenticated_first_name => {
-            type      => "string",
-            exclude   => 1,
-            label     => "unauthenticated first name",
-            hide      => 1,
-            no_submit => 1,
-            position  => 99
-        },
-        unauthenticated_last_name => {
-            type      => "string",
-            exclude   => 1,
-            label     => "unauthenticated last name",
-            hide      => 1,
-            no_submit => 1,
-            position  => 99
-        },
-        unauthenticated_email => {
-            type      => "string",
-            exclude   => 1,
-            label     => "unauthenticated email",
-            hide      => 1,
             no_submit => 1,
             position  => 99
         },
