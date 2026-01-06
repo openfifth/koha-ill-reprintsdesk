@@ -687,7 +687,7 @@ sub migrate {
         # The orderid is no longer applicable
         $request->orderid(undef);
     }
-    $request->status('NEW');
+    $request->status('NEW') unless $request->status eq 'UNAUTH';
     $request->backend( $self->name );
     $request->updated( DateTime->now );
     $request->store;
