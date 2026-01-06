@@ -1593,7 +1593,7 @@ sub fieldmap {
         },
         eissn => {
             type           => "string",
-            label          => "EISSN",
+            label          => "eISSN",
             ill            => "eissn",
             api_max_length => 50,
             position       => 14
