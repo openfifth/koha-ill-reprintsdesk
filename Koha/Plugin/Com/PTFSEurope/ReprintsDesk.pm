@@ -683,10 +683,7 @@ sub migrate {
     # Record where we're migrating from, so we can log that
     my $migrating_from = $request->backend;
 
-    if ( $request->status eq 'REQ' ) {
-        # The orderid is no longer applicable
-        $request->orderid(undef);
-    }
+    $request->orderid(undef);
     $request->status('NEW') unless $request->status eq 'UNAUTH';
     $request->backend( $self->name );
     $request->updated( DateTime->now );
