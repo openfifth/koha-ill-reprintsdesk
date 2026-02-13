@@ -1,7 +1,7 @@
 use Modern::Perl;
 
 use Test::NoWarnings;
-use Test::More tests => 3;
+use Test::More tests => 4;
 use Test::MockModule;
 
 use File::Basename qw( dirname );
@@ -120,6 +120,27 @@ subtest 'create_submission() tests' => sub {
     is(
         $request->status, 'NEW',
         "Newly created request has borrowernumber and ILLOpacUnauthenticatedRequest is disabled. Must be NEW"
+    );
+
+    $schema->storage->txn_rollback;
+};
+
+subtest 'status_graph() tests' => sub {
+    plan tests => 1;
+
+    $schema->storage->txn_begin;
+
+    my $request = $builder->build_sample_ill_request;
+    $request->{_my_backend} = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new->new_ill_backend(
+        {
+            config => Koha::ILL::Request->new->_config,
+            logger => Koha::ILL::Request::Logger->new
+        }
+    );
+
+    ok(
+        ( grep { $_ eq 'MIG' } @{ $request->capabilities->{'STANDBY'}->{next_actions} } ),
+        "Next actions for STANDBY contains 'MIG'"
     );
 
     $schema->storage->txn_rollback;
