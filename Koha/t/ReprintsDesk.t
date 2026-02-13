@@ -126,7 +126,7 @@ subtest 'create_submission() tests' => sub {
 };
 
 subtest 'status_graph() tests' => sub {
-    plan tests => 1;
+    plan tests => 6;
 
     $schema->storage->txn_begin;
 
@@ -138,9 +138,37 @@ subtest 'status_graph() tests' => sub {
         }
     );
 
+    # STANDBY
     ok(
         ( grep { $_ eq 'MIG' } @{ $request->capabilities->{'STANDBY'}->{next_actions} } ),
         "Next actions for STANDBY contains 'MIG'"
+    );
+
+    ok(
+        ( grep { $_ eq 'CANCREQ' } @{ $request->capabilities->{'STANDBY'}->{next_actions} } ),
+        "Next actions for STANDBY contains 'CANCREQ'"
+    );
+
+    # CANCREQ
+    ok(
+        ( grep { $_ eq 'MIG' } @{ $request->capabilities->{'CANCREQ'}->{next_actions} } ),
+        "Next actions for CANCREQ contains 'MIG'"
+    );
+
+    # UNAUTH
+    ok(
+        ( grep { $_ eq 'CANCREQ' } @{ $request->capabilities->{'UNAUTH'}->{next_actions} } ),
+        "Next actions for UNAUTH contains 'CANCREQ'"
+    );
+    ok(
+        ( grep { $_ eq 'KILL' } @{ $request->capabilities->{'UNAUTH'}->{next_actions} } ),
+        "Next actions for UNAUTH contains 'KILL'"
+    );
+
+    # ERROR
+    ok(
+        ( grep { $_ eq 'CANCREQ' } @{ $request->capabilities->{'ERROR'}->{next_actions} } ),
+        "Next actions for ERROR contains 'CANCREQ'"
     );
 
     $schema->storage->txn_rollback;
