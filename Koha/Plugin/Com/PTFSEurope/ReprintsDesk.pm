@@ -425,6 +425,25 @@ sub illview {
     };
 }
 
+=head3 cancel
+
+    Mark a request as cancelled
+
+=cut
+sub cancel {
+    my ($self, $params) = @_;
+    $params->{request}->status("CANCREQ")->store;
+
+    return {
+        error   => 0,
+        status  => '',
+        message => '',
+        method  => 'cancel',
+        stage   => 'commit',
+        next    => 'illview',
+    };
+}
+
 =head3 edititem
 
 Edit an item's metadata
@@ -1179,7 +1198,7 @@ sub status_graph {
             name           => 'Citation Verification',
             ui_method_name => 0,
             method         => 0,
-            next_actions   => [ 'COMP', 'MIG', 'KILL' ],
+            next_actions   => [ 'COMP', 'MIG', 'KILL', 'CANCREQ' ],
             ui_method_icon => 0,
         },
         SOURCE => {
@@ -1188,7 +1207,7 @@ sub status_graph {
             name           => 'Sourcing',
             ui_method_name => 0,
             method         => 0,
-            next_actions   => [ 'COMP', 'MIG', 'KILL' ],
+            next_actions   => [ 'COMP', 'MIG', 'KILL', 'CANCREQ' ],
             ui_method_icon => 0,
         },
         ERROR => {
@@ -1197,7 +1216,7 @@ sub status_graph {
             name           => 'Request error',
             ui_method_name => 0,
             method         => 0,
-            next_actions   => [ 'MARK_NEW', 'COMP', 'EDITITEM', 'STANDBY', 'READY', 'MIG', 'KILL' ],
+            next_actions   => [ 'MARK_NEW', 'COMP', 'EDITITEM', 'STANDBY', 'READY', 'MIG', 'KILL', 'CANCREQ' ],
             ui_method_icon => 0,
         },
         COMP => {
@@ -1208,6 +1227,15 @@ sub status_graph {
             method         => 'mark_completed',
             next_actions   => [],
             ui_method_icon => 'fa-check',
+        },
+        CANCREQ => {
+            prev_actions   => [ 'CIT', 'SOURCE', 'STANDBY', 'ERROR', 'UNAUTH' ],
+            id             => 'CANCREQ',
+            name           => 'Cancelled',
+            ui_method_name => 'Mark cancelled',
+            method         => 'cancel',
+            next_actions   => [ 'KILL', 'MIG' ],
+            ui_method_icon => 'fa-trash',
         },
         READY => {
             prev_actions   => [ 'ERROR', 'STANDBY' ],
@@ -1224,7 +1252,7 @@ sub status_graph {
             name           => 'Request standing by',
             ui_method_name => 0,
             method         => 0,
-            next_actions   => ['READY', 'MIG'],
+            next_actions   => ['READY', 'MIG', 'CANCREQ'],
             ui_method_icon => 'fa-check',
         },
         NEW => {
@@ -1272,7 +1300,7 @@ sub status_graph {
             name           => 'Unauthenticated',
             ui_method_name => 0,
             method         => 0,
-            next_actions   => [ 'MARK_NEW', 'MIG', 'KILL', 'EDITITEM' ],
+            next_actions   => [ 'MARK_NEW', 'MIG', 'KILL', 'EDITITEM', 'CANCREQ' ],
             ui_method_icon => 0,
         },
     };
