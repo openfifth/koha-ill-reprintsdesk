@@ -23,11 +23,11 @@ my $builder = t::lib::TestBuilder->new;
 my $schema  = Koha::Database->new->schema;
 
 subtest 'migrate() tests' => sub {
-    plan tests => 8;
+    plan tests => 9;
 
     $schema->storage->txn_begin;
 
-    my $request = $builder->build_sample_ill_request();
+    my $request = $builder->build_sample_ill_request({'orderid'=>'123'});
     is( $request->backend, 'Standard', "Newly created request is Standard" );
 
     my $attributes = [
@@ -65,6 +65,7 @@ subtest 'migrate() tests' => sub {
     );
     is( $request->backend, 'ReprintsDesk', "Migrated into ReprintsDesk correctly" );
     is( $request->status,  'NEW',          "Migrated into ReprintsDesk status is 'NEW'" );
+    is( $request->orderid, undef,          "Migrated into ReprintsDesk orderId is empty" );
 
     $schema->storage->txn_rollback;
 };
