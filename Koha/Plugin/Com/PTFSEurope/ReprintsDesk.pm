@@ -1224,7 +1224,7 @@ sub status_graph {
             name           => 'Request standing by',
             ui_method_name => 0,
             method         => 0,
-            next_actions   => ['READY'],
+            next_actions   => ['READY', 'MIG'],
             ui_method_icon => 'fa-check',
         },
         NEW => {
@@ -1258,7 +1258,7 @@ sub status_graph {
             ui_method_icon => 'fa-check',
         },
         MIG => {
-            prev_actions   => [ 'NEW', 'REQ', 'GENREQ', 'REQREV', 'QUEUED' ],
+            prev_actions   => [ 'NEW', 'REQ', 'GENREQ', 'REQREV', 'STANDBY', 'QUEUED' ],
             id             => 'MIG',
             name           => 'Switched provider',
             ui_method_name => 'Switch provider',
