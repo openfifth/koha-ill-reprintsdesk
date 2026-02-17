@@ -931,30 +931,9 @@ sub create_request {
 
     if ( scalar @{ $body->{errors} } == 0 && $body->{result}->{Order_PlaceOrder2Result} == 1 ) {
         my $request_id = $body->{result}->{orderID};
-        if ( $request_id && length $request_id > 0 ) {
-            Koha::ILL::Request::Attribute->new(
-                {
-                    illrequest_id => $submission->illrequest_id,
-
-                    # Check required for compatibility with installations before bug 33970
-                    column_exists( 'illrequestattributes', 'backend' ) ? ( backend => "ReprintsDesk" ) : (),
-                    type  => 'orderId',
-                    value => $request_id
-                }
-            )->store;
-        }
-        my $rnd_id = $body->{result}->{rndID};
+        my $rnd_id     = $body->{result}->{rndID};
         if ( $rnd_id && length $rnd_id > 0 ) {
-            Koha::ILL::Request::Attribute->new(
-                {
-                    illrequest_id => $submission->illrequest_id,
-
-                    # Check required for compatibility with installations before bug 33970
-                    column_exists( 'illrequestattributes', 'backend' ) ? ( backend => "ReprintsDesk" ) : (),
-                    type  => 'rndId',
-                    value => $rnd_id
-                }
-            )->store;
+            $submission->add_or_update_attributes( { 'rndId' => $rnd_id } )
         }
 
         # Add the Reprints Desk ID to the orderid field
