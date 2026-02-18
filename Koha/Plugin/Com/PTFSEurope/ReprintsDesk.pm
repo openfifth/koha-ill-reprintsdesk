@@ -1256,7 +1256,7 @@ sub status_graph {
             ui_method_icon => 'fa-times',
             },
         MIG => {
-            prev_actions   => [ 'NEW', 'REQ', 'GENREQ', 'STANDBY', 'QUEUED' ],
+            prev_actions   => [ 'NEW', 'GENREQ', 'STANDBY', 'QUEUED' ],
             id             => 'MIG',
             name           => 'Switched provider',
             ui_method_name => 'Switch provider',
