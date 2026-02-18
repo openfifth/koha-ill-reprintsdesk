@@ -1157,7 +1157,7 @@ sub status_graph {
             name           => 'Citation Verification',
             ui_method_name => 0,
             method         => 0,
-            next_actions   => [ 'COMP', 'MIG', 'KILL', 'CANCREQ' ],
+            next_actions   => [ ],
             ui_method_icon => 0,
         },
         SOURCE => {
@@ -1166,7 +1166,7 @@ sub status_graph {
             name           => 'Sourcing',
             ui_method_name => 0,
             method         => 0,
-            next_actions   => [ 'COMP', 'MIG', 'KILL', 'CANCREQ' ],
+            next_actions   => [ ],
             ui_method_icon => 0,
         },
         ERROR => {
@@ -1179,7 +1179,7 @@ sub status_graph {
             ui_method_icon => 0,
         },
         COMP => {
-            prev_actions   => [ 'CIT', 'SOURCE', 'ERROR' ],
+            prev_actions   => [ 'ERROR' ],
             id             => 'COMP',
             name           => 'Order Complete',
             ui_method_name => 'Mark completed',
@@ -1188,7 +1188,7 @@ sub status_graph {
             ui_method_icon => 'fa-check',
         },
         CANCREQ => {
-            prev_actions   => [ 'CIT', 'SOURCE', 'STANDBY', 'ERROR', 'UNAUTH' ],
+            prev_actions   => [ 'STANDBY', 'ERROR', 'UNAUTH' ],
             id             => 'CANCREQ',
             name           => 'Cancelled',
             ui_method_name => 'Mark cancelled',
@@ -1220,7 +1220,7 @@ sub status_graph {
             name           => 'New request',
             ui_method_name => 'New request',
             method         => 'create',
-            next_actions   => [ 'KILL', 'MIG', 'EDITITEM' ],
+            next_actions   => [ ],
             ui_method_icon => 'fa-plus'
         },
         MARK_NEW => {
@@ -1256,7 +1256,7 @@ sub status_graph {
             ui_method_icon => 'fa-times',
             },
         MIG => {
-            prev_actions   => [ 'NEW', 'GENREQ', 'STANDBY', 'QUEUED' ],
+            prev_actions   => [ 'ERROR', 'GENREQ', 'STANDBY', 'QUEUED' ],
             id             => 'MIG',
             name           => 'Switched provider',
             ui_method_name => 'Switch provider',
