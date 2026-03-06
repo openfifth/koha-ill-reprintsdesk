@@ -517,7 +517,7 @@ sub Backend_Availability {
         }
     ) if scalar @citations;
 
-    my $standardnumber = $metadata->{issn} // $metadata->{isbn} // $metadata->{eissn};
+    my $standardnumber = $metadata->{issn} || $metadata->{isbn} || $metadata->{eissn};
     my $year = $metadata->{year} // $metadata->{date};
 
     return $c->render(
