@@ -20,6 +20,9 @@ Requires plugin to be installed, does not required plugin to be configured.
 ## Install plugins in ktd CLI:
 ```perl perl /kohadevbox/koha/misc/devel/install_plugins.pl```
 
+## Prep .kpz (excluding tests)
+```zip -r koha-ill-reprintsdesk-{version}.kpz Koha/ -x "Koha/t/*"```
+
 ## User DOCS:
 1) When a ReprintsDesk request is created, its status is 'NEW'.
 2) A cronjob that runs every minute picks up all 'NEW' requests and performs an availability+price check.
