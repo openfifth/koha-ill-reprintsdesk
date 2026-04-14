@@ -1367,6 +1367,19 @@ sub _openurl_to_reprints_desk {
     return $params;
 }
 
+=head3 clean_standardnumber
+
+Ensure standardnumber does not contain a weird hyphen character
+
+=cut
+
+sub clean_standardnumber {
+    my ( $self, $sn ) = @_;
+
+    $sn =~ s/[\x{2010}-\x{2015}]/-/g if $sn;
+    return $sn;
+}
+
 =head3 create_api
 
 Create a local submission from data supplied via an

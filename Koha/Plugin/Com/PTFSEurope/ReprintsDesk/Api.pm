@@ -518,6 +518,7 @@ sub Backend_Availability {
     ) if scalar @citations;
 
     my $standardnumber = $metadata->{issn} || $metadata->{isbn} || $metadata->{eissn};
+    $standardnumber    = $plugin->clean_standardnumber($standardnumber);
     my $year = $metadata->{year} // $metadata->{date};
 
     return $c->render(

@@ -74,6 +74,7 @@ sub run {
         my $isbn = $isbn[0];
 
         my $standardnumber = $issn ? $issn->{value} : $isbn ? $isbn->{value} : undef;
+        $standardnumber    = $plugin->clean_standardnumber($standardnumber);
 
         # Handle year for price check
         my @year = map { $_->{type} eq 'year' ? $_ : () } @{ $ill_request->extended_attributes->unblessed };
