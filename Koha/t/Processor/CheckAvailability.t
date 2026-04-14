@@ -31,7 +31,7 @@ my $builder = t::lib::TestBuilder->new;
 my $schema  = Koha::Database->new->schema;
 
 subtest 'run() tests' => sub {
-    plan tests => 6;
+    plan tests => 7;
 
     $schema->storage->txn_begin;
 
@@ -440,6 +440,70 @@ subtest 'run() tests' => sub {
         );
         is( $rpdesk_request_2->discard_changes->cost, '56', 'cost should not be free here' );
 
+    };
+
+    subtest 'Found 1 \'NEW\' requests with weird Unicode hyphen that gets cleaned' => sub {
+
+        my $plugin_API = Test::MockModule->new('Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Lib::API');
+        $plugin_API->mock(
+            'ArticleShelf_CheckAvailability',
+            sub {
+                my ( $self, $http_request_obj ) = @_;
+                return bless {
+                    _code            => 200,
+                    _decoded_content =>
+                        '{"errors":[],"outputXmlNode":"<outputXmlNode><output xmlns=\\"\\"><citations\\/><\\/output><\\/outputXmlNode>","result":{"ArticleShelf_CheckAvailabilityResult":1,"outputXmlNode":{"_":"<outputXmlNode><output xmlns=\\"\\"><citations\\/><\\/output><\\/outputXmlNode>","_MIXED_ELEMENT_MODE":"ATTRIBUTES"},"xmlData":{},"xmlOutput":{}}}',
+                    _headers => { 'Content-Type' => 'application/json' },
+                    },
+                    'My::DummyResponse';
+            }
+        );
+
+        $plugin_API->mock(
+            'Order_GetPriceEstimate2',
+            sub {
+                my ( $self, $params ) = @_;
+
+                # ASSERTION: The hyphen passed to the API must be the clean ASCII one
+                is(
+                    $params->{standardNumber}, '2769-1039',
+                    'Unicode hyphen successfully replaced with standard ASCII hyphen before API call'
+                );
+
+                return bless {
+                    _code            => 200,
+                    _decoded_content =>
+                        '{"errors":[],"result":{"outputXmlNode":{},"xmlData":{},"xmlOutput":{"_":"<xmlOutput><output xmlns=\\"\\"><standardNumber>2769-1039<\\/standardNumber><year>1975<\\/year><totalpages>10<\\/totalpages><pricetypeid>2<\\/pricetypeid><servicecharge>4.00<\\/servicecharge><copyrightcharge>12.00<\\/copyrightcharge><disclaimer><![CDATA[Dislcaimer]]><\\/disclaimer><\\/output><\\/xmlOutput>","_MIXED_ELEMENT_MODE":"ATTRIBUTES"}},"xmlOutput":"<xmlOutput><output xmlns=\\"\\"><standardNumber>2769-1039<\\/standardNumber><year>1975<\\/year><totalpages>10<\\/totalpages><pricetypeid>2<\\/pricetypeid><servicecharge>4.00<\\/servicecharge><copyrightcharge>12.00<\\/copyrightcharge><disclaimer><![CDATA[Dislcaimer]]><\\/disclaimer><\\/output><\\/xmlOutput>"}',
+                    _headers => { 'Content-Type' => 'application/json' },
+                    },
+                    'My::DummyResponse';
+            }
+        );
+
+        my $rpdesk_request = $builder->build_sample_ill_request( { 'backend' => 'ReprintsDesk', 'status' => 'NEW' } );
+
+        # WARNING: DO NOT RETYPE THE HYPHEN BELOW!
+        # It is intentionally a Unicode Non-Breaking Hyphen (U+2011), NOT a standard dash.
+        # This tests our clean_standardnumber method.
+        my $attributes = [
+            { type => 'issn', value => "2769‑1039" },    #2769\x{2011}1039
+            { type => 'year', value => '1991' },
+        ];
+
+        $rpdesk_request->extended_attributes( \@$attributes );
+        my $processor = Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Processor::CheckAvailability->new;
+
+        my $output;
+        {
+            local *STDERR;
+            open STDERR, '>', \$output;
+            $processor->run( undef, { debug => \&debug_msg } );
+        }
+
+        is(
+            $rpdesk_request->discard_changes->status, 'READY',
+            'status is READY, meaning script executed successfully despite dirty data'
+        );
     };
 
     $schema->storage->txn_rollback;

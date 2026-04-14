@@ -33,7 +33,7 @@ t::lib::Mocks::mock_preference( 'RESTBasicAuth', 1 );
 
 subtest 'Backend_Availability() tests' => sub {
 
-    plan tests => 7;
+    plan tests => 8;
 
     $schema->storage->txn_begin;
 
@@ -238,6 +238,54 @@ subtest 'Backend_Availability() tests' => sub {
             "//$userid:$password@/api/v1/contrib/reprintsdesk/ill_backend_availability_reprintsdesk?metadata="
                 . encode_base64('{"cardnumber":"42","title":"hello", "doi":"10.1016/j.brachy.2014.11.007"}') )
             ->status_is(200)->json_is( { success => 'Article is immediately available' } );
+    };
+
+    subtest 'Available with weird Unicode hyphen (gets cleaned)' => sub {
+
+        my $plugin_API = Test::MockModule->new('Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Lib::API');
+        $plugin_API->mock(
+            'ArticleShelf_CheckAvailability',
+            sub {
+                my ( $self, $http_request_obj ) = @_;
+                return bless {
+                    _code            => 200,
+                    _decoded_content =>
+                        '{"errors":[],"outputXmlNode":"<outputXmlNode><output xmlns=\\"\\"><citations\\/><\\/output><\\/outputXmlNode>","result":{"ArticleShelf_CheckAvailabilityResult":1,"outputXmlNode":{"_":"<outputXmlNode><output xmlns=\\"\\"><citations\\/><\\/output><\\/outputXmlNode>","_MIXED_ELEMENT_MODE":"ATTRIBUTES"},"xmlData":{},"xmlOutput":{}}}',
+                    _headers => { 'Content-Type' => 'application/json' },
+                    },
+                    'My::DummyResponse';
+            }
+        );
+
+        $plugin_API->mock(
+            'Order_GetPriceEstimate2',
+            sub {
+                my ( $self, $params ) = @_;
+
+                # ASSERTION: The hyphen passed to the API must be the clean ASCII one
+                is(
+                    $params->{standardNumber}, '2769-1039',
+                    'Unicode hyphen successfully replaced with standard ASCII hyphen before API call'
+                );
+
+                return bless {
+                    _code            => 200,
+                    _decoded_content =>
+                        '{"errors":[],"result":{"outputXmlNode":{},"xmlData":{},"xmlOutput":{"_":"<xmlOutput><output xmlns=\\"\\"><standardNumber>2769-1039<\\/standardNumber><year>1975<\\/year><totalpages>10<\\/totalpages><pricetypeid>2<\\/pricetypeid><servicecharge>4.00<\\/servicecharge><copyrightcharge>28.00<\\/copyrightcharge><disclaimer><![CDATA[Dislcaimer]]><\\/disclaimer><\\/output><\\/xmlOutput>","_MIXED_ELEMENT_MODE":"ATTRIBUTES"}},"xmlOutput":"<xmlOutput><output xmlns=\\"\\"><standardNumber>2769-1039<\\/standardNumber><year>1975<\\/year><totalpages>10<\\/totalpages><pricetypeid>2<\\/pricetypeid><servicecharge>4.00<\\/servicecharge><copyrightcharge>28.00<\\/copyrightcharge><disclaimer><![CDATA[Dislcaimer]]><\\/disclaimer><\\/output><\\/xmlOutput>"}',
+                    _headers => { 'Content-Type' => 'application/json' },
+                    },
+                    'My::DummyResponse';
+            }
+        );
+
+        # WARNING: DO NOT RETYPE THE HYPHEN BELOW!
+        # It is intentionally a Unicode Non-Breaking Hyphen (U+2011), NOT a standard dash.
+        # This tests our clean_standardnumber method.
+        my $json_payload = '{"cardnumber":"42","title":"hello", "issn":"2769‑1039", "year":"1999", "doi":"10.1016/j.brachy.2014.11.007"}';
+        $t->get_ok( "//$userid:$password\@/api/v1/contrib/reprintsdesk/ill_backend_availability_reprintsdesk?metadata="
+                . encode_base64($json_payload) )->status_is(200)
+            ->json_is(
+            { success => 'Price of 32$ is below or equal to the configured threshold of 50$. Request can be placed.' } );
     };
 
     $schema->storage->txn_rollback;
