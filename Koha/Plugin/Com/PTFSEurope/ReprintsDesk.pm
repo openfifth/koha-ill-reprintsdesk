@@ -39,13 +39,13 @@ use Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Processor::EnqueueNotices;
 use Koha::Libraries;
 use Koha::Patrons;
 
-our $VERSION = "4.2.0";
+our $VERSION = "4.2.1";
 
 our $metadata = {
     name            => 'ReprintsDesk',
     author          => 'Open Fifth',
     date_authored   => '2022-04-26',
-    date_updated    => "2026-04-14",
+    date_updated    => "2026-05-29",
     minimum_version => '25.11.00.000',
     maximum_version => undef,
     version         => $VERSION,
@@ -774,6 +774,7 @@ sub create_submission {
     $request->batch_id(
         $params->{other}->{ill_batch_id} ? $params->{other}->{ill_batch_id} : $params->{other}->{batch_id} );
     $request->backend( $self->name );
+    $request->notesopac( $params->{other}->{notesopac} ) if exists $params->{other}->{notesopac};
     $request->placed( DateTime->now );
     $request->updated( DateTime->now );
 
