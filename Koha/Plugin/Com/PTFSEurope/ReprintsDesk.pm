@@ -829,6 +829,10 @@ sub _get_request_details {
     my $core   = $self->fieldmap;
     foreach my $key ( keys %{$core} ) {
         $return->{$key} = $params->{other}->{$key};
+
+        my $ill = $core->{$key}->{ill};
+        $return->{$key} = $params->{other}->{$ill}
+            if $ill && !$core->{$key}->{no_submit} && !length( $return->{$key} // '' );
     }
 
     return $return;
@@ -1313,7 +1317,7 @@ sub find_reprints_desk_property {
     my ( $self, $core ) = @_;
     my $fields = $self->fieldmap;
     foreach my $field ( keys %{$fields} ) {
-        if ( $fields->{$field}->{ill} && $fields->{$field}->{ill} eq $core ) {
+        if ( $fields->{$field}->{ill} && $fields->{$field}->{ill} eq $core && !$fields->{$field}->{no_submit} ) {
             return $field;
         }
     }

@@ -23,7 +23,7 @@ my $builder = t::lib::TestBuilder->new;
 my $schema  = Koha::Database->new->schema;
 
 subtest 'migrate() tests' => sub {
-    plan tests => 9;
+    plan tests => 11;
 
     $schema->storage->txn_begin;
 
@@ -32,7 +32,9 @@ subtest 'migrate() tests' => sub {
 
     my $attributes = [
         { type => 'title',          value => 'My title' },
-        { type => 'article_author', value => 'Henry' }
+        { type => 'article_author', value => 'Henry' },
+        { type => 'article_title',  value => 'My article title' },
+        { type => 'year',           value => '2021' }
     ];
 
     $request->extended_attributes( \@$attributes );
@@ -63,6 +65,14 @@ subtest 'migrate() tests' => sub {
         $request->extended_attributes->find( { type => 'aufirst' } )->value,
         get_value( 'article_author', $attributes ), "article_author correctly mapped to aufirst"
     );
+    is(
+        $request->extended_attributes->find( { type => 'atitle' } )->value,
+        get_value( 'article_title', $attributes ), "article_title correctly mapped to atitle"
+    );
+    is(
+        $request->extended_attributes->find( { type => 'date' } )->value,
+        get_value( 'year', $attributes ), "year correctly mapped to date"
+    );
     is( $request->backend, 'ReprintsDesk', "Migrated into ReprintsDesk correctly" );
     is( $request->status,  'NEW',          "Migrated into ReprintsDesk status is 'NEW'" );
     is( $request->orderid, undef,          "Migrated into ReprintsDesk orderId is empty" );
@@ -71,7 +81,7 @@ subtest 'migrate() tests' => sub {
 };
 
 subtest 'create_submission() tests' => sub {
-    plan tests => 3;
+    plan tests => 8;
 
     $schema->storage->txn_begin;
 
@@ -120,6 +130,35 @@ subtest 'create_submission() tests' => sub {
     is(
         $request->status, 'NEW',
         "Newly created request has borrowernumber and ILLOpacUnauthenticatedRequest is disabled. Must be NEW"
+    );
+
+    # Standard form submitted to this backend, e.g. through AutoILLBackendPriority
+    my $standard_form_submission = $request->{_my_backend}->create_submission(
+        {
+            request => $request,
+            other   => {
+                borrowernumber => $request->borrowernumber,
+                branchcode     => $request->branchcode,
+                article_title  => 'My article title',
+                article_author => 'Henry',
+                year           => '2021',
+                atitle         => '',
+                volume         => '3',
+            }
+        }
+    );
+    my $attrs = $standard_form_submission->extended_attributes;
+
+    is( $attrs->find( { type => 'atitle' } )->value,  'My article title', "article_title correctly mapped to atitle" );
+    is( $attrs->find( { type => 'aufirst' } )->value, 'Henry', "article_author correctly mapped to aufirst" );
+    is( $attrs->find( { type => 'date' } )->value,    '2021',  "year correctly mapped to date" );
+    is( $attrs->find( { type => 'volume' } )->value,  '3',     "volume kept as is" );
+
+    my $metadata = $request->{_my_backend}->prep_submission_metadata( $standard_form_submission->extended_attributes );
+    is_deeply(
+        [ sort grep { !Koha::Plugin::Com::PTFSEurope::ReprintsDesk::fieldmap()->{$_}->{no_submit} } keys %{$metadata} ],
+        [qw( atitle aufirst date volume )],
+        "Mapped fields are sent to Reprints Desk"
     );
 
     $schema->storage->txn_rollback;
