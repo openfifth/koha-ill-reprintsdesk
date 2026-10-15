@@ -24,7 +24,7 @@ my $builder = t::lib::TestBuilder->new;
 my $schema  = Koha::Database->new->schema;
 
 subtest 'run() tests' => sub {
-    plan tests => 3;
+    plan tests => 4;
 
     $schema->storage->txn_begin;
 
@@ -51,11 +51,13 @@ subtest 'run() tests' => sub {
         }
     );
 
-    my $plugin_API = Test::MockModule->new('Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Lib::API');
+    my $sent_metadata = {};
+    my $plugin_API    = Test::MockModule->new('Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Lib::API');
     $plugin_API->mock(
         'Order_PlaceOrder2',
         sub {
-            my ( $self, $http_request_obj ) = @_;
+            my ( $self, $metadata, $borrowernumber, $illrequest_id ) = @_;
+            $sent_metadata->{$illrequest_id} = $metadata;
             return bless {
                 _code            => 200,
                 _decoded_content =>
@@ -171,6 +173,35 @@ subtest 'run() tests' => sub {
         my $rnd_attr = $rpdesk_request->extended_attributes->find( { type => 'rndId' } );
         ok( $rnd_attr && $rnd_attr->value eq 'RND6789', 'rndId attribute correctly created' );
 
+    };
+
+    subtest 'Date not in a format accepted by Reprints Desk is not sent' => sub {
+
+        my $bad_date_request = $builder->build_sample_ill_request(
+            { 'backend' => 'ReprintsDesk', 'status' => 'READY', 'orderid' => undef } );
+        $bad_date_request->extended_attributes(
+            [ { type => 'doi', value => 'mydoi' }, { type => 'date', value => '2021.' } ] );
+
+        my $good_date_request = $builder->build_sample_ill_request(
+            { 'backend' => 'ReprintsDesk', 'status' => 'READY', 'orderid' => undef } );
+        $good_date_request->extended_attributes(
+            [ { type => 'doi', value => 'mydoi' }, { type => 'date', value => '2021-05' } ] );
+
+        my $processor = Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Processor::PlaceOrders->new;
+        {
+            local *STDERR;
+            open STDERR, '>', \my $output;
+
+            $processor->run( undef, { debug => \&debug_msg } );
+        }
+
+        my $bad_date_sent = $sent_metadata->{ $bad_date_request->illrequest_id };
+        ok( !exists $bad_date_sent->{date}, 'date not in the expected format is not sent' );
+        is( $bad_date_sent->{doi}, 'mydoi', 'other metadata is still sent' );
+        is(
+            $sent_metadata->{ $good_date_request->illrequest_id }->{date}, '2021-05',
+            'date in the expected format is sent'
+        );
     };
 
     $schema->storage->txn_rollback;

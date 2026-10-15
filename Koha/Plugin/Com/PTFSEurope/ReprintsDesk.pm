@@ -923,6 +923,7 @@ sub create_request {
             delete $metadata->{$field};
         }
     }
+    delete $metadata->{date} if $metadata->{date} && $metadata->{date} !~ /^\d{4}(?:-\d{2}){0,2}$/;
 
     my $backend_api = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new->new_ill_backend;
 
