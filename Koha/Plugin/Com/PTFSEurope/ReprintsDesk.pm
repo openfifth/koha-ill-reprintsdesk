@@ -167,8 +167,7 @@ sub configure {
             }
         }
 
-        $p->{use_borrower_details} =
-            ( exists $hashed->{use_borrower_details} ) ? 1 : 0;
+        $p->{use_borrower_details} = $hashed->{use_borrower_details} // 0;
 
         # If we have any customer references to store, add them to our hash
         # Note we sort the keys here so they will remain in a predictable order

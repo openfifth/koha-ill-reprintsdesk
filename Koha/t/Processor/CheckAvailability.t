@@ -267,6 +267,10 @@ subtest 'run() tests' => sub {
             'Staff notes correctly appended.'
         );
         is( $rpdesk_request->discard_changes->cost, '16', 'cost is known and set accordingly' );
+        is(
+            $rpdesk_request->extended_attributes->search( { type => 'immediately_available' } )->count, 0,
+            'not flagged as immediately available'
+        );
 
     };
 
@@ -325,6 +329,10 @@ subtest 'run() tests' => sub {
             'Staff notes correctly not appended.'
         );
         is( $rpdesk_request->discard_changes->cost, '0', 'cost should be 0 for free requests' );
+        is(
+            $rpdesk_request->extended_attributes->search( { type => 'immediately_available' } )->count, 1,
+            'flagged as immediately available'
+        );
 
     };
 

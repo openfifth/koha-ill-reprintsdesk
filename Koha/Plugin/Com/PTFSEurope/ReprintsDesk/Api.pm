@@ -18,6 +18,7 @@ use Encode qw( decode_utf8);
 use URI::Escape  qw ( uri_unescape );
 
 use Koha::Logger;
+use Koha::ILL::Requests;
 use Koha::Patrons;
 use Mojo::Base 'Mojolicious::Controller';
 use Koha::Plugin::Com::PTFSEurope::ReprintsDesk;
@@ -53,9 +54,13 @@ sub PlaceOrder2 {
 
     # If the config says we should use borrower properties for deliveryprofile values
     # use as many as we can, these should have come in the payload
+    my $use_borrower_details = $config->{use_borrower_details} // 0;
+    $use_borrower_details = _is_opac_immediately_available($illrequest_id)
+        if $use_borrower_details eq 'opac_immediately_available';
+
     my $metadata_deliveryprofile_error = _populate_missing_properties(
         $metadata,
-        $config,
+        { %{$config}, use_borrower_details => $use_borrower_details },
         $check_populated_delivery_profile,
         'deliveryprofile'
     );
@@ -382,6 +387,15 @@ sub _populate_missing_properties {
             }
         }
     }
+}
+
+sub _is_opac_immediately_available {
+    my ($illrequest_id) = @_;
+
+    my $request = Koha::ILL::Requests->find($illrequest_id);
+    return 0 unless $request && $request->_result->result_source->has_column('source');
+    return 0 unless ( $request->source // '' ) eq 'opac';
+    return $request->extended_attributes->search( { type => 'immediately_available' } )->count ? 1 : 0;
 }
 
 sub _make_request {

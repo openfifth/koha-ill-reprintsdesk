@@ -1,7 +1,7 @@
 use Modern::Perl;
 
 use Test::NoWarnings;
-use Test::More tests => 2;
+use Test::More tests => 3;
 use Test::Mojo;
 use Test::MockModule;
 
@@ -287,6 +287,38 @@ subtest 'Backend_Availability() tests' => sub {
             ->json_is(
             { success => 'Price of 32$ is below or equal to the configured threshold of 50$. Request can be placed.' } );
     };
+
+    $schema->storage->txn_rollback;
+};
+
+subtest '_is_opac_immediately_available() tests' => sub {
+
+    plan tests => 4;
+
+    $schema->storage->txn_begin;
+
+    my $request = $builder->build_sample_ill_request( { backend => 'ReprintsDesk', source => 'opac' } );
+    is(
+        Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Api::_is_opac_immediately_available( $request->id ), 0,
+        'OPAC request not immediately available'
+    );
+
+    $request->add_or_update_attributes( { immediately_available => 1 } );
+    is(
+        Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Api::_is_opac_immediately_available( $request->id ), 1,
+        'OPAC request immediately available'
+    );
+
+    $request->source('intranet')->store;
+    is(
+        Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Api::_is_opac_immediately_available( $request->id ), 0,
+        'Staff request immediately available'
+    );
+
+    is(
+        Koha::Plugin::Com::PTFSEurope::ReprintsDesk::Api::_is_opac_immediately_available( $request->id + 1 ), 0,
+        'Request not found'
+    );
 
     $schema->storage->txn_rollback;
 };

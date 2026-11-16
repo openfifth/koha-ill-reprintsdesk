@@ -130,13 +130,13 @@
                         <ol>
                             <li>
                                 <div id="reprintsdesk_deliveryprofile_use_borrower_details" class="ill_config_field">
-                                    <label for="reprintsdesk_deliveryprofile_use_borrower_details_checkbox">Use borrower details if available: </label>
-                                    [% IF config.defined('use_borrower_details') && config.use_borrower_details == 1 %]
-                                    <input id="reprintsdesk_deliveryprofile_use_borrower_details_checkbox" type="checkbox" name="use_borrower_details" value="[% config.use_borrower_details | html %]" checked>
-                                    [% ELSE %]
-                                    <input id="reprintsdesk_deliveryprofile_use_borrower_details_checkbox" type="checkbox" name="use_borrower_details" value="[% config.use_borrower_details | html %]">
-                                    [% END %]
-                                    <a href="#" data-bs-toggle="tooltip" title="When placing an order, should the borrower's information be used for delivery details? If this box is not checked, the details supplied below will be used. If it is checked and the borrower's details are not complete, relevant portions from the detail's below will be used. (Reprints Desk requires all the details listed below for order placement)"><i class="fa-solid fa-circle-question"></i></a>
+                                    <label for="reprintsdesk_deliveryprofile_use_borrower_details_select">Use borrower details: </label>
+                                    <select id="reprintsdesk_deliveryprofile_use_borrower_details_select" name="use_borrower_details">
+                                        <option value="0" [% IF !config.use_borrower_details || config.use_borrower_details == 0 %]selected[% END %]>Never</option>
+                                        <option value="1" [% IF config.use_borrower_details == 1 %]selected[% END %]>Always</option>
+                                        <option value="opac_immediately_available" [% IF config.use_borrower_details == 'opac_immediately_available' %]selected[% END %]>OPAC requests that are free and immediately available</option>
+                                    </select>
+                                    <a href="#" data-bs-toggle="tooltip" title="Which of the borrower's details are sent as the delivery details when placing an order. Anything not taken from the borrower uses the fallback details below. Reprints Desk requires all the fallback details below."><i class="fa-solid fa-circle-question"></i></a>
                                 </div>
                             </li>
                             <li>

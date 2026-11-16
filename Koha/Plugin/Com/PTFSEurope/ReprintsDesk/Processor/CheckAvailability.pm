@@ -154,6 +154,7 @@ sub run {
         if ( $request_to_update->status eq $availability_check_status ) {
             $request_to_update->status($status_if_available)->store if !$options->{dry_run};
             $request_to_update->cost(0)->store if !$options->{dry_run};
+            $request_to_update->add_or_update_attributes( { immediately_available => 1 } ) if !$options->{dry_run};
 
             my $id_log_info = $id_to_update->{doi} ? "DOI:" . $id_to_update->{doi} : "PMID:" . $id_to_update->{pmid};
             $self->debug_msg(
@@ -177,6 +178,8 @@ sub run {
     foreach my $unavailable_id (@unavailable_ids) {
 
         my $unavailable_request_to_update = Koha::ILL::Requests->find( $unavailable_id->{illrequest_id} );
+        $unavailable_request_to_update->extended_attributes->search( { type => 'immediately_available' } )->delete
+            if !$options->{dry_run};
 
         # Bail if we can't price check
         if ( !$unavailable_id->{standardnumber} || !$unavailable_id->{year} || $unavailable_id->{year} !~ /^\d{4}$/) {
